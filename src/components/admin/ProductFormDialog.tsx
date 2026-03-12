@@ -347,7 +347,7 @@ export function ProductFormDialog({ open, onOpenChange, product }: ProductFormDi
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="bg-card border-border">
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
                     {BADGES.map((b) => (
                       <SelectItem key={b} value={b}>{b}</SelectItem>
                     ))}
