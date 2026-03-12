@@ -1,22 +1,33 @@
 import { useState, useMemo } from "react";
-import { mockProducts } from "@/lib/data";
+import { useProducts } from "@/hooks/use-products";
 import { ProductGrid } from "@/components/store/ProductGrid";
 
-const categories = ["All", ...Array.from(new Set(mockProducts.map((p) => p.category)))];
-
 export default function ProductsPage() {
+  const { data: products, isLoading } = useProducts();
   const [category, setCategory] = useState("All");
 
+  const categories = useMemo(() => {
+    if (!products) return ["All"];
+    return ["All", ...Array.from(new Set(products.map((p) => p.category)))];
+  }, [products]);
+
   const filtered = useMemo(
-    () => category === "All" ? mockProducts : mockProducts.filter((p) => p.category === category),
-    [category]
+    () => category === "All" ? (products ?? []) : (products ?? []).filter((p) => p.category === category),
+    [category, products]
   );
+
+  if (isLoading) {
+    return (
+      <div className="container py-8">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mt-20" />
+      </div>
+    );
+  }
 
   return (
     <div className="container py-8">
       <h1 className="font-heading text-5xl md:text-6xl text-gold-gradient mb-6">Shop</h1>
 
-      {/* Filters */}
       <div className="flex flex-wrap gap-2 mb-8">
         {categories.map((cat) => (
           <button

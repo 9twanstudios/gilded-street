@@ -1,17 +1,65 @@
 import { useCart } from "@/hooks/use-cart";
-import { formatPrice } from "@/lib/data";
+import { useAuth } from "@/hooks/use-auth";
+import { formatPrice } from "@/hooks/use-products";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Order placed successfully! M-Pesa payment prompt sent.");
-    clearCart();
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+
+    if (!user) {
+      toast.error("Please sign in to place an order.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Create order
+      const { data: order, error: orderError } = await supabase
+        .from("orders")
+        .insert({
+          user_id: user.id,
+          total,
+          shipping_address: formData.get("address") as string,
+          phone: formData.get("phone") as string,
+          status: "pending",
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Create order items
+      const orderItems = items.map((item) => ({
+        order_id: order.id,
+        product_id: item.product.id,
+        quantity: item.quantity,
+        size: item.size,
+        price_at_time: item.product.price,
+      }));
+
+      const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
+      if (itemsError) throw itemsError;
+
+      toast.success("Order placed successfully! M-Pesa payment prompt sent.");
+      clearCart();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to place order");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (items.length === 0) {
@@ -26,32 +74,37 @@ export default function CheckoutPage() {
   return (
     <div className="container py-8">
       <h1 className="font-heading text-5xl text-gold-gradient mb-8">Checkout</h1>
+
+      {!user && (
+        <div className="bg-card border border-primary/30 rounded-lg p-4 mb-6 flex items-center justify-between">
+          <p className="text-muted-foreground text-sm">Sign in to place your order</p>
+          <Button asChild size="sm" className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
+            <Link to="/login">Sign In</Link>
+          </Button>
+        </div>
+      )}
+
       <div className="grid lg:grid-cols-2 gap-8">
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-card rounded-lg border border-border p-6 space-y-4">
             <h2 className="font-display font-bold uppercase tracking-wider text-foreground">Shipping Details</h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-muted-foreground">First Name</Label>
-                <Input required className="bg-input border-border text-foreground focus:border-primary" />
+                <Input name="firstName" required className="bg-input border-border text-foreground focus:border-primary" />
               </div>
               <div>
                 <Label className="text-muted-foreground">Last Name</Label>
-                <Input required className="bg-input border-border text-foreground focus:border-primary" />
+                <Input name="lastName" required className="bg-input border-border text-foreground focus:border-primary" />
               </div>
             </div>
             <div>
-              <Label className="text-muted-foreground">Email</Label>
-              <Input type="email" required className="bg-input border-border text-foreground focus:border-primary" />
-            </div>
-            <div>
               <Label className="text-muted-foreground">Phone (M-Pesa)</Label>
-              <Input type="tel" required placeholder="0712345678" className="bg-input border-border text-foreground focus:border-primary" />
+              <Input name="phone" type="tel" required placeholder="0712345678" className="bg-input border-border text-foreground focus:border-primary" />
             </div>
             <div>
               <Label className="text-muted-foreground">Address</Label>
-              <Input required className="bg-input border-border text-foreground focus:border-primary" />
+              <Input name="address" required className="bg-input border-border text-foreground focus:border-primary" />
             </div>
           </div>
 
@@ -66,13 +119,13 @@ export default function CheckoutPage() {
           <Button
             type="submit"
             size="lg"
+            disabled={loading || !user}
             className="w-full bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark shadow-gold hover:shadow-gold-lg transition-all duration-300"
           >
-            Pay {formatPrice(total)}
+            {loading ? "Processing..." : `Pay ${formatPrice(total)}`}
           </Button>
         </form>
 
-        {/* Summary */}
         <div className="bg-card rounded-lg border border-border p-6 h-fit">
           <h2 className="font-display font-bold uppercase tracking-wider text-foreground mb-4">Order Summary</h2>
           <div className="space-y-3 mb-6">

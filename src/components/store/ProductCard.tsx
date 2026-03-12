@@ -1,9 +1,23 @@
 import { Link } from "react-router-dom";
-import { Product, formatPrice } from "@/lib/data";
+import { formatPrice } from "@/hooks/use-products";
 import { motion } from "framer-motion";
 
+export interface ProductCardData {
+  id: string;
+  name: string;
+  price: number;
+  original_price?: number | null;
+  originalPrice?: number;
+  image: string;
+  category: string;
+  badge?: string | null;
+  sizes: string[];
+  in_stock?: boolean;
+  inStock?: boolean;
+}
+
 interface ProductCardProps {
-  product: Product;
+  product: ProductCardData;
   index?: number;
 }
 
@@ -14,6 +28,8 @@ const badgeColors: Record<string, string> = {
 };
 
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
+  const origPrice = product.original_price ?? product.originalPrice;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -24,7 +40,6 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
         to={`/products/${product.id}`}
         className="group block bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-gold"
       >
-        {/* Image */}
         <div className="relative aspect-square overflow-hidden bg-surface">
           <img
             src={product.image}
@@ -33,13 +48,12 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             loading="lazy"
           />
           {product.badge && (
-            <span className={`absolute top-3 left-3 px-3 py-1 text-xs font-display font-bold uppercase tracking-wider rounded ${badgeColors[product.badge]}`}>
+            <span className={`absolute top-3 left-3 px-3 py-1 text-xs font-display font-bold uppercase tracking-wider rounded ${badgeColors[product.badge] ?? "bg-muted text-muted-foreground"}`}>
               {product.badge}
             </span>
           )}
         </div>
 
-        {/* Info */}
         <div className="p-4">
           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{product.category}</p>
           <h3 className="font-display font-bold text-sm text-foreground group-hover:text-primary transition-colors duration-200 mb-2 truncate">
@@ -47,8 +61,8 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
           </h3>
           <div className="flex items-center gap-2">
             <span className="text-primary font-display font-bold">{formatPrice(product.price)}</span>
-            {product.originalPrice && (
-              <span className="text-muted-foreground text-sm line-through">{formatPrice(product.originalPrice)}</span>
+            {origPrice && (
+              <span className="text-muted-foreground text-sm line-through">{formatPrice(origPrice)}</span>
             )}
           </div>
         </div>
