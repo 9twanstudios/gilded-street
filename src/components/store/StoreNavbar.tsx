@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, User, Menu, X } from "lucide-react";
+import { ShoppingBag, User, Menu, X, LogIn } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
+import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -11,18 +12,17 @@ const navLinks = [
 
 export function StoreNavbar() {
   const { itemCount, setIsOpen } = useCart();
+  const { user, isAdmin } = useAuth();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
       <div className="container flex h-16 items-center justify-between">
-        {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
           <span className="font-heading text-3xl text-gold-gradient tracking-wider">91FITZ</span>
         </Link>
 
-        {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
             <Link
@@ -38,13 +38,26 @@ export function StoreNavbar() {
               )}
             </Link>
           ))}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="text-sm font-display font-semibold uppercase tracking-widest text-primary/70 hover:text-primary transition-colors"
+            >
+              Admin
+            </Link>
+          )}
         </div>
 
-        {/* Right icons */}
         <div className="flex items-center gap-4">
-          <Link to="/profile" className="text-foreground hover:text-primary transition-colors duration-200">
-            <User className="h-5 w-5" />
-          </Link>
+          {user ? (
+            <Link to="/profile" className="text-foreground hover:text-primary transition-colors duration-200">
+              <User className="h-5 w-5" />
+            </Link>
+          ) : (
+            <Link to="/login" className="text-foreground hover:text-primary transition-colors duration-200">
+              <LogIn className="h-5 w-5" />
+            </Link>
+          )}
           <button
             onClick={() => setIsOpen(true)}
             className="relative text-foreground hover:text-primary transition-colors duration-200"
@@ -62,7 +75,6 @@ export function StoreNavbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -82,6 +94,11 @@ export function StoreNavbar() {
                   {link.label}
                 </Link>
               ))}
+              {isAdmin && (
+                <Link to="/admin" onClick={() => setMobileOpen(false)} className="text-sm font-display font-semibold uppercase tracking-widest text-primary/70 hover:text-primary transition-colors">
+                  Admin Panel
+                </Link>
+              )}
             </div>
           </motion.div>
         )}

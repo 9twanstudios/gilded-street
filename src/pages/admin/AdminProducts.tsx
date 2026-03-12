@@ -1,8 +1,25 @@
-import { mockProducts, formatPrice } from "@/lib/data";
+import { useProducts, formatPrice } from "@/hooks/use-products";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function AdminProducts() {
+  const { data: products, isLoading } = useProducts();
+  const queryClient = useQueryClient();
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Delete "${name}"?`)) return;
+    const { error } = await supabase.from("products").delete().eq("id", id);
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Product deleted");
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -25,35 +42,42 @@ export default function AdminProducts() {
               </tr>
             </thead>
             <tbody>
-              {mockProducts.map((product) => (
-                <tr key={product.id} className="border-b border-border/50 hover:bg-surface-elevated transition-colors">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <img src={product.image} alt={product.name} className="w-10 h-10 rounded object-cover" />
-                      <span className="text-sm font-medium text-foreground">{product.name}</span>
-                    </div>
-                  </td>
-                  <td className="p-4 text-sm text-muted-foreground">{product.category}</td>
-                  <td className="p-4 text-sm text-primary font-display font-bold">{formatPrice(product.price)}</td>
-                  <td className="p-4">
-                    {product.badge && (
-                      <span className="text-xs font-display font-bold uppercase tracking-wider px-2 py-1 rounded bg-primary/10 text-primary">
-                        {product.badge}
-                      </span>
-                    )}
-                  </td>
-                  <td className="p-4">
-                    <div className="flex gap-2">
-                      <button className="p-1.5 rounded text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button className="p-1.5 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {isLoading ? (
+                <tr><td colSpan={5} className="p-4 text-muted-foreground text-center">Loading...</td></tr>
+              ) : (
+                products?.map((product) => (
+                  <tr key={product.id} className="border-b border-border/50 hover:bg-surface-elevated transition-colors">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <img src={product.image} alt={product.name} className="w-10 h-10 rounded object-cover" />
+                        <span className="text-sm font-medium text-foreground">{product.name}</span>
+                      </div>
+                    </td>
+                    <td className="p-4 text-sm text-muted-foreground">{product.category}</td>
+                    <td className="p-4 text-sm text-primary font-display font-bold">{formatPrice(product.price)}</td>
+                    <td className="p-4">
+                      {product.badge && (
+                        <span className="text-xs font-display font-bold uppercase tracking-wider px-2 py-1 rounded bg-primary/10 text-primary">
+                          {product.badge}
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      <div className="flex gap-2">
+                        <button className="p-1.5 rounded text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product.id, product.name)}
+                          className="p-1.5 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

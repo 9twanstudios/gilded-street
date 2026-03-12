@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { mockProducts, formatPrice } from "@/lib/data";
+import { useProduct, useProducts, formatPrice } from "@/hooks/use-products";
 import { useCart } from "@/hooks/use-cart";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -9,10 +9,19 @@ import { ProductGrid } from "@/components/store/ProductGrid";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
-  const product = mockProducts.find((p) => p.id === id);
+  const { data: product, isLoading } = useProduct(id);
+  const { data: allProducts } = useProducts();
   const { addItem } = useCart();
   const [selectedSize, setSelectedSize] = useState("");
   const [added, setAdded] = useState(false);
+
+  if (isLoading) {
+    return (
+      <div className="container py-20 text-center">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -23,11 +32,25 @@ export default function ProductDetailPage() {
     );
   }
 
-  const recommended = mockProducts.filter((p) => p.id !== product.id && p.category === product.category).slice(0, 4);
+  const recommended = allProducts?.filter((p) => p.id !== product.id && p.category === product.category).slice(0, 4) ?? [];
 
   const handleAddToCart = () => {
     if (!selectedSize) return;
-    addItem(product, selectedSize);
+    addItem(
+      {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        originalPrice: product.original_price ?? undefined,
+        image: product.image,
+        category: product.category,
+        badge: product.badge as any,
+        description: product.description ?? "",
+        sizes: product.sizes,
+        inStock: product.in_stock,
+      },
+      selectedSize
+    );
     setAdded(true);
     setTimeout(() => setAdded(false), 1000);
   };
@@ -39,16 +62,10 @@ export default function ProductDetailPage() {
       </Link>
 
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-        {/* Image */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="aspect-square rounded-lg overflow-hidden bg-surface"
-        >
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="aspect-square rounded-lg overflow-hidden bg-surface">
           <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
         </motion.div>
 
-        {/* Details */}
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col">
           {product.badge && (
             <span className="text-xs font-display font-bold uppercase tracking-wider text-primary mb-2">{product.badge}</span>
@@ -58,14 +75,13 @@ export default function ProductDetailPage() {
 
           <div className="flex items-center gap-3 mb-6">
             <span className="text-primary font-heading text-3xl">{formatPrice(product.price)}</span>
-            {product.originalPrice && (
-              <span className="text-muted-foreground line-through text-lg">{formatPrice(product.originalPrice)}</span>
+            {product.original_price && (
+              <span className="text-muted-foreground line-through text-lg">{formatPrice(product.original_price)}</span>
             )}
           </div>
 
           <p className="text-muted-foreground leading-relaxed mb-8">{product.description}</p>
 
-          {/* Sizes */}
           <div className="mb-6">
             <p className="text-sm font-display font-bold uppercase tracking-wider text-foreground mb-3">Size</p>
             <div className="flex flex-wrap gap-2">
@@ -86,7 +102,6 @@ export default function ProductDetailPage() {
             {!selectedSize && <p className="text-xs text-muted-foreground mt-2">Select a size to continue</p>}
           </div>
 
-          {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
               size="lg"
