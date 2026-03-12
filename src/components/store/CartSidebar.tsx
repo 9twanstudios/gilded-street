@@ -1,6 +1,6 @@
 import { X, Minus, Plus, ShoppingBag } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
-import { formatPrice } from "@/lib/data";
+import { formatPrice } from "@/hooks/use-products";
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
