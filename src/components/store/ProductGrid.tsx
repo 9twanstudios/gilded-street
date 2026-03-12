@@ -1,8 +1,7 @@
-import { Product } from "@/lib/data";
-import { ProductCard } from "./ProductCard";
+import { ProductCard, ProductCardData } from "./ProductCard";
 
 interface ProductGridProps {
-  products: Product[];
+  products: ProductCardData[];
   title?: string;
 }
 
