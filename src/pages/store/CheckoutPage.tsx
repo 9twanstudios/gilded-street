@@ -8,11 +8,14 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { WhatsAppButton, buildOrderMessage } from "@/components/store/WhatsAppButton";
+import { CheckCircle } from "lucide-react";
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [orderPlaced, setOrderPlaced] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +29,6 @@ export default function CheckoutPage() {
 
     setLoading(true);
     try {
-      // Create order
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
@@ -41,7 +43,6 @@ export default function CheckoutPage() {
 
       if (orderError) throw orderError;
 
-      // Create order items
       const orderItems = items.map((item) => ({
         order_id: order.id,
         product_id: item.product.id,
@@ -53,7 +54,8 @@ export default function CheckoutPage() {
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
 
-      toast.success("Order placed successfully! M-Pesa payment prompt sent.");
+      toast.success("Order placed successfully!");
+      setOrderPlaced(true);
       clearCart();
     } catch (err: any) {
       toast.error(err.message || "Failed to place order");
@@ -62,14 +64,42 @@ export default function CheckoutPage() {
     }
   };
 
+  if (orderPlaced) {
+    return (
+      <div className="container py-20 text-center max-w-md mx-auto">
+        <div className="w-16 h-16 rounded-full bg-green-600/20 flex items-center justify-center mx-auto mb-6">
+          <CheckCircle className="h-8 w-8 text-green-500" />
+        </div>
+        <h1 className="font-heading text-4xl text-gold-gradient mb-4">Order Confirmed!</h1>
+        <p className="text-muted-foreground mb-8">Your order has been placed. We'll reach out on WhatsApp to confirm payment.</p>
+        <div className="flex flex-col gap-3">
+          <Button asChild className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
+            <Link to="/products">Continue Shopping</Link>
+          </Button>
+          <Button asChild variant="outline" className="border-primary text-primary font-display font-bold uppercase tracking-wider hover:bg-primary hover:text-primary-foreground">
+            <Link to="/profile">View My Orders</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (items.length === 0) {
     return (
       <div className="container py-20 text-center">
         <h1 className="font-heading text-4xl text-foreground mb-4">Your cart is empty</h1>
-        <p className="text-muted-foreground">Add some items to proceed to checkout.</p>
+        <p className="text-muted-foreground mb-6">Add some items to proceed to checkout.</p>
+        <Button asChild className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
+          <Link to="/products">Shop Now</Link>
+        </Button>
       </div>
     );
   }
+
+  const waMessage = buildOrderMessage(
+    items.map((i) => ({ name: i.product.name, size: i.size, quantity: i.quantity, price: i.product.price * i.quantity })),
+    total
+  );
 
   return (
     <div className="container py-8">
@@ -124,6 +154,10 @@ export default function CheckoutPage() {
           >
             {loading ? "Processing..." : `Pay ${formatPrice(total)}`}
           </Button>
+
+          <div className="text-center text-xs text-muted-foreground uppercase tracking-wider font-display">or</div>
+
+          <WhatsAppButton message={waMessage} label="Complete via WhatsApp" size="lg" className="w-full" />
         </form>
 
         <div className="bg-card rounded-lg border border-border p-6 h-fit">

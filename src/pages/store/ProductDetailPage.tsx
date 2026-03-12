@@ -3,9 +3,10 @@ import { useProduct, useProducts, formatPrice } from "@/hooks/use-products";
 import { useCart } from "@/hooks/use-cart";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ShoppingBag } from "lucide-react";
+import { ArrowLeft, ShoppingBag, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { ProductGrid } from "@/components/store/ProductGrid";
+import { WhatsAppButton, buildProductMessage } from "@/components/store/WhatsAppButton";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -57,9 +58,14 @@ export default function ProductDetailPage() {
 
   return (
     <div className="container py-8">
-      <Link to="/products" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8">
-        <ArrowLeft className="h-4 w-4" /> Back to Shop
-      </Link>
+      {/* Breadcrumb */}
+      <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-6" aria-label="Breadcrumb">
+        <Link to="/" className="hover:text-primary transition-colors">Home</Link>
+        <ChevronRight className="h-3 w-3" />
+        <Link to="/products" className="hover:text-primary transition-colors">Shop</Link>
+        <ChevronRight className="h-3 w-3" />
+        <span className="text-foreground truncate max-w-[200px]">{product.name}</span>
+      </nav>
 
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="aspect-square rounded-lg overflow-hidden bg-surface">
@@ -102,29 +108,39 @@ export default function ProductDetailPage() {
             {!selectedSize && <p className="text-xs text-muted-foreground mt-2">Select a size to continue</p>}
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              size="lg"
-              onClick={handleAddToCart}
-              disabled={!selectedSize}
-              className={`flex-1 font-display font-bold uppercase tracking-wider transition-all duration-300 ${
-                added
-                  ? "bg-green-600 text-foreground gold-pulse"
-                  : "bg-primary text-primary-foreground hover:bg-gold-dark shadow-gold hover:shadow-gold-lg"
-              }`}
-            >
-              <ShoppingBag className="mr-2 h-4 w-4" />
-              {added ? "Added!" : "Add to Cart"}
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              disabled={!selectedSize}
-              className="flex-1 border-primary text-primary font-display font-bold uppercase tracking-wider hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-              asChild
-            >
-              <Link to="/checkout">Buy Now</Link>
-            </Button>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                size="lg"
+                onClick={handleAddToCart}
+                disabled={!selectedSize}
+                className={`flex-1 font-display font-bold uppercase tracking-wider transition-all duration-300 ${
+                  added
+                    ? "bg-green-600 text-foreground gold-pulse"
+                    : "bg-primary text-primary-foreground hover:bg-gold-dark shadow-gold hover:shadow-gold-lg"
+                }`}
+              >
+                <ShoppingBag className="mr-2 h-4 w-4" />
+                {added ? "Added!" : "Add to Cart"}
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                disabled={!selectedSize}
+                className="flex-1 border-primary text-primary font-display font-bold uppercase tracking-wider hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                asChild
+              >
+                <Link to="/checkout">Buy Now</Link>
+              </Button>
+            </div>
+            {selectedSize && (
+              <WhatsAppButton
+                message={buildProductMessage(product.name, selectedSize, product.price)}
+                label="Order via WhatsApp"
+                size="lg"
+                className="w-full"
+              />
+            )}
           </div>
         </motion.div>
       </div>

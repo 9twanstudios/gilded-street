@@ -1,13 +1,20 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import heroBg from "@/assets/hero-banner.jpg";
 
 export function HeroBanner() {
   return (
     <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-background">
+      {/* Background image */}
+      <div className="absolute inset-0">
+        <img src={heroBg} alt="" className="w-full h-full object-cover opacity-40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/30" />
+      </div>
+
       {/* Watermark */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-        <span className="text-[30vw] font-heading text-muted/30 leading-none">91</span>
+        <span className="text-[30vw] font-heading text-muted/20 leading-none">91</span>
       </div>
 
       {/* Gold accent lines */}
