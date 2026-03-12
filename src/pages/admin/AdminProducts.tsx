@@ -1,30 +1,51 @@
+import { useState } from "react";
 import { useProducts, formatPrice } from "@/hooks/use-products";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { ProductFormDialog } from "@/components/admin/ProductFormDialog";
+import { DeleteConfirmDialog } from "@/components/admin/DeleteConfirmDialog";
 
 export default function AdminProducts() {
   const { data: products, isLoading } = useProducts();
   const queryClient = useQueryClient();
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Delete "${name}"?`)) return;
-    const { error } = await supabase.from("products").delete().eq("id", id);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editProduct, setEditProduct] = useState<any>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const { error } = await supabase.from("products").delete().eq("id", deleteTarget.id);
+    setDeleting(false);
     if (error) {
       toast.error(error.message);
     } else {
       toast.success("Product deleted");
       queryClient.invalidateQueries({ queryKey: ["products"] });
     }
+    setDeleteTarget(null);
+  };
+
+  const openEdit = (product: any) => {
+    setEditProduct(product);
+    setFormOpen(true);
+  };
+
+  const openAdd = () => {
+    setEditProduct(null);
+    setFormOpen(true);
   };
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-heading text-4xl text-gold-gradient">Products</h1>
-        <Button className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
+        <Button onClick={openAdd} className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-primary/90">
           <Plus className="h-4 w-4 mr-2" /> Add Product
         </Button>
       </div>
@@ -64,11 +85,14 @@ export default function AdminProducts() {
                     </td>
                     <td className="p-4">
                       <div className="flex gap-2">
-                        <button className="p-1.5 rounded text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
+                        <button
+                          onClick={() => openEdit(product)}
+                          className="p-1.5 rounded text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                        >
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(product.id, product.name)}
+                          onClick={() => setDeleteTarget({ id: product.id, name: product.name })}
                           className="p-1.5 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -82,6 +106,17 @@ export default function AdminProducts() {
           </table>
         </div>
       </div>
+
+      <ProductFormDialog open={formOpen} onOpenChange={setFormOpen} product={editProduct} />
+
+      <DeleteConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title="Delete Product"
+        description={`Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
+        onConfirm={handleDelete}
+        loading={deleting}
+      />
     </div>
   );
 }
