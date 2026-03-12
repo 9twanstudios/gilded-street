@@ -340,14 +340,14 @@ export function ProductFormDialog({ open, onOpenChange, product }: ProductFormDi
             <FormField control={form.control} name="badge" render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-foreground">Badge (optional)</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value || ""}>
+                <Select onValueChange={(val) => field.onChange(val === "none" ? "" : val)} value={field.value || "none"}>
                   <FormControl>
                     <SelectTrigger className="bg-background border-border">
                       <SelectValue placeholder="None" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="bg-card border-border">
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
                     {BADGES.map((b) => (
                       <SelectItem key={b} value={b}>{b}</SelectItem>
                     ))}
