@@ -1,10 +1,12 @@
 import { Link, useLocation, Outlet } from "react-router-dom";
-import { LayoutDashboard, Package, Users, ShoppingCart, Bell, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Package, Users, ShoppingCart, Bell, ChevronLeft, ChevronRight, FolderOpen, FileText } from "lucide-react";
 import { useState } from "react";
 
 const adminLinks = [
   { label: "Dashboard", to: "/admin", icon: LayoutDashboard },
   { label: "Products", to: "/admin/products", icon: Package },
+  { label: "Categories", to: "/admin/categories", icon: FolderOpen },
+  { label: "Blog", to: "/admin/blog", icon: FileText },
   { label: "Orders", to: "/admin/orders", icon: ShoppingCart },
   { label: "Users", to: "/admin/users", icon: Users },
 ];
@@ -15,7 +17,6 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen flex bg-background">
-      {/* Sidebar */}
       <aside className={`${collapsed ? "w-16" : "w-60"} bg-surface border-r border-border flex flex-col transition-all duration-300 shrink-0`}>
         <div className="h-16 flex items-center justify-between px-4 border-b border-border">
           {!collapsed && <span className="font-heading text-2xl text-gold-gradient">91FITZ</span>}
@@ -50,9 +51,7 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Topbar */}
         <header className="sticky top-0 z-40 h-16 bg-surface/95 backdrop-blur border-b border-border flex items-center justify-between px-6">
           <h2 className="font-display font-bold text-foreground uppercase tracking-wider text-sm">Admin Panel</h2>
           <div className="flex items-center gap-4">

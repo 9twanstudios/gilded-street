@@ -1,16 +1,22 @@
 import { useParams, Link } from "react-router-dom";
-import { useProduct, useProducts, formatPrice } from "@/hooks/use-products";
+import { useProductBySlug, useProduct, useProducts, formatPrice } from "@/hooks/use-products";
 import { useCart } from "@/hooks/use-cart";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ShoppingBag, ChevronRight } from "lucide-react";
+import { ShoppingBag, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { ProductGrid } from "@/components/store/ProductGrid";
 import { WhatsAppButton, buildProductMessage } from "@/components/store/WhatsAppButton";
+import { Helmet } from "react-helmet-async";
 
 export default function ProductDetailPage() {
-  const { id } = useParams();
-  const { data: product, isLoading } = useProduct(id);
+  const { slug } = useParams();
+  // Try slug first, fallback to id for backward compatibility
+  const { data: productBySlug, isLoading: loadingSlug } = useProductBySlug(slug);
+  const { data: productById, isLoading: loadingId } = useProduct(!productBySlug && !loadingSlug ? slug : undefined);
+  const product = productBySlug || productById;
+  const isLoading = loadingSlug || (!productBySlug && loadingId);
+
   const { data: allProducts } = useProducts();
   const { addItem } = useCart();
   const [selectedSize, setSelectedSize] = useState("");
@@ -58,7 +64,16 @@ export default function ProductDetailPage() {
 
   return (
     <div className="container py-8">
-      {/* Breadcrumb */}
+      <Helmet>
+        <title>{product.name} — 9twanfitz Streetwear</title>
+        <meta name="description" content={product.description || `Shop ${product.name} at 9twanfitz. Premium streetwear from Nairobi.`} />
+        <meta property="og:title" content={`${product.name} — 9twanfitz`} />
+        <meta property="og:description" content={product.description || `Shop ${product.name} at 9twanfitz.`} />
+        <meta property="og:image" content={product.image} />
+        <meta property="og:url" content={`https://9twanfitz.vercel.app/products/${product.slug}`} />
+        <link rel="canonical" href={`https://9twanfitz.vercel.app/products/${product.slug}`} />
+      </Helmet>
+
       <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-6" aria-label="Breadcrumb">
         <Link to="/" className="hover:text-primary transition-colors">Home</Link>
         <ChevronRight className="h-3 w-3" />

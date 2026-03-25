@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const navLinks = [
   { label: "Home", to: "/" },
   { label: "Shop", to: "/products" },
+  { label: "Blog", to: "/blog" },
 ];
 
 export function StoreNavbar() {
