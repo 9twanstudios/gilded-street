@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      blog_posts: {
+        Row: {
+          author: string
+          content: string
+          cover_image: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          published: boolean
+          related_product_ids: string[]
+          slug: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author?: string
+          content?: string
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published?: boolean
+          related_product_ids?: string[]
+          slug: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string
+          content?: string
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published?: boolean
+          related_product_ids?: string[]
+          slug?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cart_items: {
         Row: {
           created_at: string
@@ -48,6 +93,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image: string | null
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          name?: string
+          slug?: string
+        }
+        Relationships: []
       }
       order_items: {
         Row: {
@@ -125,6 +197,7 @@ export type Database = {
         Row: {
           badge: string | null
           category: string
+          category_id: string | null
           created_at: string
           description: string | null
           id: string
@@ -134,11 +207,13 @@ export type Database = {
           original_price: number | null
           price: number
           sizes: string[]
+          slug: string
           updated_at: string
         }
         Insert: {
           badge?: string | null
           category: string
+          category_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -148,11 +223,13 @@ export type Database = {
           original_price?: number | null
           price: number
           sizes?: string[]
+          slug: string
           updated_at?: string
         }
         Update: {
           badge?: string | null
           category?: string
+          category_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -162,9 +239,18 @@ export type Database = {
           original_price?: number | null
           price?: number
           sizes?: string[]
+          slug?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
