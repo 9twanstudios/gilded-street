@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 export interface ProductCardData {
   id: string;
   name: string;
+  slug?: string;
   price: number;
   original_price?: number | null;
   originalPrice?: number;
@@ -23,12 +24,17 @@ interface ProductCardProps {
 
 const badgeColors: Record<string, string> = {
   NEW: "bg-primary text-primary-foreground",
+  New: "bg-primary text-primary-foreground",
   LIMITED: "bg-destructive text-destructive-foreground",
+  Limited: "bg-destructive text-destructive-foreground",
   SALE: "bg-gold-dark text-primary-foreground",
+  Sale: "bg-gold-dark text-primary-foreground",
+  Hot: "bg-destructive text-destructive-foreground",
 };
 
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const origPrice = product.original_price ?? product.originalPrice;
+  const productUrl = `/products/${product.slug || product.id}`;
 
   return (
     <motion.div
@@ -37,7 +43,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       transition={{ duration: 0.4, delay: index * 0.08 }}
     >
       <Link
-        to={`/products/${product.id}`}
+        to={productUrl}
         className="group block bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-gold"
       >
         <div className="relative aspect-square overflow-hidden bg-surface">
