@@ -16,6 +16,7 @@ export function StoreFooter() {
               <Link to="/products" className="text-muted-foreground hover:text-primary transition-colors text-sm">All Products</Link>
               <Link to="/products?badge=NEW" className="text-muted-foreground hover:text-primary transition-colors text-sm">New Arrivals</Link>
               <Link to="/products?badge=LIMITED" className="text-muted-foreground hover:text-primary transition-colors text-sm">Limited Drops</Link>
+              <Link to="/blog" className="text-muted-foreground hover:text-primary transition-colors text-sm">Fashion Tips</Link>
             </div>
           </div>
           <div>

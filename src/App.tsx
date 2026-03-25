@@ -12,8 +12,12 @@ import ProductsPage from "@/pages/store/ProductsPage";
 import ProductDetailPage from "@/pages/store/ProductDetailPage";
 import CheckoutPage from "@/pages/store/CheckoutPage";
 import ProfilePage from "@/pages/store/ProfilePage";
+import BlogPage from "@/pages/store/BlogPage";
+import BlogPostPage from "@/pages/store/BlogPostPage";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminProducts from "@/pages/admin/AdminProducts";
+import AdminCategories from "@/pages/admin/AdminCategories";
+import AdminBlog from "@/pages/admin/AdminBlog";
 import AdminOrders from "@/pages/admin/AdminOrders";
 import AdminUsers from "@/pages/admin/AdminUsers";
 import LoginPage from "@/pages/auth/LoginPage";
@@ -42,7 +46,9 @@ const App = () => (
               <Route element={<StoreLayout />}>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/products" element={<ProductsPage />} />
-                <Route path="/products/:id" element={<ProductDetailPage />} />
+                <Route path="/products/:slug" element={<ProductDetailPage />} />
+                <Route path="/blog" element={<BlogPage />} />
+                <Route path="/blog/:slug" element={<BlogPostPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
               </Route>
@@ -51,6 +57,8 @@ const App = () => (
               <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
                 <Route index element={<AdminDashboard />} />
                 <Route path="products" element={<AdminProducts />} />
+                <Route path="categories" element={<AdminCategories />} />
+                <Route path="blog" element={<AdminBlog />} />
                 <Route path="orders" element={<AdminOrders />} />
                 <Route path="users" element={<AdminUsers />} />
               </Route>
