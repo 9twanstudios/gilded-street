@@ -14,9 +14,12 @@ import CheckoutPage from "@/pages/store/CheckoutPage";
 import ProfilePage from "@/pages/store/ProfilePage";
 import BlogPage from "@/pages/store/BlogPage";
 import BlogPostPage from "@/pages/store/BlogPostPage";
+import DropsPage from "@/pages/store/DropsPage";
+import DropDetailPage from "@/pages/store/DropDetailPage";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminProducts from "@/pages/admin/AdminProducts";
 import AdminCategories from "@/pages/admin/AdminCategories";
+import AdminDrops from "@/pages/admin/AdminDrops";
 import AdminBlog from "@/pages/admin/AdminBlog";
 import AdminOrders from "@/pages/admin/AdminOrders";
 import AdminUsers from "@/pages/admin/AdminUsers";
@@ -47,6 +50,8 @@ const App = () => (
                 <Route path="/" element={<HomePage />} />
                 <Route path="/products" element={<ProductsPage />} />
                 <Route path="/products/:slug" element={<ProductDetailPage />} />
+                <Route path="/drops" element={<DropsPage />} />
+                <Route path="/drops/:slug" element={<DropDetailPage />} />
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/blog/:slug" element={<BlogPostPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
@@ -58,6 +63,7 @@ const App = () => (
                 <Route index element={<AdminDashboard />} />
                 <Route path="products" element={<AdminProducts />} />
                 <Route path="categories" element={<AdminCategories />} />
+                <Route path="drops" element={<AdminDrops />} />
                 <Route path="blog" element={<AdminBlog />} />
                 <Route path="orders" element={<AdminOrders />} />
                 <Route path="users" element={<AdminUsers />} />

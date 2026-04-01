@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { formatPrice } from "@/hooks/use-products";
 import { motion } from "framer-motion";
+import { WishlistButton } from "@/components/store/WishlistButton";
+import { StarRatingDisplay } from "@/components/store/ReviewSection";
 
 export interface ProductCardData {
   id: string;
@@ -58,14 +60,16 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               {product.badge}
             </span>
           )}
+          <WishlistButton productId={product.id} className="absolute top-3 right-3 bg-background/60 backdrop-blur-sm rounded-full p-1.5" size="sm" />
         </div>
 
         <div className="p-4">
           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{product.category}</p>
-          <h3 className="font-display font-bold text-sm text-foreground group-hover:text-primary transition-colors duration-200 mb-2 truncate">
+          <h3 className="font-display font-bold text-sm text-foreground group-hover:text-primary transition-colors duration-200 mb-1 truncate">
             {product.name}
           </h3>
-          <div className="flex items-center gap-2">
+          <StarRatingDisplay productId={product.id} />
+          <div className="flex items-center gap-2 mt-1">
             <span className="text-primary font-display font-bold">{formatPrice(product.price)}</span>
             {origPrice && (
               <span className="text-muted-foreground text-sm line-through">{formatPrice(origPrice)}</span>

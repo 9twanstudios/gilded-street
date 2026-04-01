@@ -1,11 +1,17 @@
 import { Link } from "react-router-dom";
-import { Instagram, Twitter, MessageCircle } from "lucide-react";
+import { Instagram, Twitter, MessageCircle, ExternalLink } from "lucide-react";
+
+const ecosystemLinks = [
+  { name: "91 Stay Woke", url: "https://91staywoke.vercel.app" },
+  { name: "R3C Studios", url: "https://9twanstudios.vercel.app" },
+  { name: "LionByte", url: "https://lionbyte.vercel.app" },
+];
 
 export function StoreFooter() {
   return (
     <footer className="bg-surface border-t border-border mt-auto">
       <div className="container py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           <div>
             <span className="font-heading text-3xl text-gold-gradient">91FITZ</span>
             <p className="text-muted-foreground text-sm mt-2">Premium urban streetwear. Bold designs for the streets.</p>
@@ -15,7 +21,7 @@ export function StoreFooter() {
             <div className="flex flex-col gap-2">
               <Link to="/products" className="text-muted-foreground hover:text-primary transition-colors text-sm">All Products</Link>
               <Link to="/products?badge=NEW" className="text-muted-foreground hover:text-primary transition-colors text-sm">New Arrivals</Link>
-              <Link to="/products?badge=LIMITED" className="text-muted-foreground hover:text-primary transition-colors text-sm">Limited Drops</Link>
+              <Link to="/drops" className="text-muted-foreground hover:text-primary transition-colors text-sm">Drops</Link>
               <Link to="/blog" className="text-muted-foreground hover:text-primary transition-colors text-sm">Fashion Tips</Link>
             </div>
           </div>
@@ -24,6 +30,16 @@ export function StoreFooter() {
             <div className="flex flex-col gap-2">
               <Link to="/profile" className="text-muted-foreground hover:text-primary transition-colors text-sm">My Account</Link>
               <Link to="/checkout" className="text-muted-foreground hover:text-primary transition-colors text-sm">Cart & Checkout</Link>
+            </div>
+          </div>
+          <div>
+            <h4 className="font-display font-bold uppercase tracking-wider text-sm text-foreground mb-4">Ecosystem</h4>
+            <div className="flex flex-col gap-2">
+              {ecosystemLinks.map((link) => (
+                <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors text-sm flex items-center gap-1">
+                  {link.name} <ExternalLink className="h-3 w-3" />
+                </a>
+              ))}
             </div>
           </div>
           <div>
