@@ -7,11 +7,12 @@ import { ShoppingBag, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { ProductGrid } from "@/components/store/ProductGrid";
 import { WhatsAppButton, buildProductMessage } from "@/components/store/WhatsAppButton";
+import { WishlistButton } from "@/components/store/WishlistButton";
+import { ReviewSection } from "@/components/store/ReviewSection";
 import { Helmet } from "react-helmet-async";
 
 export default function ProductDetailPage() {
   const { slug } = useParams();
-  // Try slug first, fallback to id for backward compatibility
   const { data: productBySlug, isLoading: loadingSlug } = useProductBySlug(slug);
   const { data: productById, isLoading: loadingId } = useProduct(!productBySlug && !loadingSlug ? slug : undefined);
   const product = productBySlug || productById;
@@ -62,6 +63,21 @@ export default function ProductDetailPage() {
     setTimeout(() => setAdded(false), 1000);
   };
 
+  const jsonLd = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    name: product.name,
+    image: [product.image],
+    description: product.description || `Shop ${product.name} at 9twanfitz.`,
+    brand: { "@type": "Brand", name: "9twanfitz" },
+    offers: {
+      "@type": "Offer",
+      price: product.price,
+      priceCurrency: "KES",
+      availability: product.in_stock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+    },
+  };
+
   return (
     <div className="container py-8">
       <Helmet>
@@ -72,6 +88,7 @@ export default function ProductDetailPage() {
         <meta property="og:image" content={product.image} />
         <meta property="og:url" content={`https://9twanfitz.vercel.app/products/${product.slug}`} />
         <link rel="canonical" href={`https://9twanfitz.vercel.app/products/${product.slug}`} />
+        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       </Helmet>
 
       <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-6" aria-label="Breadcrumb">
@@ -88,10 +105,15 @@ export default function ProductDetailPage() {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col">
-          {product.badge && (
-            <span className="text-xs font-display font-bold uppercase tracking-wider text-primary mb-2">{product.badge}</span>
-          )}
-          <p className="text-sm text-muted-foreground uppercase tracking-wider">{product.category}</p>
+          <div className="flex items-start justify-between">
+            <div>
+              {product.badge && (
+                <span className="text-xs font-display font-bold uppercase tracking-wider text-primary mb-2 block">{product.badge}</span>
+              )}
+              <p className="text-sm text-muted-foreground uppercase tracking-wider">{product.category}</p>
+            </div>
+            <WishlistButton productId={product.id} size="md" />
+          </div>
           <h1 className="font-heading text-4xl md:text-5xl text-foreground mt-1 mb-4">{product.name}</h1>
 
           <div className="flex items-center gap-3 mb-6">
@@ -159,6 +181,8 @@ export default function ProductDetailPage() {
           </div>
         </motion.div>
       </div>
+
+      <ReviewSection productId={product.id} />
 
       {recommended.length > 0 && (
         <ProductGrid products={recommended} title="You May Also Like" />
