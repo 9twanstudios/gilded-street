@@ -160,6 +160,53 @@ export type Database = {
         }
         Relationships: []
       }
+      ledger_entries: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          idempotency_key: string
+          order_id: string | null
+          reference: string | null
+          status: Database["public"]["Enums"]["ledger_status"]
+          type: Database["public"]["Enums"]["ledger_type"]
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          idempotency_key: string
+          order_id?: string | null
+          reference?: string | null
+          status?: Database["public"]["Enums"]["ledger_status"]
+          type: Database["public"]["Enums"]["ledger_type"]
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          idempotency_key?: string
+          order_id?: string | null
+          reference?: string | null
+          status?: Database["public"]["Enums"]["ledger_status"]
+          type?: Database["public"]["Enums"]["ledger_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           id: string
@@ -205,7 +252,9 @@ export type Database = {
       orders: {
         Row: {
           created_at: string
+          creator_id: string | null
           id: string
+          payment_reference: string | null
           phone: string | null
           shipping_address: string | null
           status: Database["public"]["Enums"]["order_status"]
@@ -214,7 +263,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          creator_id?: string | null
           id?: string
+          payment_reference?: string | null
           phone?: string | null
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
@@ -223,7 +274,9 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          creator_id?: string | null
           id?: string
+          payment_reference?: string | null
           phone?: string | null
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
@@ -234,10 +287,12 @@ export type Database = {
       }
       products: {
         Row: {
+          approved: boolean
           badge: string | null
           category: string
           category_id: string | null
           created_at: string
+          creator_id: string | null
           description: string | null
           id: string
           image: string
@@ -250,10 +305,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          approved?: boolean
           badge?: string | null
           category: string
           category_id?: string | null
           created_at?: string
+          creator_id?: string | null
           description?: string | null
           id?: string
           image: string
@@ -266,10 +323,12 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          approved?: boolean
           badge?: string | null
           category?: string
           category_id?: string | null
           created_at?: string
+          creator_id?: string | null
           description?: string | null
           id?: string
           image?: string
@@ -374,6 +433,30 @@ export type Database = {
         }
         Relationships: []
       }
+      wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          currency: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wishlists: {
         Row: {
           created_at: string
@@ -406,6 +489,36 @@ export type Database = {
           },
         ]
       }
+      withdrawals: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          created_at: string
+          id: string
+          processed_at: string | null
+          status: Database["public"]["Enums"]["withdrawal_status"]
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount: number
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          status?: Database["public"]["Enums"]["withdrawal_status"]
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          status?: Database["public"]["Enums"]["withdrawal_status"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -421,12 +534,15 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user" | "creator"
+      ledger_status: "pending" | "completed" | "failed"
+      ledger_type: "deposit" | "purchase" | "payout" | "fee" | "refund"
       order_status:
         | "pending"
         | "processing"
         | "shipped"
         | "delivered"
         | "cancelled"
+      withdrawal_status: "pending" | "approved" | "rejected" | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -555,6 +671,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user", "creator"],
+      ledger_status: ["pending", "completed", "failed"],
+      ledger_type: ["deposit", "purchase", "payout", "fee", "refund"],
       order_status: [
         "pending",
         "processing",
@@ -562,6 +680,7 @@ export const Constants = {
         "delivered",
         "cancelled",
       ],
+      withdrawal_status: ["pending", "approved", "rejected", "completed"],
     },
   },
 } as const
