@@ -1,195 +1,120 @@
 
 
-# Gilded Streets v2 — Full Fintech Marketplace Upgrade
+# Gilded Streets v2 — Fintech Tables + Platform Revamp
 
-## Scope
-Transform the current e-commerce store into a fintech-powered marketplace with wallets, ledger, creator economy, and Pesapal payments. Keep the gold/black luxury theme.
+This is a large implementation covering database schema, edge functions, new pages, and UI enhancements. I'll break it into digestible implementation steps.
 
 ## Current State
-- Auth with user/admin roles, profiles table
-- Products with slugs, categories, drops, blog
-- Cart (DB-backed), checkout (writes order directly, no real payment)
-- Admin dashboard (products, orders, users, categories, drops, blog)
-- No wallets, no ledger, no creator role, no payment gateway
+- The `creator` enum value was added to `app_role` in the last migration
+- No fintech tables exist yet (wallets, ledger_entries, withdrawals)
+- Products/orders lack `creator_id`, `approved`, `payment_reference` columns
+- No wallet trigger on user creation
+- Checkout writes orders directly with no real payment
+- Hero/homepage is functional but basic
+- Admin panel has products, orders, users, categories, drops, blog — no fintech oversight
 
 ---
 
-## Phase 1: Database Schema (Migration)
+## Step 1: Database Migration — Fintech Tables
 
-### New enum
-- `app_role`: add `'creator'` value (currently `'admin' | 'user'`)
-- New enum `ledger_type`: `deposit | purchase | payout | fee | refund`
-- New enum `ledger_status`: `pending | completed | failed`
-- New enum `withdrawal_status`: `pending | approved | rejected | completed`
+Create all fintech infrastructure in one migration:
 
-### New tables
+- **New enums**: `ledger_type`, `ledger_status`, `withdrawal_status`
+- **New tables**: `wallets`, `ledger_entries`, `withdrawals` with full RLS
+- **Alter products**: add `creator_id` (uuid, nullable) + `approved` (boolean, default true)
+- **Alter orders**: add `payment_reference` (text) + `creator_id` (uuid)
+- **Update `handle_new_user()`** trigger to also insert a wallet row
+- **RLS**: wallets/ledger read-only for users (own) and admins (all); withdrawals insertable by users, updatable by admins; creators can insert/update own products
+- **Indexes** on user_id, order_id, status columns
 
-**`wallets`**
-| Column | Type | Notes |
-|--------|------|-------|
-| id | uuid PK | |
-| user_id | uuid, unique, not null | One wallet per user |
-| balance | integer, not null | KES (default 0) |
-| currency | text | default 'KES' |
-| created_at | timestamptz | |
+## Step 2: Pesapal Edge Functions
 
-**`ledger_entries`**
-| Column | Type | Notes |
-|--------|------|-------|
-| id | uuid PK | |
-| user_id | uuid, not null | |
-| type | ledger_type | deposit/purchase/payout/fee/refund |
-| amount | integer, not null | Always positive |
-| status | ledger_status | pending/completed/failed |
-| reference | text | Pesapal orderTrackingId or internal ref |
-| order_id | uuid, nullable | FK to orders |
-| description | text | Human-readable note |
-| idempotency_key | text, unique | Prevent duplicate transactions |
-| created_at | timestamptz | |
+Two edge functions:
 
-**`withdrawals`**
-| Column | Type | Notes |
-|--------|------|-------|
-| id | uuid PK | |
-| user_id | uuid, not null | |
-| amount | integer, not null | |
-| status | withdrawal_status | |
-| admin_note | text | |
-| created_at | timestamptz | |
-| processed_at | timestamptz | |
+**`pesapal-checkout`**
+- Accepts `{ order_id }`, validates session + ownership
+- Creates pending ledger entry with idempotency key
+- Calls Pesapal `SubmitOrderRequest` API
+- Returns redirect URL
 
-### Altered tables
+**`pesapal-ipn`**
+- Public endpoint for Pesapal callbacks
+- Verifies payment via `GetTransactionStatus`
+- On success: updates order to `paid`, ledger to `completed`, credits creator wallet (90%), platform wallet (10%), creates fee ledger entry
 
-**`products`**: Add `creator_id` (uuid, nullable) — when set, this product belongs to a creator.
+Secrets needed: `PESAPAL_CONSUMER_KEY`, `PESAPAL_CONSUMER_SECRET`, `PESAPAL_API_URL`
 
-**`orders`**: Add `payment_reference` (text, nullable) for Pesapal tracking ID. Add `creator_id` (uuid, nullable) to track which creator's product was purchased.
+## Step 3: Wallet System (Hooks + UI)
 
-### RLS Policies
-- `wallets`: Users can SELECT own wallet. No direct INSERT/UPDATE from client (edge functions handle balance changes).
-- `ledger_entries`: Users can SELECT own entries. Admin can SELECT all. No client writes.
-- `withdrawals`: Users can INSERT (request) and SELECT own. Admin can SELECT all and UPDATE (approve/reject).
-- `products` with `creator_id`: Creators can INSERT/UPDATE their own products.
+**`use-wallet.ts`** hook — fetch wallet balance, ledger history, submit withdrawal
 
-### Trigger
-- `handle_new_user()`: Also create a wallet row for every new user.
-
----
-
-## Phase 2: Pesapal Edge Functions
-
-### Edge Function: `pesapal-checkout`
-1. Receive `{ order_id }` from frontend
-2. Validate user session + order ownership
-3. Create ledger entry (status=pending, idempotency_key)
-4. Call Pesapal API to register order and get redirect URL
-5. Return redirect URL to frontend
-
-### Edge Function: `pesapal-ipn`
-1. Receive IPN callback from Pesapal (public endpoint)
-2. Verify payment status via Pesapal API (`GetTransactionStatus`)
-3. If paid:
-   - Update order status to `paid`
-   - Update ledger entry to `completed`
-   - Credit creator wallet (90%)
-   - Credit platform wallet (10%)
-   - Create fee ledger entry
-4. If failed: mark ledger + order as failed
-
-### Secrets needed
-- `PESAPAL_CONSUMER_KEY`
-- `PESAPAL_CONSUMER_SECRET`
-- `PESAPAL_API_URL` (sandbox vs production)
-
----
-
-## Phase 3: Creator System
-
-### Signup flow
-- Add phone field to signup form
-- After signup, users are `user` role by default
-- Admin can promote users to `creator` via admin panel
-
-### Creator storefront
-- `/creator/:id` — public page showing creator profile + their products
-- Creators can access `/creator/dashboard` — simplified product management + earnings view
-
-### Product listing by creators
-- Creators can add products (with their `creator_id` auto-set)
-- Admin approves creator products (add `approved` boolean to products, default false for creator listings)
-
----
-
-## Phase 4: Wallet Dashboard & Checkout Rewrite
-
-### Wallet page (`/wallet`)
-- Balance display
-- Transaction history (from ledger_entries)
+**`/wallet` page** with:
+- Balance card (KES formatted)
+- Transaction history table from ledger_entries
 - Deposit button (triggers Pesapal deposit flow)
-- Withdraw button (for creators — submits withdrawal request)
+- Withdraw button (creators only — inserts withdrawal request)
 
-### Checkout rewrite
-- Option 1: Pay with wallet balance (if sufficient)
-- Option 2: Pay via Pesapal (redirect flow)
-- Purchase logic (via edge function):
-  - Deduct from buyer wallet
-  - `platform_fee = 10%`
-  - `creator_amount = 90%`
-  - Credit creator + platform wallets
-  - Create 3 ledger entries (purchase, credit, fee)
+**Profile page** — add Wallet tab alongside Orders and Wishlist
 
-### Profile page update
-- Add "Wallet" tab showing balance + quick actions
+## Step 4: Creator System
 
----
+- **Signup page**: add phone number field (saved to profiles)
+- **Admin Users page**: add "Promote to Creator" button per user
+- **Creator Dashboard** (`/creator/dashboard`): product management + earnings view
+- **Creator Storefront** (`/creator/:id`): public page showing creator profile + their products
+- Products created by creators have `approved = false` until admin approves
 
-## Phase 5: Admin Dashboard Enhancements
+## Step 5: Checkout Rewrite
 
-### New admin pages
-- **Wallet Management** (`/admin/wallets`): Platform wallet balance, all wallets overview
-- **Ledger Explorer** (`/admin/ledger`): Filter by user, type, status, date range
-- **Withdrawals** (`/admin/withdrawals`): Approve/reject with notes
-- **Creator Management**: Promote users to creator, view creator earnings
+Replace current direct-order flow with:
+- **Option A**: Pay with wallet balance (if sufficient) — calls edge function to deduct + distribute
+- **Option B**: Pay via Pesapal — redirects to payment gateway
+- Both options create proper ledger entries with 90/10 split
+- Remove M-Pesa placeholder text
 
-### Dashboard KPIs
-- Platform wallet balance
-- Total revenue (from fee ledger entries)
-- Pending withdrawals count
-- Active creators count
+## Step 6: Admin Fintech Pages
 
----
+- **`/admin/wallets`**: Platform wallet balance, all user wallets overview
+- **`/admin/ledger`**: Filterable ledger explorer (user, type, status, date range)
+- **`/admin/withdrawals`**: Approve/reject queue with admin notes
+- **Admin Users**: Show roles, add promote/demote creator actions
+- **Dashboard KPIs**: Platform balance, total fees, pending withdrawals, active creators
 
-## Phase 6: Routes & Navigation
+## Step 7: Homepage & UI Enhancements
 
-### New routes
+- **Hero section**: Update tagline to "Not Merch. Uniform." with "ENTER THE DROP" CTA
+- **Story section**: Scroll-based parallax section (Garvey, Selassie, Sankara narrative)
+- **Product cards**: Add hover glow/tilt micro-interactions
+- **Search + filters**: Instant debounced search, filter by category/size/price range on products page
+- **Limited drop counter**: "Only X left" urgency badge on product detail
+
+## Step 8: Navigation & Routes
+
+New routes added to `App.tsx`:
 ```text
-/wallet              — User wallet dashboard
+/wallet              — Wallet dashboard
 /creator/:id         — Public creator storefront
-/creator/dashboard   — Creator's product + earnings panel
+/creator/dashboard   — Creator product + earnings panel
 /admin/wallets       — Admin wallet overview
 /admin/ledger        — Admin ledger explorer
 /admin/withdrawals   — Admin withdrawal management
 ```
 
-### Navigation updates
-- StoreNavbar: Add "Wallet" link (authenticated users)
-- AdminLayout sidebar: Add Wallets, Ledger, Withdrawals links
-- Profile tabs: Add Wallet tab
+StoreNavbar: Add "Wallet" link for authenticated users
+AdminLayout sidebar: Add Wallets, Ledger, Withdrawals links
 
 ---
 
+## Technical Details
+
+- All balance mutations are server-side only (edge functions with service role key)
+- Idempotency keys on every ledger entry prevent double-spending
+- Pesapal IPN is verified server-side before any wallet credit
+- Creator products default to `approved = false` — only visible after admin approval
+- The `handle_new_user()` trigger ensures every user gets a wallet automatically
+- Types file will auto-regenerate after migration
+
 ## Implementation Order
 
-1. **Database migration** — All new tables, enums, altered columns, RLS, trigger update
-2. **Pesapal edge functions** — checkout + IPN with secret configuration
-3. **Wallet hooks + dashboard page** — `use-wallet.ts`, `/wallet` page
-4. **Checkout rewrite** — Pesapal redirect + wallet pay options
-5. **Creator system** — role promotion, product listing, storefront page
-6. **Admin enhancements** — ledger explorer, withdrawal management, wallet overview
-7. **Purchase distribution logic** — edge function for 90/10 split + ledger entries
-
-## Security Notes
-- All balance mutations happen server-side (edge functions only)
-- Idempotency keys prevent double-spending
-- Pesapal IPN verified server-side before crediting
-- RLS prevents direct wallet/ledger writes from client
+Steps 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8, built incrementally. Step 1 (migration) must land first since everything depends on it. Steps 3-6 can partially overlap but will be done sequentially for clarity.
 
