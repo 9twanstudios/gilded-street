@@ -1,5 +1,6 @@
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
+import { useWallet, formatKES } from "@/hooks/use-wallet";
 import { formatPrice } from "@/hooks/use-products";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -9,26 +10,26 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { WhatsAppButton, buildOrderMessage } from "@/components/store/WhatsAppButton";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Wallet, CreditCard } from "lucide-react";
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
   const { user } = useAuth();
+  const { data: wallet } = useWallet();
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [payMethod, setPayMethod] = useState<"pesapal" | "wallet">("pesapal");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const formData = new FormData(form);
 
-    if (!user) {
-      toast.error("Please sign in to place an order.");
-      return;
-    }
+    if (!user) { toast.error("Please sign in to place an order."); return; }
 
     setLoading(true);
     try {
+      // Create order
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
@@ -40,7 +41,6 @@ export default function CheckoutPage() {
         })
         .select()
         .single();
-
       if (orderError) throw orderError;
 
       const orderItems = items.map((item) => ({
@@ -50,13 +50,30 @@ export default function CheckoutPage() {
         size: item.size,
         price_at_time: item.product.price,
       }));
-
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
 
-      toast.success("Order placed successfully!");
-      setOrderPlaced(true);
-      clearCart();
+      if (payMethod === "wallet") {
+        // Pay with wallet via edge function
+        const { data, error } = await supabase.functions.invoke("wallet-pay", {
+          body: { order_id: order.id },
+        });
+        if (error) throw new Error(error.message || "Wallet payment failed");
+        if (data?.error) throw new Error(data.error);
+        toast.success("Payment successful!");
+        setOrderPlaced(true);
+        clearCart();
+      } else {
+        // Pay via Pesapal
+        const { data, error } = await supabase.functions.invoke("pesapal-checkout", {
+          body: { order_id: order.id, callback_url: `${window.location.origin}/profile` },
+        });
+        if (error) throw new Error(error.message || "Payment initiation failed");
+        if (data?.error) throw new Error(data.error);
+        if (data?.redirect_url) {
+          window.location.href = data.redirect_url;
+        }
+      }
     } catch (err: any) {
       toast.error(err.message || "Failed to place order");
     } finally {
@@ -71,7 +88,7 @@ export default function CheckoutPage() {
           <CheckCircle className="h-8 w-8 text-green-500" />
         </div>
         <h1 className="font-heading text-4xl text-gold-gradient mb-4">Order Confirmed!</h1>
-        <p className="text-muted-foreground mb-8">Your order has been placed. We'll reach out on WhatsApp to confirm payment.</p>
+        <p className="text-muted-foreground mb-8">Your order has been placed and payment received.</p>
         <div className="flex flex-col gap-3">
           <Button asChild className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
             <Link to="/products">Continue Shopping</Link>
@@ -100,6 +117,7 @@ export default function CheckoutPage() {
     items.map((i) => ({ name: i.product.name, size: i.size, quantity: i.quantity, price: i.product.price * i.quantity })),
     total
   );
+  const canPayWallet = wallet && wallet.balance >= total;
 
   return (
     <div className="container py-8">
@@ -129,7 +147,7 @@ export default function CheckoutPage() {
               </div>
             </div>
             <div>
-              <Label className="text-muted-foreground">Phone (M-Pesa)</Label>
+              <Label className="text-muted-foreground">Phone</Label>
               <Input name="phone" type="tel" required placeholder="0712345678" className="bg-input border-border text-foreground focus:border-primary" />
             </div>
             <div>
@@ -139,10 +157,32 @@ export default function CheckoutPage() {
           </div>
 
           <div className="bg-card rounded-lg border border-border p-6">
-            <h2 className="font-display font-bold uppercase tracking-wider text-foreground mb-4">Payment</h2>
-            <div className="bg-surface rounded-lg p-4 text-center">
-              <p className="text-primary font-display font-bold text-lg">M-Pesa</p>
-              <p className="text-muted-foreground text-sm mt-1">You will receive a payment prompt on your phone</p>
+            <h2 className="font-display font-bold uppercase tracking-wider text-foreground mb-4">Payment Method</h2>
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => setPayMethod("pesapal")}
+                className={`w-full flex items-center gap-3 p-4 rounded-lg border transition-all ${payMethod === "pesapal" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+              >
+                <CreditCard className="h-5 w-5 text-primary" />
+                <div className="text-left">
+                  <p className="text-sm font-display font-bold text-foreground">Pesapal</p>
+                  <p className="text-xs text-muted-foreground">M-Pesa, Card, or Bank</p>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPayMethod("wallet")}
+                disabled={!canPayWallet}
+                className={`w-full flex items-center gap-3 p-4 rounded-lg border transition-all ${payMethod === "wallet" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"} ${!canPayWallet ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                <Wallet className="h-5 w-5 text-primary" />
+                <div className="text-left flex-1">
+                  <p className="text-sm font-display font-bold text-foreground">Wallet Balance</p>
+                  <p className="text-xs text-muted-foreground">{wallet ? formatKES(wallet.balance) : "Sign in to use"}</p>
+                </div>
+                {wallet && !canPayWallet && <span className="text-xs text-destructive">Insufficient</span>}
+              </button>
             </div>
           </div>
 
@@ -152,7 +192,7 @@ export default function CheckoutPage() {
             disabled={loading || !user}
             className="w-full bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark shadow-gold hover:shadow-gold-lg transition-all duration-300"
           >
-            {loading ? "Processing..." : `Pay ${formatPrice(total)}`}
+            {loading ? "Processing..." : payMethod === "wallet" ? `Pay ${formatPrice(total)} from Wallet` : `Pay ${formatPrice(total)} via Pesapal`}
           </Button>
 
           <div className="text-center text-xs text-muted-foreground uppercase tracking-wider font-display">or</div>

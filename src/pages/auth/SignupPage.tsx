@@ -9,6 +9,7 @@ import { UserPlus } from "lucide-react";
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,7 +22,7 @@ export default function SignupPage() {
       email,
       password,
       options: {
-        data: { full_name: fullName },
+        data: { full_name: fullName, phone },
         emailRedirectTo: window.location.origin,
       },
     });
@@ -53,6 +54,16 @@ export default function SignupPage() {
               onChange={(e) => setFullName(e.target.value)}
               className="bg-input border-border text-foreground focus:border-primary mt-1"
               placeholder="John Doe"
+            />
+          </div>
+          <div>
+            <Label className="text-muted-foreground text-xs font-display uppercase tracking-wider">Phone</Label>
+            <Input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="bg-input border-border text-foreground focus:border-primary mt-1"
+              placeholder="0712345678"
             />
           </div>
           <div>
