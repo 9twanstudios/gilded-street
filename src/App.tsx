@@ -16,6 +16,9 @@ import BlogPage from "@/pages/store/BlogPage";
 import BlogPostPage from "@/pages/store/BlogPostPage";
 import DropsPage from "@/pages/store/DropsPage";
 import DropDetailPage from "@/pages/store/DropDetailPage";
+import WalletPage from "@/pages/store/WalletPage";
+import CreatorStorefront from "@/pages/store/CreatorStorefront";
+import CreatorDashboard from "@/pages/store/CreatorDashboard";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminProducts from "@/pages/admin/AdminProducts";
 import AdminCategories from "@/pages/admin/AdminCategories";
@@ -23,6 +26,9 @@ import AdminDrops from "@/pages/admin/AdminDrops";
 import AdminBlog from "@/pages/admin/AdminBlog";
 import AdminOrders from "@/pages/admin/AdminOrders";
 import AdminUsers from "@/pages/admin/AdminUsers";
+import AdminWallets from "@/pages/admin/AdminWallets";
+import AdminLedger from "@/pages/admin/AdminLedger";
+import AdminWithdrawals from "@/pages/admin/AdminWithdrawals";
 import LoginPage from "@/pages/auth/LoginPage";
 import SignupPage from "@/pages/auth/SignupPage";
 import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
@@ -56,6 +62,9 @@ const App = () => (
                 <Route path="/blog/:slug" element={<BlogPostPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/wallet" element={<WalletPage />} />
+                <Route path="/creator/:id" element={<CreatorStorefront />} />
+                <Route path="/creator/dashboard" element={<CreatorDashboard />} />
               </Route>
 
               {/* Admin */}
@@ -67,6 +76,9 @@ const App = () => (
                 <Route path="blog" element={<AdminBlog />} />
                 <Route path="orders" element={<AdminOrders />} />
                 <Route path="users" element={<AdminUsers />} />
+                <Route path="wallets" element={<AdminWallets />} />
+                <Route path="ledger" element={<AdminLedger />} />
+                <Route path="withdrawals" element={<AdminWithdrawals />} />
               </Route>
 
               <Route path="*" element={<NotFound />} />
