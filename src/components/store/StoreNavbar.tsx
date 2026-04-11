@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, User, Menu, X, LogIn } from "lucide-react";
+import { ShoppingBag, User, Menu, X, LogIn, Wallet } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
@@ -51,6 +51,11 @@ export function StoreNavbar() {
         </div>
 
         <div className="flex items-center gap-4">
+          {user && (
+            <Link to="/wallet" className="text-foreground hover:text-primary transition-colors duration-200" title="Wallet">
+              <Wallet className="h-5 w-5" />
+            </Link>
+          )}
           {user ? (
             <Link to="/profile" className="text-foreground hover:text-primary transition-colors duration-200">
               <User className="h-5 w-5" />
