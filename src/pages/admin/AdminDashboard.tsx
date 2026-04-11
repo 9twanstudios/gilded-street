@@ -1,7 +1,8 @@
-import { DollarSign, Package, ShoppingCart, Users, TrendingUp } from "lucide-react";
+import { DollarSign, Package, ShoppingCart, Users, TrendingUp, Wallet, ArrowDownToLine } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAdminStats } from "@/hooks/use-admin";
 import { formatPrice } from "@/hooks/use-products";
+import { formatKES } from "@/hooks/use-wallet";
 
 export default function AdminDashboard() {
   const { data: stats, isLoading } = useAdminStats();
@@ -11,6 +12,9 @@ export default function AdminDashboard() {
     { label: "Orders", value: (stats?.orderCount ?? 0).toString(), icon: ShoppingCart, change: "+5%" },
     { label: "Products", value: (stats?.productCount ?? 0).toString(), icon: Package, change: "+2" },
     { label: "Customers", value: (stats?.customerCount ?? 0).toString(), icon: Users, change: "+8" },
+    { label: "Platform Float", value: formatKES(stats?.platformFloat ?? 0), icon: Wallet, change: "" },
+    { label: "Platform Fees", value: formatKES(stats?.platformFees ?? 0), icon: TrendingUp, change: "" },
+    { label: "Pending Payouts", value: (stats?.pendingWithdrawals ?? 0).toString(), icon: ArrowDownToLine, change: "" },
   ];
 
   return (
@@ -28,9 +32,11 @@ export default function AdminDashboard() {
           >
             <div className="flex items-center justify-between mb-3">
               <stat.icon className="h-5 w-5 text-primary" />
-              <span className="text-xs text-green-400 font-display font-semibold flex items-center gap-1">
-                <TrendingUp className="h-3 w-3" /> {stat.change}
-              </span>
+              {stat.change && (
+                <span className="text-xs text-green-400 font-display font-semibold flex items-center gap-1">
+                  <TrendingUp className="h-3 w-3" /> {stat.change}
+                </span>
+              )}
             </div>
             <p className="text-primary font-heading text-3xl">{isLoading ? "..." : stat.value}</p>
             <p className="text-muted-foreground text-sm font-display uppercase tracking-wider mt-1">{stat.label}</p>
