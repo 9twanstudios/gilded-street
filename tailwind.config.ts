@@ -29,6 +29,10 @@ export default {
           dark: "hsl(var(--gold-dark))",
           light: "hsl(var(--gold-light))",
         },
+        neon: {
+          DEFAULT: "hsl(var(--neon))",
+          foreground: "hsl(var(--neon-foreground))",
+        },
         surface: {
           DEFAULT: "hsl(var(--surface))",
           elevated: "hsl(var(--surface-elevated))",
