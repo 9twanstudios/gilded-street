@@ -1,120 +1,108 @@
 
 
-# Gilded Streets v2 — Fintech Tables + Platform Revamp
+# 91 Fitz Full Revamp — Implementation Plan
 
-This is a large implementation covering database schema, edge functions, new pages, and UI enhancements. I'll break it into digestible implementation steps.
+## Important Constraint
+This project runs on **React 18 + Vite + Tailwind + Supabase** (not Next.js). Lovable does not support Next.js/App Router. All features from your blueprint will be implemented within the existing stack, which already covers ~70% of what you described.
 
-## Current State
-- The `creator` enum value was added to `app_role` in the last migration
-- No fintech tables exist yet (wallets, ledger_entries, withdrawals)
-- Products/orders lack `creator_id`, `approved`, `payment_reference` columns
-- No wallet trigger on user creation
-- Checkout writes orders directly with no real payment
-- Hero/homepage is functional but basic
-- Admin panel has products, orders, users, categories, drops, blog — no fintech oversight
+## What Already Exists (no rebuild needed)
+- Dark mode with gold/black theme, Bebas Neue + Inter fonts
+- Product pages with JSON-LD structured data, OG tags, breadcrumbs
+- Shop page with search, filters (category, size, price range, sort)
+- Cart system (DB-backed), wishlist, reviews/ratings
+- Checkout with Pesapal integration + wallet payments
+- Blog with slugs, tags, related products
+- Limited drops with countdown timers
+- Admin dashboard (products, orders, users, blog, drops, categories, wallets, ledger, withdrawals)
+- WhatsApp ordering, mobile-responsive layout
+- Framer Motion animations on cards and page transitions
 
----
+## What Needs Building/Upgrading
 
-## Step 1: Database Migration — Fintech Tables
+### 1. Hero Section Upgrade
+- Replace static image hero with video loop background (Nairobi street aesthetic)
+- Update tagline: "BUILT IN KENYA, WORN WORLDWIDE"
+- CTA button: "ENTER THE DROP" linking to /products
+- Add neon green accent color alongside gold
 
-Create all fintech infrastructure in one migration:
+### 2. Product Card Enhancements
+- Add hover zoom with 3D tilt effect (CSS perspective transform)
+- "Quick Add" button overlay on hover (select size + add to cart without leaving grid)
+- Quick View modal (product preview without navigation)
+- Confetti animation on add-to-cart (canvas-confetti library)
 
-- **New enums**: `ledger_type`, `ledger_status`, `withdrawal_status`
-- **New tables**: `wallets`, `ledger_entries`, `withdrawals` with full RLS
-- **Alter products**: add `creator_id` (uuid, nullable) + `approved` (boolean, default true)
-- **Alter orders**: add `payment_reference` (text) + `creator_id` (uuid)
-- **Update `handle_new_user()`** trigger to also insert a wallet row
-- **RLS**: wallets/ledger read-only for users (own) and admins (all); withdrawals insertable by users, updatable by admins; creators can insert/update own products
-- **Indexes** on user_id, order_id, status columns
+### 3. Size Guide Modal
+- Reusable modal component with East African fit notes
+- Size chart table (S/M/L/XL/XXL with cm measurements)
+- Link from product detail page
 
-## Step 2: Pesapal Edge Functions
+### 4. "Notify Me" for Out-of-Stock
+- New `notify_requests` table (email, product_id, notified boolean)
+- Email input form shown when product is OOS
+- Admin visibility in dashboard
 
-Two edge functions:
+### 5. Shipping Calculator
+- Kenya county-based shipping rates (47 counties)
+- "Nairobi Same-Day" badge on eligible products
+- Integrated into checkout page
 
-**`pesapal-checkout`**
-- Accepts `{ order_id }`, validates session + ownership
-- Creates pending ledger entry with idempotency key
-- Calls Pesapal `SubmitOrderRequest` API
-- Returns redirect URL
+### 6. Newsletter Signup
+- Email capture component on homepage footer
+- Store in Supabase `newsletter_subscribers` table
+- "Join the Movement" CTA
 
-**`pesapal-ipn`**
-- Public endpoint for Pesapal callbacks
-- Verifies payment via `GetTransactionStatus`
-- On success: updates order to `paid`, ledger to `completed`, credits creator wallet (90%), platform wallet (10%), creates fee ledger entry
+### 7. Social Feed Section
+- Instagram/TikTok embed section on homepage
+- Static grid of social media posts with links (no API needed initially)
 
-Secrets needed: `PESAPAL_CONSUMER_KEY`, `PESAPAL_CONSUMER_SECRET`, `PESAPAL_API_URL`
+### 8. Sticky Navbar + Bottom Mobile Nav
+- Make navbar sticky (already done) + add search icon in navbar
+- Bottom mobile navigation bar (Home, Shop, Cart, Profile) for mobile viewport
 
-## Step 3: Wallet System (Hooks + UI)
+### 9. Mini Cart Drawer Improvements
+- One-click checkout from cart drawer
+- Quantity adjustment inline
+- "Saved for later" section
 
-**`use-wallet.ts`** hook — fetch wallet balance, ledger history, submit withdrawal
+### 10. SEO Hardening
+- Update meta titles with Kenya-focused keywords ("91 Fitz Nairobi streetwear", "premium hoodies Kenya")
+- Add LocalBusiness + Review structured data
+- Update sitemap.xml with all product/blog slugs (generated at build or fetched client-side)
+- Proper image alt tags throughout
+- Update canonical URLs to 91fitz.com domain
 
-**`/wallet` page** with:
-- Balance card (KES formatted)
-- Transaction history table from ledger_entries
-- Deposit button (triggers Pesapal deposit flow)
-- Withdraw button (creators only — inserts withdrawal request)
+### 11. Infinite Scroll on Shop Page
+- Replace current full-load with paginated infinite scroll using intersection observer
+- Load 12 products at a time
 
-**Profile page** — add Wallet tab alongside Orders and Wishlist
+### 12. Admin Enhancements
+- Bulk CSV import for products
+- Sales graph using Recharts on dashboard
+- Low stock alerts, top products widget
 
-## Step 4: Creator System
+## Database Migration Required
+- New table: `newsletter_subscribers` (email, created_at)
+- New table: `notify_requests` (email, product_id, notified, created_at)
 
-- **Signup page**: add phone number field (saved to profiles)
-- **Admin Users page**: add "Promote to Creator" button per user
-- **Creator Dashboard** (`/creator/dashboard`): product management + earnings view
-- **Creator Storefront** (`/creator/:id`): public page showing creator profile + their products
-- Products created by creators have `approved = false` until admin approves
-
-## Step 5: Checkout Rewrite
-
-Replace current direct-order flow with:
-- **Option A**: Pay with wallet balance (if sufficient) — calls edge function to deduct + distribute
-- **Option B**: Pay via Pesapal — redirects to payment gateway
-- Both options create proper ledger entries with 90/10 split
-- Remove M-Pesa placeholder text
-
-## Step 6: Admin Fintech Pages
-
-- **`/admin/wallets`**: Platform wallet balance, all user wallets overview
-- **`/admin/ledger`**: Filterable ledger explorer (user, type, status, date range)
-- **`/admin/withdrawals`**: Approve/reject queue with admin notes
-- **Admin Users**: Show roles, add promote/demote creator actions
-- **Dashboard KPIs**: Platform balance, total fees, pending withdrawals, active creators
-
-## Step 7: Homepage & UI Enhancements
-
-- **Hero section**: Update tagline to "Not Merch. Uniform." with "ENTER THE DROP" CTA
-- **Story section**: Scroll-based parallax section (Garvey, Selassie, Sankara narrative)
-- **Product cards**: Add hover glow/tilt micro-interactions
-- **Search + filters**: Instant debounced search, filter by category/size/price range on products page
-- **Limited drop counter**: "Only X left" urgency badge on product detail
-
-## Step 8: Navigation & Routes
-
-New routes added to `App.tsx`:
-```text
-/wallet              — Wallet dashboard
-/creator/:id         — Public creator storefront
-/creator/dashboard   — Creator product + earnings panel
-/admin/wallets       — Admin wallet overview
-/admin/ledger        — Admin ledger explorer
-/admin/withdrawals   — Admin withdrawal management
-```
-
-StoreNavbar: Add "Wallet" link for authenticated users
-AdminLayout sidebar: Add Wallets, Ledger, Withdrawals links
-
----
-
-## Technical Details
-
-- All balance mutations are server-side only (edge functions with service role key)
-- Idempotency keys on every ledger entry prevent double-spending
-- Pesapal IPN is verified server-side before any wallet credit
-- Creator products default to `approved = false` — only visible after admin approval
-- The `handle_new_user()` trigger ensures every user gets a wallet automatically
-- Types file will auto-regenerate after migration
+## New Dependencies
+- `canvas-confetti` — add-to-cart celebration
+- `recharts` — admin sales graphs (may already be installed)
 
 ## Implementation Order
+1. Hero upgrade + bottom mobile nav + sticky search
+2. Product card hover effects + Quick Add + Quick View modal
+3. Size guide modal + confetti on add-to-cart
+4. Notify Me (DB migration + UI)
+5. Newsletter signup (DB migration + UI)
+6. Shipping calculator (county-based)
+7. Social feed section
+8. Infinite scroll on shop page
+9. SEO hardening (meta, structured data, sitemap)
+10. Admin enhancements (CSV import, Recharts graphs)
 
-Steps 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8, built incrementally. Step 1 (migration) must land first since everything depends on it. Steps 3-6 can partially overlap but will be done sequentially for clarity.
+## Technical Details
+- All new components follow existing patterns: shadcn primitives, Framer Motion, Tailwind utility classes
+- Database changes via migration tool with RLS policies
+- No backend framework change — stays React + Vite + Supabase
+- Cart remains DB-backed with React Context provider
 
