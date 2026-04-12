@@ -1,11 +1,14 @@
 import { HeroBanner } from "@/components/store/HeroBanner";
 import { ProductGrid } from "@/components/store/ProductGrid";
 import { EcosystemSection } from "@/components/store/EcosystemSection";
+import { SocialFeedSection } from "@/components/store/SocialFeedSection";
+import { NewsletterSignup } from "@/components/store/NewsletterSignup";
 import { CountdownTimer } from "@/components/store/CountdownTimer";
 import { useProducts } from "@/hooks/use-products";
 import { useDrops } from "@/hooks/use-drops";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Helmet } from "react-helmet-async";
 
 export default function HomePage() {
   const { data: products, isLoading } = useProducts();
@@ -24,6 +27,24 @@ export default function HomePage() {
 
   return (
     <>
+      <Helmet>
+        <title>91 Fitz — Premium Nairobi Streetwear | Bold Urban Fashion Kenya</title>
+        <meta name="description" content="Shop 91 Fitz premium streetwear from Nairobi, Kenya. Limited drops, bold hoodies, tees & cargo pants. M-Pesa checkout. Built in Kenya, worn worldwide." />
+        <meta property="og:title" content="91 Fitz — Premium Nairobi Streetwear" />
+        <meta property="og:description" content="Limited drops, premium hoodies Kenya. Bold streetwear from Nairobi." />
+        <link rel="canonical" href="https://91fitz.com" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          name: "91 Fitz",
+          description: "Premium streetwear brand from Nairobi, Kenya",
+          url: "https://91fitz.com",
+          address: { "@type": "PostalAddress", addressLocality: "Nairobi", addressCountry: "KE" },
+          priceRange: "KES 1000 - KES 15000",
+          image: "https://91fitz.com/og-image.jpg",
+        })}</script>
+      </Helmet>
+
       <HeroBanner />
 
       {/* Upcoming Drop Banner */}
@@ -36,7 +57,7 @@ export default function HomePage() {
               viewport={{ once: true }}
               className="bg-card border border-border rounded-lg p-6 md:p-8 text-center"
             >
-              <p className="text-primary font-display font-bold uppercase tracking-[0.3em] text-xs mb-2">Upcoming Drop</p>
+              <p className="text-neon font-display font-bold uppercase tracking-[0.3em] text-xs mb-2">Upcoming Drop</p>
               <h2 className="font-heading text-3xl md:text-4xl text-gold-gradient mb-3">{upcomingDrop.title}</h2>
               <p className="text-muted-foreground text-sm mb-5 max-w-md mx-auto">{upcomingDrop.description}</p>
               <div className="flex justify-center mb-5">
@@ -55,6 +76,15 @@ export default function HomePage() {
 
       <ProductGrid products={featured} title="Featured Drops" />
       <ProductGrid products={products ?? []} title="All Products" />
+      <SocialFeedSection />
+
+      {/* Newsletter */}
+      <section className="py-12">
+        <div className="container max-w-lg">
+          <NewsletterSignup />
+        </div>
+      </section>
+
       <EcosystemSection />
     </>
   );

@@ -1,9 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, User, Menu, X, LogIn, Wallet } from "lucide-react";
+import { ShoppingBag, User, Menu, X, LogIn, Wallet, Search } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -16,7 +18,19 @@ export function StoreNavbar() {
   const { itemCount, setIsOpen } = useCart();
   const { user, isAdmin } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/products?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
+      setSearchQuery("");
+    }
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
@@ -43,25 +57,29 @@ export function StoreNavbar() {
           {isAdmin && (
             <Link
               to="/admin"
-              className="text-sm font-display font-semibold uppercase tracking-widest text-primary/70 hover:text-primary transition-colors"
+              className="text-sm font-display font-semibold uppercase tracking-widest text-neon/70 hover:text-neon transition-colors"
             >
               Admin
             </Link>
           )}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          {/* Search toggle */}
+          <button onClick={() => setSearchOpen(!searchOpen)} className="text-foreground hover:text-primary transition-colors duration-200">
+            <Search className="h-5 w-5" />
+          </button>
           {user && (
-            <Link to="/wallet" className="text-foreground hover:text-primary transition-colors duration-200" title="Wallet">
+            <Link to="/wallet" className="text-foreground hover:text-primary transition-colors duration-200 hidden sm:block" title="Wallet">
               <Wallet className="h-5 w-5" />
             </Link>
           )}
           {user ? (
-            <Link to="/profile" className="text-foreground hover:text-primary transition-colors duration-200">
+            <Link to="/profile" className="text-foreground hover:text-primary transition-colors duration-200 hidden sm:block">
               <User className="h-5 w-5" />
             </Link>
           ) : (
-            <Link to="/login" className="text-foreground hover:text-primary transition-colors duration-200">
+            <Link to="/login" className="text-foreground hover:text-primary transition-colors duration-200 hidden sm:block">
               <LogIn className="h-5 w-5" />
             </Link>
           )}
@@ -82,6 +100,32 @@ export function StoreNavbar() {
         </div>
       </div>
 
+      {/* Search bar */}
+      <AnimatePresence>
+        {searchOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="border-t border-border overflow-hidden"
+          >
+            <form onSubmit={handleSearch} className="container py-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  autoFocus
+                  placeholder="Search products, categories..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 bg-surface border-border text-foreground"
+                />
+              </div>
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile menu */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -102,7 +146,7 @@ export function StoreNavbar() {
                 </Link>
               ))}
               {isAdmin && (
-                <Link to="/admin" onClick={() => setMobileOpen(false)} className="text-sm font-display font-semibold uppercase tracking-widest text-primary/70 hover:text-primary transition-colors">
+                <Link to="/admin" onClick={() => setMobileOpen(false)} className="text-sm font-display font-semibold uppercase tracking-widest text-neon/70 hover:text-neon transition-colors">
                   Admin Panel
                 </Link>
               )}
