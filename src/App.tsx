@@ -19,11 +19,15 @@ import DropDetailPage from "@/pages/store/DropDetailPage";
 import WalletPage from "@/pages/store/WalletPage";
 import CreatorStorefront from "@/pages/store/CreatorStorefront";
 import CreatorDashboard from "@/pages/store/CreatorDashboard";
+import StoriesPage from "@/pages/store/StoriesPage";
+import StoryDetailPage from "@/pages/store/StoryDetailPage";
+import CartPage from "@/pages/store/CartPage";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminProducts from "@/pages/admin/AdminProducts";
 import AdminCategories from "@/pages/admin/AdminCategories";
 import AdminDrops from "@/pages/admin/AdminDrops";
 import AdminBlog from "@/pages/admin/AdminBlog";
+import AdminStories from "@/pages/admin/AdminStories";
 import AdminOrders from "@/pages/admin/AdminOrders";
 import AdminUsers from "@/pages/admin/AdminUsers";
 import AdminWallets from "@/pages/admin/AdminWallets";
@@ -58,10 +62,14 @@ const App = () => (
                 <Route path="/products/:slug" element={<ProductDetailPage />} />
                 <Route path="/drops" element={<DropsPage />} />
                 <Route path="/drops/:slug" element={<DropDetailPage />} />
+                <Route path="/stories" element={<StoriesPage />} />
+                <Route path="/stories/:slug" element={<StoryDetailPage />} />
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/blog/:slug" element={<BlogPostPage />} />
+                <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/account" element={<ProfilePage />} />
                 <Route path="/wallet" element={<WalletPage />} />
                 <Route path="/creator/:id" element={<CreatorStorefront />} />
                 <Route path="/creator/dashboard" element={<CreatorDashboard />} />
@@ -74,6 +82,7 @@ const App = () => (
                 <Route path="categories" element={<AdminCategories />} />
                 <Route path="drops" element={<AdminDrops />} />
                 <Route path="blog" element={<AdminBlog />} />
+                <Route path="stories" element={<AdminStories />} />
                 <Route path="orders" element={<AdminOrders />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="wallets" element={<AdminWallets />} />

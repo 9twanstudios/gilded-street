@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useProducts } from "@/hooks/use-products";
+import { useDrops } from "@/hooks/use-drops";
 import { ProductGrid } from "@/components/store/ProductGrid";
 import { Input } from "@/components/ui/input";
 import { Search, SlidersHorizontal, X } from "lucide-react";
@@ -26,9 +27,12 @@ const PAGE_SIZE = 12;
 
 export default function ProductsPage() {
   const { data: products, isLoading } = useProducts();
+  const { data: drops } = useDrops();
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("q") ?? "");
   const [category, setCategory] = useState("All");
+  const [selectedDrop, setSelectedDrop] = useState("All");
+  const [stockFilter, setStockFilter] = useState("all");
   const [priceRange, setPriceRange] = useState(0);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [sort, setSort] = useState("newest");
@@ -64,6 +68,12 @@ export default function ProductsPage() {
       result = result.filter((p) => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || (p.description?.toLowerCase().includes(q) ?? false));
     }
     if (category !== "All") result = result.filter((p) => p.category === category);
+    if (selectedDrop !== "All") {
+      const drop = drops?.find((d) => d.id === selectedDrop);
+      if (drop) result = result.filter((p) => drop.product_ids.includes(p.id));
+    }
+    if (stockFilter === "in-stock") result = result.filter((p) => p.in_stock);
+    else if (stockFilter === "out-of-stock") result = result.filter((p) => !p.in_stock);
     const range = PRICE_RANGES[priceRange];
     if (range && range.max !== Infinity) result = result.filter((p) => p.price >= range.min && p.price <= range.max);
     else if (range && range.min > 0) result = result.filter((p) => p.price >= range.min);
@@ -77,10 +87,10 @@ export default function ProductsPage() {
       }
     });
     return result;
-  }, [products, search, category, priceRange, selectedSizes, sort, badgeFilter]);
+  }, [products, drops, search, category, selectedDrop, stockFilter, priceRange, selectedSizes, sort, badgeFilter]);
 
   // Reset visible count when filters change
-  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [search, category, priceRange, selectedSizes, sort, badgeFilter]);
+  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [search, category, selectedDrop, stockFilter, priceRange, selectedSizes, sort, badgeFilter]);
 
   // Infinite scroll
   const loadMore = useCallback(() => {
@@ -96,8 +106,8 @@ export default function ProductsPage() {
   }, [loadMore]);
 
   const toggleSize = (size: string) => setSelectedSizes((prev) => prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]);
-  const activeFilterCount = [category !== "All" ? 1 : 0, priceRange !== 0 ? 1 : 0, selectedSizes.length > 0 ? 1 : 0].reduce((a, b) => a + b, 0);
-  const clearAllFilters = () => { setSearch(""); setCategory("All"); setPriceRange(0); setSelectedSizes([]); setSort("newest"); };
+  const activeFilterCount = [category !== "All" ? 1 : 0, selectedDrop !== "All" ? 1 : 0, stockFilter !== "all" ? 1 : 0, priceRange !== 0 ? 1 : 0, selectedSizes.length > 0 ? 1 : 0].reduce((a, b) => a + b, 0);
+  const clearAllFilters = () => { setSearch(""); setCategory("All"); setSelectedDrop("All"); setStockFilter("all"); setPriceRange(0); setSelectedSizes([]); setSort("newest"); };
 
   if (isLoading) {
     return <div className="container py-8"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mt-20" /></div>;
@@ -133,6 +143,18 @@ export default function ProductsPage() {
         {showFilters && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
             <div className="bg-card rounded-lg border border-border p-5 mb-6 space-y-5">
+              {/* Drop Filter */}
+              {drops && drops.length > 0 && (
+                <div>
+                  <p className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground mb-2">Drop</p>
+                  <div className="flex flex-wrap gap-2">
+                    <button onClick={() => setSelectedDrop("All")} className={`px-3 py-1.5 rounded-full text-xs font-display font-semibold transition-all duration-200 ${selectedDrop === "All" ? "bg-primary text-primary-foreground" : "bg-surface text-muted-foreground hover:text-foreground hover:bg-surface-elevated"}`}>All Drops</button>
+                    {drops.map((d) => (
+                      <button key={d.id} onClick={() => setSelectedDrop(d.id)} className={`px-3 py-1.5 rounded-full text-xs font-display font-semibold transition-all duration-200 ${selectedDrop === d.id ? "bg-primary text-primary-foreground" : "bg-surface text-muted-foreground hover:text-foreground hover:bg-surface-elevated"}`}>{d.title}</button>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div>
                 <p className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground mb-2">Price Range</p>
                 <div className="flex flex-wrap gap-2">
@@ -154,6 +176,15 @@ export default function ProductsPage() {
                 <div className="flex flex-wrap gap-2">
                   {SORT_OPTIONS.map((opt) => (
                     <button key={opt.value} onClick={() => setSort(opt.value)} className={`px-3 py-1.5 rounded-full text-xs font-display font-semibold transition-all duration-200 ${sort === opt.value ? "bg-primary text-primary-foreground" : "bg-surface text-muted-foreground hover:text-foreground hover:bg-surface-elevated"}`}>{opt.label}</button>
+                  ))}
+                </div>
+              </div>
+              {/* Availability Filter */}
+              <div>
+                <p className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground mb-2">Availability</p>
+                <div className="flex flex-wrap gap-2">
+                  {[{ label: "All", value: "all" }, { label: "In Stock", value: "in-stock" }, { label: "Out of Stock", value: "out-of-stock" }].map((opt) => (
+                    <button key={opt.value} onClick={() => setStockFilter(opt.value)} className={`px-3 py-1.5 rounded-full text-xs font-display font-semibold transition-all duration-200 ${stockFilter === opt.value ? "bg-primary text-primary-foreground" : "bg-surface text-muted-foreground hover:text-foreground hover:bg-surface-elevated"}`}>{opt.label}</button>
                   ))}
                 </div>
               </div>
