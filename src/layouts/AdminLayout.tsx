@@ -1,5 +1,5 @@
 import { Link, useLocation, Outlet } from "react-router-dom";
-import { LayoutDashboard, Package, Users, ShoppingCart, Bell, ChevronLeft, ChevronRight, FolderOpen, FileText, Zap, Wallet, BookOpen, ArrowDownToLine } from "lucide-react";
+import { LayoutDashboard, Package, Users, ShoppingCart, Bell, ChevronLeft, ChevronRight, FolderOpen, FileText, Zap, Wallet, BookOpen, ArrowDownToLine, ScrollText } from "lucide-react";
 import { useState } from "react";
 
 const adminLinks = [
@@ -8,6 +8,7 @@ const adminLinks = [
   { label: "Categories", to: "/admin/categories", icon: FolderOpen },
   { label: "Drops", to: "/admin/drops", icon: Zap },
   { label: "Blog", to: "/admin/blog", icon: FileText },
+  { label: "Stories", to: "/admin/stories", icon: ScrollText },
   { label: "Orders", to: "/admin/orders", icon: ShoppingCart },
   { label: "Users", to: "/admin/users", icon: Users },
   { label: "Wallets", to: "/admin/wallets", icon: Wallet },

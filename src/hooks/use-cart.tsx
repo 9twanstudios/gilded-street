@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { CartItem, Product } from "@/lib/data";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { track } from "@/lib/tracking";
 
 interface CartContextType {
   items: CartItem[];
@@ -104,6 +105,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       syncToDb(updated);
       return updated;
     });
+    track.addToCart(product.id, size, product.price);
     setIsOpen(true);
   }, [syncToDb]);
 
