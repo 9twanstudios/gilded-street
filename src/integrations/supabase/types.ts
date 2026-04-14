@@ -465,6 +465,57 @@ export type Database = {
           },
         ]
       }
+      stories: {
+        Row: {
+          content: string
+          cover_image: string | null
+          created_at: string
+          era: string | null
+          figure_image: string | null
+          figure_name: string | null
+          id: string
+          published: boolean
+          related_drop_id: string | null
+          related_product_ids: string[]
+          relevance: string | null
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string
+          cover_image?: string | null
+          created_at?: string
+          era?: string | null
+          figure_image?: string | null
+          figure_name?: string | null
+          id?: string
+          published?: boolean
+          related_drop_id?: string | null
+          related_product_ids?: string[]
+          relevance?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          cover_image?: string | null
+          created_at?: string
+          era?: string | null
+          figure_image?: string | null
+          figure_name?: string | null
+          id?: string
+          published?: boolean
+          related_drop_id?: string | null
+          related_product_ids?: string[]
+          relevance?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
