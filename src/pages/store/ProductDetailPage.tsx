@@ -1,7 +1,9 @@
 import { useParams, Link } from "react-router-dom";
 import { useProductBySlug, useProduct, useProducts, formatPrice } from "@/hooks/use-products";
+import { useDrops } from "@/hooks/use-drops";
+import { useStories } from "@/hooks/use-stories";
 import { useCart } from "@/hooks/use-cart";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
@@ -13,6 +15,7 @@ import { SizeGuideModal } from "@/components/store/SizeGuideModal";
 import { NotifyMeForm } from "@/components/store/NotifyMeForm";
 import { Helmet } from "react-helmet-async";
 import confetti from "canvas-confetti";
+import { track } from "@/lib/tracking";
 
 export default function ProductDetailPage() {
   const { slug } = useParams();
@@ -22,9 +25,15 @@ export default function ProductDetailPage() {
   const isLoading = loadingSlug || (!productBySlug && loadingId);
 
   const { data: allProducts } = useProducts();
+  const { data: drops } = useDrops();
+  const { data: stories } = useStories();
   const { addItem } = useCart();
   const [selectedSize, setSelectedSize] = useState("");
   const [added, setAdded] = useState(false);
+
+  useEffect(() => {
+    if (product) track.productView(product.id);
+  }, [product]);
 
   if (isLoading) {
     return (
@@ -44,6 +53,10 @@ export default function ProductDetailPage() {
   }
 
   const recommended = allProducts?.filter((p) => p.id !== product.id && p.category === product.category).slice(0, 4) ?? [];
+
+  // Find which drop this product belongs to
+  const productDrop = drops?.find((d) => d.product_ids.includes(product.id));
+  const dropStories = stories?.filter((s) => s.published && productDrop && s.related_drop_id === productDrop.id) ?? [];
 
   const handleAddToCart = () => {
     if (!selectedSize) return;
@@ -195,6 +208,38 @@ export default function ProductDetailPage() {
           )}
         </motion.div>
       </div>
+
+      {/* Story Behind This Piece */}
+      {productDrop && (
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mt-12 mb-8"
+        >
+          <div className="bg-card border border-border rounded-lg p-6 md:p-8">
+            <p className="text-neon font-display font-bold uppercase tracking-[0.3em] text-xs mb-2">Story Behind This Piece</p>
+            <h2 className="font-heading text-2xl text-gold-gradient mb-3">{productDrop.title}</h2>
+            <p className="text-muted-foreground leading-relaxed mb-4 max-w-2xl">{productDrop.description}</p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to={`/drops/${productDrop.slug}`}
+                className="inline-block bg-primary text-primary-foreground px-5 py-2 rounded font-display font-bold uppercase tracking-wider text-sm hover:bg-gold-dark transition-colors"
+              >
+                View Full Drop
+              </Link>
+              {dropStories.length > 0 && (
+                <Link
+                  to={`/stories/${dropStories[0].slug}`}
+                  className="inline-block border border-primary text-primary px-5 py-2 rounded font-display font-bold uppercase tracking-wider text-sm hover:bg-primary hover:text-primary-foreground transition-colors"
+                >
+                  Read the Story
+                </Link>
+              )}
+            </div>
+          </div>
+        </motion.section>
+      )}
 
       <ReviewSection productId={product.id} />
 

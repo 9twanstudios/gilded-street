@@ -11,6 +11,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { WhatsAppButton, buildOrderMessage } from "@/components/store/WhatsAppButton";
 import { CheckCircle, Wallet, CreditCard } from "lucide-react";
+import { track } from "@/lib/tracking";
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
@@ -43,6 +44,8 @@ export default function CheckoutPage() {
         .single();
       if (orderError) throw orderError;
 
+      track.checkoutStarted(order.id, total);
+
       const orderItems = items.map((item) => ({
         order_id: order.id,
         product_id: item.product.id,
@@ -61,6 +64,7 @@ export default function CheckoutPage() {
         if (error) throw new Error(error.message || "Wallet payment failed");
         if (data?.error) throw new Error(data.error);
         toast.success("Payment successful!");
+        track.purchaseCompleted(order.id, total, items.length);
         setOrderPlaced(true);
         clearCart();
       } else {
