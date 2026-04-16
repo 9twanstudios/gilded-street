@@ -5,6 +5,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCategories, generateSlug } from "@/hooks/use-products";
+import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import {
@@ -60,6 +61,7 @@ interface ProductFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   product?: Product | null;
+  creatorMode?: boolean;
 }
 
 const SUPABASE_URL = "https://virdfjjqohgrnsxkkmsl.supabase.co";
@@ -68,8 +70,9 @@ function getPublicUrl(path: string) {
   return `${SUPABASE_URL}/storage/v1/object/public/product-images/${path}`;
 }
 
-export function ProductFormDialog({ open, onOpenChange, product }: ProductFormDialogProps) {
+export function ProductFormDialog({ open, onOpenChange, product, creatorMode }: ProductFormDialogProps) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const { data: categories } = useCategories();
   const isEdit = !!product;
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -87,17 +90,10 @@ export function ProductFormDialog({ open, onOpenChange, product }: ProductFormDi
   useEffect(() => {
     if (open && product) {
       form.reset({
-        name: product.name,
-        slug: product.slug || "",
-        description: product.description || "",
-        price: product.price,
-        original_price: product.original_price || "",
-        image: product.image,
-        category: product.category,
-        category_id: product.category_id || "",
-        sizes: product.sizes,
-        badge: product.badge || "",
-        in_stock: product.in_stock,
+        name: product.name, slug: product.slug || "", description: product.description || "",
+        price: product.price, original_price: product.original_price || "",
+        image: product.image, category: product.category, category_id: product.category_id || "",
+        sizes: product.sizes, badge: product.badge || "", in_stock: product.in_stock,
       });
       setImagePreview(product.image);
     } else if (open) {
@@ -109,7 +105,6 @@ export function ProductFormDialog({ open, onOpenChange, product }: ProductFormDi
     }
   }, [open, product, form]);
 
-  // Auto-generate slug from name (only for new products)
   const watchName = form.watch("name");
   useEffect(() => {
     if (!isEdit && watchName) {
@@ -155,19 +150,19 @@ export function ProductFormDialog({ open, onOpenChange, product }: ProductFormDi
   };
 
   const onSubmit = async (values: ProductFormValues) => {
-    const payload = {
-      name: values.name,
-      slug: values.slug,
-      description: values.description || null,
-      price: values.price,
-      original_price: values.original_price ? Number(values.original_price) : null,
-      image: values.image,
-      category: values.category,
-      category_id: values.category_id || null,
-      sizes: values.sizes,
-      badge: values.badge || null,
-      in_stock: values.in_stock,
+    const payload: any = {
+      name: values.name, slug: values.slug, description: values.description || null,
+      price: values.price, original_price: values.original_price ? Number(values.original_price) : null,
+      image: values.image, category: values.category, category_id: values.category_id || null,
+      sizes: values.sizes, badge: values.badge || null, in_stock: values.in_stock,
     };
+
+    // Creator mode: set creator_id and status=pending
+    if (creatorMode && !isEdit && user) {
+      payload.creator_id = user.id;
+      payload.status = "pending";
+      payload.approved = false;
+    }
 
     const { error } = isEdit
       ? await supabase.from("products").update(payload).eq("id", product!.id)
@@ -175,8 +170,13 @@ export function ProductFormDialog({ open, onOpenChange, product }: ProductFormDi
 
     if (error) { toast.error(error.message); return; }
 
-    toast.success(isEdit ? "Product updated" : "Product added");
+    toast.success(
+      creatorMode && !isEdit
+        ? "Product submitted for approval!"
+        : isEdit ? "Product updated" : "Product added"
+    );
     queryClient.invalidateQueries({ queryKey: ["products"] });
+    queryClient.invalidateQueries({ queryKey: ["my-creator-products"] });
     onOpenChange(false);
   };
 
@@ -185,10 +185,12 @@ export function ProductFormDialog({ open, onOpenChange, product }: ProductFormDi
       <DialogContent className="bg-card border-border max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-heading text-2xl text-primary">
-            {isEdit ? "Edit Product" : "Add Product"}
+            {creatorMode ? (isEdit ? "Edit Product" : "Upload Product") : (isEdit ? "Edit Product" : "Add Product")}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            {isEdit ? "Update the product details below." : "Fill in the product details below."}
+            {creatorMode && !isEdit
+              ? "Your product will be reviewed by admin before going live."
+              : isEdit ? "Update the product details below." : "Fill in the product details below."}
           </DialogDescription>
         </DialogHeader>
 
@@ -320,25 +322,27 @@ export function ProductFormDialog({ open, onOpenChange, product }: ProductFormDi
               </FormItem>
             )} />
 
-            <FormField control={form.control} name="badge" render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-foreground">Badge (optional)</FormLabel>
-                <Select onValueChange={(val) => field.onChange(val === "none" ? "" : val)} value={field.value || "none"}>
-                  <FormControl>
-                    <SelectTrigger className="bg-background border-border">
-                      <SelectValue placeholder="None" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="bg-card border-border">
-                    <SelectItem value="none">None</SelectItem>
-                    {BADGES.map((b) => (
-                      <SelectItem key={b} value={b}>{b}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )} />
+            {!creatorMode && (
+              <FormField control={form.control} name="badge" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">Badge (optional)</FormLabel>
+                  <Select onValueChange={(val) => field.onChange(val === "none" ? "" : val)} value={field.value || "none"}>
+                    <FormControl>
+                      <SelectTrigger className="bg-background border-border">
+                        <SelectValue placeholder="None" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="bg-card border-border">
+                      <SelectItem value="none">None</SelectItem>
+                      {BADGES.map((b) => (
+                        <SelectItem key={b} value={b}>{b}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
+            )}
 
             <FormField control={form.control} name="in_stock" render={({ field }) => (
               <FormItem className="flex items-center gap-3">
@@ -354,7 +358,7 @@ export function ProductFormDialog({ open, onOpenChange, product }: ProductFormDi
                 className="border-border text-muted-foreground">Cancel</Button>
               <Button type="submit" disabled={form.formState.isSubmitting}
                 className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-primary/90">
-                {form.formState.isSubmitting ? "Saving..." : isEdit ? "Update" : "Add Product"}
+                {form.formState.isSubmitting ? "Saving..." : creatorMode && !isEdit ? "Submit for Review" : isEdit ? "Update" : "Add Product"}
               </Button>
             </div>
           </form>

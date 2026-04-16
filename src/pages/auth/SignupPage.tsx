@@ -5,20 +5,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { UserPlus } from "lucide-react";
+import { UserPlus, ShoppingBag, Palette } from "lucide-react";
+
+type AccountType = "buyer" | "creator";
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [accountType, setAccountType] = useState<AccountType>("buyer");
+  const [brandName, setBrandName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (accountType === "creator" && !brandName.trim()) {
+      toast.error("Brand name is required for creators");
+      return;
+    }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data: signupData, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -26,13 +34,27 @@ export default function SignupPage() {
         emailRedirectTo: window.location.origin,
       },
     });
-    setLoading(false);
     if (error) {
       toast.error(error.message);
-    } else {
-      toast.success("Account created! Check your email to confirm.");
-      navigate("/login");
+      setLoading(false);
+      return;
     }
+
+    // If signup succeeded and we have a user, assign role + create creator profile
+    const userId = signupData.user?.id;
+    if (userId && accountType === "creator") {
+      // Insert creator role - use service-level via edge function or direct insert
+      // The user_roles table doesn't allow client inserts, so we use a post-signup approach
+      // For now, insert into creators table (allowed by RLS) and admin promotes to creator role
+      await supabase.from("creators").insert({
+        user_id: userId,
+        brand_name: brandName.trim(),
+      });
+    }
+
+    setLoading(false);
+    toast.success("Account created! Check your email to confirm.");
+    navigate("/login");
   };
 
   return (
@@ -46,6 +68,39 @@ export default function SignupPage() {
         </div>
 
         <form onSubmit={handleSignup} className="bg-card border border-border rounded-lg p-8 space-y-5">
+          {/* Account Type Selection */}
+          <div>
+            <Label className="text-muted-foreground text-xs font-display uppercase tracking-wider mb-3 block">I am a</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setAccountType("buyer")}
+                className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all duration-200 ${
+                  accountType === "buyer"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-card text-muted-foreground hover:border-primary/50"
+                }`}
+              >
+                <ShoppingBag className="h-6 w-6" />
+                <span className="font-display font-bold text-sm uppercase tracking-wider">Buyer</span>
+                <span className="text-xs opacity-70">Shop streetwear</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setAccountType("creator")}
+                className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all duration-200 ${
+                  accountType === "creator"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-card text-muted-foreground hover:border-primary/50"
+                }`}
+              >
+                <Palette className="h-6 w-6" />
+                <span className="font-display font-bold text-sm uppercase tracking-wider">Creator</span>
+                <span className="text-xs opacity-70">Sell your merch</span>
+              </button>
+            </div>
+          </div>
+
           <div>
             <Label className="text-muted-foreground text-xs font-display uppercase tracking-wider">Full Name</Label>
             <Input
@@ -56,6 +111,20 @@ export default function SignupPage() {
               placeholder="John Doe"
             />
           </div>
+
+          {accountType === "creator" && (
+            <div>
+              <Label className="text-muted-foreground text-xs font-display uppercase tracking-wider">Brand Name</Label>
+              <Input
+                required
+                value={brandName}
+                onChange={(e) => setBrandName(e.target.value)}
+                className="bg-input border-border text-foreground focus:border-primary mt-1"
+                placeholder="Your brand name"
+              />
+            </div>
+          )}
+
           <div>
             <Label className="text-muted-foreground text-xs font-display uppercase tracking-wider">Phone</Label>
             <Input
@@ -96,7 +165,7 @@ export default function SignupPage() {
             className="w-full bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark shadow-gold hover:shadow-gold-lg transition-all duration-300"
           >
             <UserPlus className="mr-2 h-4 w-4" />
-            {loading ? "Creating..." : "Create Account"}
+            {loading ? "Creating..." : accountType === "creator" ? "Create Creator Account" : "Create Account"}
           </Button>
 
           <p className="text-center text-sm text-muted-foreground">
