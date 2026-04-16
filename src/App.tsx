@@ -33,6 +33,7 @@ import AdminUsers from "@/pages/admin/AdminUsers";
 import AdminWallets from "@/pages/admin/AdminWallets";
 import AdminLedger from "@/pages/admin/AdminLedger";
 import AdminWithdrawals from "@/pages/admin/AdminWithdrawals";
+import AdminSettings from "@/pages/admin/AdminSettings";
 import LoginPage from "@/pages/auth/LoginPage";
 import SignupPage from "@/pages/auth/SignupPage";
 import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
@@ -88,6 +89,7 @@ const App = () => (
                 <Route path="wallets" element={<AdminWallets />} />
                 <Route path="ledger" element={<AdminLedger />} />
                 <Route path="withdrawals" element={<AdminWithdrawals />} />
+                <Route path="settings" element={<AdminSettings />} />
               </Route>
 
               <Route path="*" element={<NotFound />} />

@@ -7,7 +7,11 @@ const corsHeaders = {
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const PLATFORM_FEE_PERCENT = 10;
+
+async function getCommissionRate(admin: any): Promise<number> {
+  const { data } = await admin.from("platform_settings").select("value").eq("key", "commission_rate").single();
+  return data ? parseInt(data.value, 10) : 10;
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -33,13 +37,11 @@ Deno.serve(async (req) => {
 
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Get order
     const { data: order, error: orderErr } = await admin.from("orders").select("*").eq("id", order_id).eq("user_id", user.id).single();
     if (orderErr || !order) {
       return new Response(JSON.stringify({ error: "Order not found" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Get wallet
     const { data: wallet } = await admin.from("wallets").select("*").eq("user_id", user.id).single();
     if (!wallet || wallet.balance < order.total) {
       return new Response(JSON.stringify({ error: "Insufficient balance" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -66,7 +68,8 @@ Deno.serve(async (req) => {
 
     // Revenue split if creator product
     if (order.creator_id) {
-      const creatorAmount = Math.floor(order.total * (100 - PLATFORM_FEE_PERCENT) / 100);
+      const feePercent = await getCommissionRate(admin);
+      const creatorAmount = Math.floor(order.total * (100 - feePercent) / 100);
       const feeAmount = order.total - creatorAmount;
 
       const { data: creatorWallet } = await admin.from("wallets").select("*").eq("user_id", order.creator_id).single();
@@ -83,6 +86,12 @@ Deno.serve(async (req) => {
         user_id: user.id, type: "fee", amount: feeAmount, status: "completed",
         reference: `wallet-${order_id}`, order_id, description: `Platform fee for order ${order_id.slice(0, 8)}`,
         idempotency_key: `platform-fee-${order_id}`,
+      });
+
+      // Record commission
+      await admin.from("commissions").insert({
+        order_id, creator_id: order.creator_id, order_total: order.total,
+        platform_fee: feeAmount, creator_earnings: creatorAmount,
       });
     }
 

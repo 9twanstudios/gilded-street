@@ -121,6 +121,82 @@ export type Database = {
         }
         Relationships: []
       }
+      commissions: {
+        Row: {
+          created_at: string
+          creator_earnings: number
+          creator_id: string
+          id: string
+          order_id: string
+          order_total: number
+          platform_fee: number
+        }
+        Insert: {
+          created_at?: string
+          creator_earnings: number
+          creator_id: string
+          id?: string
+          order_id: string
+          order_total: number
+          platform_fee: number
+        }
+        Update: {
+          created_at?: string
+          creator_earnings?: number
+          creator_id?: string
+          id?: string
+          order_id?: string
+          order_total?: number
+          platform_fee?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commissions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      creators: {
+        Row: {
+          bio: string | null
+          brand_name: string
+          created_at: string
+          id: string
+          logo_url: string | null
+          user_id: string
+          verified: boolean
+        }
+        Insert: {
+          bio?: string | null
+          brand_name: string
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          user_id: string
+          verified?: boolean
+        }
+        Update: {
+          bio?: string | null
+          brand_name?: string
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          user_id?: string
+          verified?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creators_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       drops: {
         Row: {
           active: boolean
@@ -335,6 +411,24 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           approved: boolean
@@ -352,6 +446,7 @@ export type Database = {
           price: number
           sizes: string[]
           slug: string
+          status: Database["public"]["Enums"]["product_status"]
           updated_at: string
         }
         Insert: {
@@ -370,6 +465,7 @@ export type Database = {
           price: number
           sizes?: string[]
           slug: string
+          status?: Database["public"]["Enums"]["product_status"]
           updated_at?: string
         }
         Update: {
@@ -388,6 +484,7 @@ export type Database = {
           price?: number
           sizes?: string[]
           slug?: string
+          status?: Database["public"]["Enums"]["product_status"]
           updated_at?: string
         }
         Relationships: [
@@ -643,6 +740,7 @@ export type Database = {
         | "shipped"
         | "delivered"
         | "cancelled"
+      product_status: "pending" | "approved" | "rejected"
       withdrawal_status: "pending" | "approved" | "rejected" | "completed"
     }
     CompositeTypes: {
@@ -781,6 +879,7 @@ export const Constants = {
         "delivered",
         "cancelled",
       ],
+      product_status: ["pending", "approved", "rejected"],
       withdrawal_status: ["pending", "approved", "rejected", "completed"],
     },
   },
