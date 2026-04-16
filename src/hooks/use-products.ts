@@ -14,6 +14,9 @@ export interface Product {
   badge: string | null;
   sizes: string[];
   in_stock: boolean;
+  status: string;
+  approved: boolean;
+  creator_id: string | null;
   created_at: string;
   updated_at: string;
 }
