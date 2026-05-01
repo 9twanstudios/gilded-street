@@ -62,7 +62,7 @@ export default function AccountPage() {
           )}
           {tab === "orders" && (
             !orders?.length ? (
-              <EmptyState icon={Package} title="No orders yet" description="Your order history will appear here." cta={{ label: "Start Shopping", to: "/shop" }} />
+              <EmptyState icon={Package} title="No orders yet" description="Your order history will appear here." actionLabel="Start Shopping" actionHref="/shop" />
             ) : (
               <div className="space-y-3">
                 {orders.map((o: any) => (
@@ -84,7 +84,7 @@ export default function AccountPage() {
           )}
           {tab === "wishlist" && (
             !wishlist?.length ? (
-              <EmptyState icon={Heart} title="Wishlist is empty" description="Save fits you love for later." cta={{ label: "Browse Drops", to: "/drops" }} />
+              <EmptyState icon={Heart} title="Wishlist is empty" description="Save fits you love for later." actionLabel="Browse Drops" actionHref="/drops" />
             ) : (
               <p className="text-muted-foreground text-sm">{wishlist.length} saved item(s). View on the <Link to="/products" className="text-primary underline">shop page</Link>.</p>
             )
