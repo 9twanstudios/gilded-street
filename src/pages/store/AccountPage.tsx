@@ -6,7 +6,7 @@ import { useWishlist } from "@/hooks/use-wishlist";
 import { useWallet, formatKES } from "@/hooks/use-wallet";
 import { User, Package, Heart, Wallet, ScanLine, LogOut } from "lucide-react";
 import SEO from "@/components/SEO";
-import EmptyState from "@/components/store/EmptyState";
+import { EmptyState } from "@/components/store/EmptyState";
 import { formatPrice } from "@/hooks/use-products";
 
 type Tab = "overview" | "orders" | "profile" | "wishlist" | "wallet" | "qr";
