@@ -1,16 +1,19 @@
 import { Link, useLocation, Outlet } from "react-router-dom";
-import { LayoutDashboard, Package, Users, ShoppingCart, Bell, ChevronLeft, ChevronRight, FolderOpen, FileText, Zap, Wallet, BookOpen, ArrowDownToLine, ScrollText, Settings } from "lucide-react";
+import { LayoutDashboard, Package, Users, ShoppingCart, Bell, ChevronLeft, ChevronRight, FolderOpen, FileText, Zap, Wallet, BookOpen, ArrowDownToLine, ScrollText, Settings, QrCode, Globe, BarChart3 } from "lucide-react";
 import { useState } from "react";
 
 const adminLinks = [
   { label: "Dashboard", to: "/admin", icon: LayoutDashboard },
+  { label: "Analytics", to: "/admin/analytics", icon: BarChart3 },
+  { label: "Orders", to: "/admin/orders", icon: ShoppingCart },
   { label: "Products", to: "/admin/products", icon: Package },
   { label: "Categories", to: "/admin/categories", icon: FolderOpen },
   { label: "Drops", to: "/admin/drops", icon: Zap },
+  { label: "QR", to: "/admin/qr", icon: QrCode },
+  { label: "SEO", to: "/admin/seo", icon: Globe },
   { label: "Blog", to: "/admin/blog", icon: FileText },
   { label: "Stories", to: "/admin/stories", icon: ScrollText },
-  { label: "Orders", to: "/admin/orders", icon: ShoppingCart },
-  { label: "Users", to: "/admin/users", icon: Users },
+  { label: "Customers", to: "/admin/users", icon: Users },
   { label: "Wallets", to: "/admin/wallets", icon: Wallet },
   { label: "Ledger", to: "/admin/ledger", icon: BookOpen },
   { label: "Withdrawals", to: "/admin/withdrawals", icon: ArrowDownToLine },

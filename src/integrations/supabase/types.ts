@@ -236,6 +236,36 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          page_path: string | null
+          properties: Json | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          page_path?: string | null
+          properties?: Json | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          page_path?: string | null
+          properties?: Json | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       ledger_entries: {
         Row: {
           amount: number
@@ -447,6 +477,7 @@ export type Database = {
           sizes: string[]
           slug: string
           status: Database["public"]["Enums"]["product_status"]
+          stock_count: number | null
           updated_at: string
         }
         Insert: {
@@ -466,6 +497,7 @@ export type Database = {
           sizes?: string[]
           slug: string
           status?: Database["public"]["Enums"]["product_status"]
+          stock_count?: number | null
           updated_at?: string
         }
         Update: {
@@ -485,6 +517,7 @@ export type Database = {
           sizes?: string[]
           slug?: string
           status?: Database["public"]["Enums"]["product_status"]
+          stock_count?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -524,6 +557,121 @@ export type Database = {
         }
         Relationships: []
       }
+      qr_campaigns: {
+        Row: {
+          active: boolean
+          campaign_type: string
+          created_at: string
+          created_by: string | null
+          cta_label: string | null
+          cta_url: string | null
+          description: string | null
+          headline: string
+          hero_image: string | null
+          id: string
+          name: string
+          slug: string
+          subheadline: string | null
+          target_id: string | null
+          target_slug: string | null
+          updated_at: string
+          variant: string | null
+          variant_of: string | null
+        }
+        Insert: {
+          active?: boolean
+          campaign_type?: string
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_url?: string | null
+          description?: string | null
+          headline?: string
+          hero_image?: string | null
+          id?: string
+          name: string
+          slug: string
+          subheadline?: string | null
+          target_id?: string | null
+          target_slug?: string | null
+          updated_at?: string
+          variant?: string | null
+          variant_of?: string | null
+        }
+        Update: {
+          active?: boolean
+          campaign_type?: string
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_url?: string | null
+          description?: string | null
+          headline?: string
+          hero_image?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          subheadline?: string | null
+          target_id?: string | null
+          target_slug?: string | null
+          updated_at?: string
+          variant?: string | null
+          variant_of?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_campaigns_variant_of_fkey"
+            columns: ["variant_of"]
+            isOneToOne: false
+            referencedRelation: "qr_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qr_scans: {
+        Row: {
+          campaign_id: string
+          id: string
+          ip_city: string | null
+          ip_country: string | null
+          referrer: string | null
+          scanned_at: string
+          session_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          campaign_id: string
+          id?: string
+          ip_city?: string | null
+          ip_country?: string | null
+          referrer?: string | null
+          scanned_at?: string
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          id?: string
+          ip_city?: string | null
+          ip_country?: string | null
+          referrer?: string | null
+          scanned_at?: string
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_scans_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "qr_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           comment: string | null
@@ -561,6 +709,108 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      seo_clusters: {
+        Row: {
+          body_md: string
+          created_at: string
+          h1: string
+          hero_image: string | null
+          id: string
+          keywords: string[]
+          meta_description: string
+          published: boolean
+          related_drop_ids: string[]
+          related_product_ids: string[]
+          related_story_ids: string[]
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body_md?: string
+          created_at?: string
+          h1: string
+          hero_image?: string | null
+          id?: string
+          keywords?: string[]
+          meta_description?: string
+          published?: boolean
+          related_drop_ids?: string[]
+          related_product_ids?: string[]
+          related_story_ids?: string[]
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body_md?: string
+          created_at?: string
+          h1?: string
+          hero_image?: string | null
+          id?: string
+          keywords?: string[]
+          meta_description?: string
+          published?: boolean
+          related_drop_ids?: string[]
+          related_product_ids?: string[]
+          related_story_ids?: string[]
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_locations: {
+        Row: {
+          body_md: string
+          city: string
+          country: string
+          created_at: string
+          hero_image: string | null
+          id: string
+          local_cta_label: string | null
+          local_cta_url: string | null
+          meta_description: string
+          published: boolean
+          shipping_note: string | null
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body_md?: string
+          city: string
+          country: string
+          created_at?: string
+          hero_image?: string | null
+          id?: string
+          local_cta_label?: string | null
+          local_cta_url?: string | null
+          meta_description?: string
+          published?: boolean
+          shipping_note?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body_md?: string
+          city?: string
+          country?: string
+          created_at?: string
+          hero_image?: string | null
+          id?: string
+          local_cta_label?: string | null
+          local_cta_url?: string | null
+          meta_description?: string
+          published?: boolean
+          shipping_note?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       stories: {
         Row: {
@@ -731,7 +981,14 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user" | "creator"
+      app_role:
+        | "admin"
+        | "user"
+        | "creator"
+        | "content"
+        | "commerce"
+        | "marketing"
+        | "support"
       ledger_status: "pending" | "completed" | "failed"
       ledger_type: "deposit" | "purchase" | "payout" | "fee" | "refund"
       order_status:
@@ -869,7 +1126,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "creator"],
+      app_role: [
+        "admin",
+        "user",
+        "creator",
+        "content",
+        "commerce",
+        "marketing",
+        "support",
+      ],
       ledger_status: ["pending", "completed", "failed"],
       ledger_type: ["deposit", "purchase", "payout", "fee", "refund"],
       order_status: [
