@@ -61,8 +61,11 @@ export function StoreFooter() {
             <p className="text-muted-foreground text-xs">Nairobi, Kenya 🇰🇪</p>
           </div>
         </div>
-        <div className="border-t border-border mt-8 pt-8 text-center">
-          <p className="text-muted-foreground text-xs">© {new Date().getFullYear()} 91 Fitz. All rights reserved. Kenyan streetwear brand.</p>
+        <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row items-center justify-between gap-3">
+          <p className="text-muted-foreground text-xs">© {new Date().getFullYear()} 91 Fitz. All rights reserved. Pan-African streetwear, forged in Nairobi.</p>
+          <Link to="/admin" className="text-muted-foreground/60 hover:text-primary transition-colors text-[10px] font-display uppercase tracking-[0.2em]">
+            Admin
+          </Link>
         </div>
       </div>
     </footer>
