@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { CheckCircle, XCircle, Clock } from "lucide-react";
+import { logAdminAction } from "@/lib/admin-audit";
 
 export default function AdminWithdrawals() {
   const { data: withdrawals, isLoading } = useAllWithdrawals();
@@ -15,6 +16,7 @@ export default function AdminWithdrawals() {
       .update({ status, admin_note: admin_note || null, processed_at: new Date().toISOString() } as any)
       .eq("id", id);
     if (error) { toast.error(error.message); return; }
+    logAdminAction(status === "approved" ? "withdrawal.approved" : "withdrawal.rejected", id);
     toast.success(`Withdrawal ${status}`);
     queryClient.invalidateQueries({ queryKey: ["admin-withdrawals"] });
   };

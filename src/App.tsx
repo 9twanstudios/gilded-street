@@ -45,6 +45,7 @@ import LoginPage from "@/pages/auth/LoginPage";
 import SignupPage from "@/pages/auth/SignupPage";
 import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "@/pages/auth/ResetPasswordPage";
+import AdminLoginPage from "@/pages/auth/AdminLoginPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -65,6 +66,10 @@ const App = () => (
               <Route path="/auth/sign-in" element={<LoginPage />} />
               <Route path="/auth/sign-up" element={<SignupPage />} />
               <Route path="/auth/reset" element={<ForgotPasswordPage />} />
+
+              {/* Admin sign-in (public, outside AdminGuard) */}
+              <Route path="/admin/login" element={<AdminLoginPage />} />
+              <Route path="/acp/login" element={<AdminLoginPage />} />
 
               {/* QR landing — standalone (no store layout) */}
               <Route path="/u/:slug" element={<QRLandingPage />} />
