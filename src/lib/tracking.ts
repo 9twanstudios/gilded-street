@@ -25,6 +25,19 @@ interface TrackingPayload {
 
 const SESSION_KEY = "91fitz_session_id";
 
+// LDX v12.1: in-memory burst limit — drop client-side spam (>20 events / 10s)
+const BURST_WINDOW_MS = 10_000;
+const BURST_MAX = 20;
+const burstLog: number[] = [];
+
+function withinBurstLimit(): boolean {
+  const now = Date.now();
+  while (burstLog.length && now - burstLog[0] > BURST_WINDOW_MS) burstLog.shift();
+  if (burstLog.length >= BURST_MAX) return false;
+  burstLog.push(now);
+  return true;
+}
+
 function getSessionId(): string {
   if (typeof window === "undefined") return "ssr";
   let s = sessionStorage.getItem(SESSION_KEY);
@@ -36,6 +49,10 @@ function getSessionId(): string {
 }
 
 async function dispatch(event: TrackingEvent, properties: TrackingPayload) {
+  if (!withinBurstLimit()) {
+    if (import.meta.env.DEV) console.warn("[track] burst limit hit, dropping", event);
+    return;
+  }
   try {
     const { data: { user } } = await supabase.auth.getUser();
     const path = typeof window !== "undefined" ? window.location.pathname : null;
