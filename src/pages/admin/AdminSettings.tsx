@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Settings, Percent } from "lucide-react";
+import { logAdminAction } from "@/lib/admin-audit";
 
 export default function AdminSettings() {
   const { data: settings, isLoading } = usePlatformSettings();
@@ -29,6 +30,7 @@ export default function AdminSettings() {
       .eq("key", "commission_rate");
     setSaving(false);
     if (error) { toast.error(error.message); return; }
+    logAdminAction("settings.updated", null, { key: "commission_rate", value: rate });
     toast.success(`Commission rate updated to ${rate}%`);
     queryClient.invalidateQueries({ queryKey: ["platform-settings"] });
     setCommissionRate("");
