@@ -7,6 +7,7 @@ import { Plus, Edit, Trash2, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { ProductFormDialog } from "@/components/admin/ProductFormDialog";
 import { DeleteConfirmDialog } from "@/components/admin/DeleteConfirmDialog";
+import { logAdminAction } from "@/lib/admin-audit";
 
 type TabFilter = "all" | "pending" | "approved" | "rejected";
 
@@ -42,6 +43,7 @@ export default function AdminProducts() {
   const handleApprove = async (id: string) => {
     const { error } = await supabase.from("products").update({ status: "approved" as any, approved: true }).eq("id", id);
     if (error) { toast.error(error.message); return; }
+    logAdminAction("product.approved", id);
     toast.success("Product approved");
     queryClient.invalidateQueries({ queryKey: ["admin-products"] });
     queryClient.invalidateQueries({ queryKey: ["products"] });
@@ -50,6 +52,7 @@ export default function AdminProducts() {
   const handleReject = async (id: string) => {
     const { error } = await supabase.from("products").update({ status: "rejected" as any, approved: false }).eq("id", id);
     if (error) { toast.error(error.message); return; }
+    logAdminAction("product.rejected", id);
     toast.success("Product rejected");
     queryClient.invalidateQueries({ queryKey: ["admin-products"] });
   };
