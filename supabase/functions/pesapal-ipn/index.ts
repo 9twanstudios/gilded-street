@@ -17,9 +17,31 @@ async function getPesapalToken(): Promise<string> {
   return data.token;
 }
 
-async function getCommissionRate(admin: any): Promise<number> {
-  const { data } = await admin.from("platform_settings").select("value").eq("key", "commission_rate").single();
-  return data ? parseInt(data.value, 10) : 10;
+async function getRate(admin: any, key: string, fallback: number): Promise<number> {
+  const { data } = await admin.from("platform_settings").select("value").eq("key", key).single();
+  return data ? parseInt(data.value, 10) : fallback;
+}
+
+async function rewardReferral(admin: any, order: any, orderTrackingId: string) {
+  // Find a pending referral for the buyer; if found and not yet rewarded, credit referrer from growth pool.
+  const { data: ref } = await admin.from("referrals").select("*").eq("invitee_id", order.user_id).in("status", ["signed_up", "pending"]).maybeSingle();
+  if (!ref) return;
+  const bounty = await getRate(admin, "referral_bounty", 10000); // KES cents
+  const { data: refWallet } = await admin.from("wallets").select("*").eq("user_id", ref.referrer_id).single();
+  if (!refWallet) return;
+  const idem = `referral-bounty-${ref.id}`;
+  const { data: existing } = await admin.from("ledger_entries").select("id").eq("idempotency_key", idem).maybeSingle();
+  if (existing) return;
+  await admin.from("wallets").update({ balance: refWallet.balance + bounty }).eq("user_id", ref.referrer_id);
+  await admin.from("ledger_entries").insert({
+    user_id: ref.referrer_id, type: "deposit", amount: bounty, status: "completed",
+    reference: orderTrackingId, order_id: order.id,
+    description: `Referral bounty: invitee converted on order ${order.id.slice(0, 8)}`,
+    idempotency_key: idem,
+  });
+  await admin.from("referrals").update({
+    status: "rewarded", reward_amount: bounty, converted_order_id: order.id,
+  }).eq("id", ref.id);
 }
 
 Deno.serve(async (req) => {
