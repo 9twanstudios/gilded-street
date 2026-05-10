@@ -1,112 +1,116 @@
 
+# LDX v14 — System Audit & Upgrade Plan
 
-# 91 Fitz — Production Hardening Plan
+## Audit: Current State vs LDX v14
 
-## Reality Check
-The codebase already has ~80% of what your prompt describes: auth + roles, products with `creator_id` + `approved` field, orders, Pesapal payments, 90/10 commission via ledger, admin dashboard, creator dashboard, cart, checkout, dark gold theme. A full rebuild would destroy working infrastructure.
+### What already exists ✅
+- **Hosting**: Vercel-ready (`vercel.json`, SPA rewrites)
+- **Backend**: Supabase (Postgres + Auth + Storage `product-images`)
+- **Payments**: Pesapal integrated (`pesapal-checkout`, `pesapal-ipn`, `wallet-pay`)
+- **Fee split**: 90/10 creator/platform via `platform_settings.commission_rate` + `commissions` table
+- **Ledger**: Immutable `ledger_entries` with idempotency keys
+- **Wallets**: Per-user `wallets` table with admin views
+- **Analytics**: `events` table + `tracking.ts` with burst limit
+- **QR Campaigns**: `qr_campaigns` + `qr_scans` + branded QR generator
+- **SEO**: Cluster + location pages, JSON-LD via `SEO.tsx`
+- **Admin ACP**: Login, audit log, capabilities, RLS-locked tables
+- **Drops, Stories, Blog, Reviews, Wishlist, Newsletter**: All present
 
-What's actually missing are specific **gaps** that make it feel like a demo:
+### Gaps vs LDX v14 ❌
+1. **No UPAL abstraction** — Pesapal logic is hardcoded in checkout/IPN; no provider plug-in surface
+2. **Two-way split only** — missing Ecosystem Growth Pool (third bucket)
+3. **No referral/virality system** — no invite codes, no referral rewards, no virality coefficient tracking
+4. **No OG image generation** — share cards are static; no per-product/drop dynamic OG
+5. **No A/B testing surface** — `qr_campaigns` has `variant` field but no funnel comparison UI
+6. **No funnel/cohort analytics** — `AdminAnalytics` shows raw events, no conversion or retention math
+7. **No campaign/segmentation system** — no targeted push, email queue, or audience segments
+8. **No revenue attribution** — events log scans, but don't link scan → order → revenue
+9. **Marketing engine scattered** — newsletter, QR, SEO live in silos, no unified dashboard
 
-## Gap Analysis
+---
 
-| Feature | Current State | Fix Needed |
-|---------|--------------|------------|
-| Signup role selection | Generic signup, no buyer/creator choice | Add role picker on signup |
-| Creator profile | Just a `profiles` row | New `creators` table (brand_name, bio, verified) |
-| Product approval UI | `approved` boolean exists, admin has no approve/reject buttons | Add status enum + admin approval workflow |
-| Creator upload flow | Creators CAN insert products (RLS exists) but no UI | Add product upload form to creator dashboard |
-| Commissions tracking | Spread across ledger_entries | New `commissions` table per order |
-| Platform fee config | Hardcoded 10% in edge function | Admin-configurable `platform_settings` table |
-| Skeleton loaders | Some pages have spinners, not skeletons | Add skeleton components to key pages |
-| Empty states | Basic "no data" text | Proper illustrated empty states |
+## Plan: Phased Upgrade
 
-## Implementation Plan
+### Phase 1 — UPAL (Unified Payment Abstraction Layer)
+**Goal**: Decouple payment provider from business logic; enable 3-way split.
 
-### 1. Database Migrations
+- New module `src/lib/upal/` with `PaymentProvider` interface
+- Refactor `pesapal-checkout` and `pesapal-ipn` to call shared `upal-settle` edge function
+- New edge function `upal-settle`: takes `order_id` + `provider` + `external_ref`, runs canonical split + ledger writes (idempotent)
+- DB migration: add `growth_pool_rate` to `platform_settings`; add `growth_pool` wallet (system-owned) + `commissions.growth_pool_share` column
+- Admin Settings: 3 sliders (creator / platform / growth pool) summing to 100%
 
-**New `creators` table:**
-- `id`, `user_id` (FK profiles), `brand_name`, `bio`, `logo_url`, `verified` (boolean), `created_at`
-- RLS: owner can read/update own, public can read verified, admin full access
+### Phase 2 — Growth & Referral Engine
+**Goal**: Build virality into the product.
 
-**New `commissions` table:**
-- `id`, `order_id`, `creator_id`, `order_total`, `platform_fee`, `creator_earnings`, `created_at`
-- RLS: admin can read all, creator can read own
+- DB migration: `referrals` table (`referrer_id`, `invitee_id`, `code`, `status`, `reward_amount`, `converted_order_id`)
+- `profiles.referral_code` (auto-generated on signup via trigger)
+- `/r/:code` route → sets cookie, attributes signup, fires `referral.attributed.v1`
+- On first paid order: credit referrer wallet from growth pool (configurable bounty)
+- Account page: "Invite & Earn" tab with code, share buttons (WhatsApp, X, copy link), branded share card
 
-**New `platform_settings` table:**
-- `key` (text, primary), `value` (text)
-- Seed with `commission_rate` = `10`
-- RLS: public read, admin update
+### Phase 3 — Marketing Engine
+**Goal**: Unified `/admin/marketing` hub.
 
-**Alter `products`:**
-- Add `status` column (enum: `pending`, `approved`, `rejected`) replacing the `approved` boolean
-- Migration converts existing `approved=true` to `status='approved'`
+- New edge function `og-image` (Deno + satori or canvas) → renders branded OG cards for products, drops, stories, clusters
+- `SEO.tsx` consumes `/functions/v1/og-image?type=product&id=…`
+- New admin pages:
+  - `AdminMarketing.tsx` — funnel overview (scans → views → carts → orders → revenue)
+  - `AdminCampaigns.tsx` — extends QR campaigns with A/B variant comparison (CTR, CVR, RPM)
+  - `AdminSegments.tsx` — saved audience filters (e.g. "Nairobi buyers last 30d")
+- `tracking.ts`: add `attribution` payload (utm, ref code, qr campaign) propagated through cart → order
 
-### 2. Signup with Role Selection
-- Add "I'm a Buyer" / "I'm a Creator" toggle on signup page
-- If creator selected: also capture `brand_name`
-- On signup: insert into `user_roles` + `creators` table via a trigger or post-signup flow
+### Phase 4 — Analytics Feedback Loop
+**Goal**: Make every decision measurable.
 
-### 3. Creator Dashboard — Product Upload
-- Add "Upload Product" button to creator dashboard
-- Reuse existing `ProductFormDialog` adapted for creators (no category_id required, auto-sets `creator_id`, status defaults to `pending`)
-- Show product status badges: pending (yellow), approved (green), rejected (red)
+- DB views: `mv_funnel_daily`, `mv_cohort_retention`, `mv_revenue_attribution` (refreshed via cron edge function)
+- `AdminAnalytics.tsx` rebuild: KPI tiles (DAU, ARPU, conversion, virality coefficient, growth score), cohort heatmap, revenue-by-source chart
+- Compute & display Growth Score per LDX v14 formula
 
-### 4. Admin Product Approval Workflow
-- Add "Pending Approval" tab/filter to admin products page
-- Each pending product shows Approve / Reject buttons
-- On approve: set `status = 'approved'`
-- On reject: set `status = 'rejected'`
+### Phase 5 — Hardening & Audit Closure
+- RLS audit on new tables (referrals, growth_pool wallet)
+- Backfill audit log entries for all admin mutations on new pages
+- Update `vercel.json` headers, verify all new routes
+- Final audit report: fixed / added / removed / production-ready / needs review
 
-### 5. Commission Recording
-- When order is paid (via Pesapal IPN or wallet-pay edge function):
-  - Read `commission_rate` from `platform_settings`
-  - Insert row into `commissions` table
-  - Existing ledger entries continue as-is for wallet balance tracking
-- Admin dashboard shows commission totals from new table
+---
 
-### 6. Admin Commission Settings
-- New section in admin dashboard or settings page
-- Slider/input to set platform commission % (1-50%)
-- Writes to `platform_settings` table
+## Route Additions
+```text
+/r/:code                  — referral capture
+/admin/marketing          — funnel hub
+/admin/campaigns          — A/B + QR unified
+/admin/segments           — audience builder
+/account?tab=invite       — referral dashboard (existing page, new tab)
+```
 
-### 7. UI Polish
-- Skeleton loaders for: product grid, admin tables, profile page
-- Empty states with icons + CTAs for: no products, no orders, empty cart, empty wishlist
-- Toast notifications already exist (sonner) — ensure all mutations have feedback
+## Edge Functions
+```text
+supabase/functions/upal-settle/         — provider-agnostic settlement
+supabase/functions/og-image/            — dynamic share cards
+supabase/functions/analytics-rollup/    — nightly MV refresh
+```
 
-### 8. Creator Storefront Enhancement
-- Pull `brand_name`, `bio`, `logo_url` from `creators` table instead of just profiles
-- Show "Verified Creator" badge if `verified = true`
+## DB Migrations (5 total)
+1. `platform_settings`: add `growth_pool_rate`; create system `growth_pool` wallet
+2. `commissions`: add `growth_pool_share` column
+3. `referrals` table + `profiles.referral_code` + signup trigger
+4. `events`: add `attribution` jsonb; index on `event_type`, `created_at`
+5. Materialized views + refresh function
 
-## Files Changed/Created
+---
 
-**New files:**
-- `src/components/store/SkeletonProductGrid.tsx`
-- `src/components/store/EmptyState.tsx`
+## Out of Scope (this patch)
+- Email/SMS sending infra (placeholders only — flagged for future)
+- Multi-provider payment plug-ins beyond Pesapal (interface only, no second provider)
+- Push notifications (requires service worker rework)
 
-**Modified files:**
-- `src/pages/auth/SignupPage.tsx` — role selection
-- `src/pages/store/CreatorDashboard.tsx` — product upload, status badges
-- `src/pages/admin/AdminProducts.tsx` — approval workflow
-- `src/pages/admin/AdminDashboard.tsx` — commission stats
-- `src/components/admin/ProductFormDialog.tsx` — creator mode
-- `src/pages/store/CreatorStorefront.tsx` — enhanced profile
-- `src/hooks/use-products.ts` — filter by status
-- `src/integrations/supabase/types.ts` — auto-updated after migration
-- Edge functions (`wallet-pay`, `pesapal-ipn`) — commission recording
+---
 
-## Implementation Order
-1. Database migrations (creators, commissions, platform_settings, products status)
-2. Signup role selection + creator onboarding
-3. Creator dashboard product upload
-4. Admin approval workflow
-5. Commission recording in edge functions
-6. Admin commission settings
-7. UI polish (skeletons, empty states, storefront)
+## Open Questions
+Before I implement, please confirm:
 
-## Technical Notes
-- No framework change — stays React + Vite + Supabase
-- `approved` boolean migrated to `status` enum with backward compatibility
-- Existing RLS patterns preserved (has_role function)
-- Edge functions updated to read commission rate from DB instead of hardcoded value
-
+1. **Growth Pool destination** — should it accumulate in a system wallet (admin-withdrawable) or auto-fund referral bounties?
+2. **Referral bounty model** — flat KES amount per converted invitee, or % of first order?
+3. **OG image runtime** — OK to add `satori` + `resvg` to edge function (cold start ~1s), or prefer pre-rendered PNGs stored in Supabase Storage?
+4. **A/B testing scope for v14** — QR campaign variants only, or also product page hero / CTA variants?
