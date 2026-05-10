@@ -84,3 +84,8 @@ export const track = {
   clusterView: (slug: string) => dispatch("cluster_view", { slug }),
   localView: (slug: string) => dispatch("local_view", { slug }),
 };
+
+// Generic event dispatcher for ad-hoc / versioned event types
+export function trackEvent(event: string, properties: TrackingPayload = {}) {
+  return dispatch(event as TrackingEvent, properties);
+}
