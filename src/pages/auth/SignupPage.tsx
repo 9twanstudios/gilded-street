@@ -40,16 +40,31 @@ export default function SignupPage() {
       return;
     }
 
-    // If signup succeeded and we have a user, assign role + create creator profile
     const userId = signupData.user?.id;
     if (userId && accountType === "creator") {
-      // Insert creator role - use service-level via edge function or direct insert
-      // The user_roles table doesn't allow client inserts, so we use a post-signup approach
-      // For now, insert into creators table (allowed by RLS) and admin promotes to creator role
       await supabase.from("creators").insert({
         user_id: userId,
         brand_name: brandName.trim(),
       });
+    }
+
+    // LDX v14: attach referral if a code is stored
+    if (userId) {
+      try {
+        const { getStoredReferralCode } = await import("@/pages/store/ReferralCapturePage");
+        const code = getStoredReferralCode();
+        if (code) {
+          const { data: refProfile } = await supabase.from("profiles").select("id").eq("referral_code", code).maybeSingle();
+          if (refProfile && (refProfile as any).id !== userId) {
+            await supabase.from("referrals" as any).insert({
+              referrer_id: (refProfile as any).id,
+              invitee_id: userId,
+              code,
+              status: "signed_up",
+            });
+          }
+        }
+      } catch {}
     }
 
     setLoading(false);

@@ -17,7 +17,8 @@ type TrackingEvent =
   | "page_view"
   | "qr_scanned"
   | "cluster_view"
-  | "local_view";
+  | "local_view"
+  | "referral.attributed.v1";
 
 interface TrackingPayload {
   [key: string]: unknown;
@@ -83,3 +84,8 @@ export const track = {
   clusterView: (slug: string) => dispatch("cluster_view", { slug }),
   localView: (slug: string) => dispatch("local_view", { slug }),
 };
+
+// Generic event dispatcher for ad-hoc / versioned event types
+export function trackEvent(event: string, properties: TrackingPayload = {}) {
+  return dispatch(event as TrackingEvent, properties);
+}
