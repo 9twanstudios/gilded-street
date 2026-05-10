@@ -76,9 +76,12 @@ Deno.serve(async (req) => {
       if (!order) throw new Error("Order not found");
 
       if (order.creator_id) {
-        const feePercent = await getCommissionRate(admin);
-        const creatorAmount = Math.floor(order.total * (100 - feePercent) / 100);
-        const feeAmount = order.total - creatorAmount;
+        const platformPct = await getRate(admin, "commission_rate", 10);
+        const growthPct = await getRate(admin, "growth_pool_rate", 0);
+        const creatorPct = Math.max(0, 100 - platformPct - growthPct);
+        const creatorAmount = Math.floor(order.total * creatorPct / 100);
+        const growthAmount = Math.floor(order.total * growthPct / 100);
+        const feeAmount = order.total - creatorAmount - growthAmount;
 
         const { data: creatorWallet } = await admin.from("wallets").select("*").eq("user_id", order.creator_id).single();
         if (creatorWallet) {
@@ -96,11 +99,22 @@ Deno.serve(async (req) => {
           idempotency_key: `platform-fee-${order.id}`,
         });
 
-        // Record commission
+        if (growthAmount > 0) {
+          await admin.from("ledger_entries").insert({
+            user_id: order.user_id, type: "fee", amount: growthAmount, status: "completed",
+            reference: orderTrackingId, order_id: order.id,
+            description: `Ecosystem growth pool contribution for order ${order.id.slice(0, 8)}`,
+            idempotency_key: `growth-pool-${order.id}`,
+          });
+        }
+
         await admin.from("commissions").insert({
           order_id: order.id, creator_id: order.creator_id, order_total: order.total,
-          platform_fee: feeAmount, creator_earnings: creatorAmount,
+          platform_fee: feeAmount, creator_earnings: creatorAmount, growth_pool_share: growthAmount,
         });
+
+        // Reward referrer if applicable
+        await rewardReferral(admin, order, orderTrackingId);
       }
     } else if (paymentStatus === "Failed" || paymentStatus === "Invalid") {
       await admin.from("orders").update({ status: "cancelled" }).eq("id", orderMerchantReference);
