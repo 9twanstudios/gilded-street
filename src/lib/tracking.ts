@@ -17,7 +17,8 @@ type TrackingEvent =
   | "page_view"
   | "qr_scanned"
   | "cluster_view"
-  | "local_view";
+  | "local_view"
+  | "referral.attributed.v1";
 
 interface TrackingPayload {
   [key: string]: unknown;
