@@ -126,6 +126,7 @@ export type Database = {
           created_at: string
           creator_earnings: number
           creator_id: string
+          growth_pool_share: number
           id: string
           order_id: string
           order_total: number
@@ -135,6 +136,7 @@ export type Database = {
           created_at?: string
           creator_earnings: number
           creator_id: string
+          growth_pool_share?: number
           id?: string
           order_id: string
           order_total: number
@@ -144,6 +146,7 @@ export type Database = {
           created_at?: string
           creator_earnings?: number
           creator_id?: string
+          growth_pool_share?: number
           id?: string
           order_id?: string
           order_total?: number
@@ -238,6 +241,7 @@ export type Database = {
       }
       events: {
         Row: {
+          attribution: Json | null
           created_at: string
           event_type: string
           id: string
@@ -247,6 +251,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          attribution?: Json | null
           created_at?: string
           event_type: string
           id?: string
@@ -256,6 +261,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          attribution?: Json | null
           created_at?: string
           event_type?: string
           id?: string
@@ -407,6 +413,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          attribution: Json | null
           created_at: string
           creator_id: string | null
           id: string
@@ -418,6 +425,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          attribution?: Json | null
           created_at?: string
           creator_id?: string | null
           id?: string
@@ -429,6 +437,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          attribution?: Json | null
           created_at?: string
           creator_id?: string | null
           id?: string
@@ -538,6 +547,7 @@ export type Database = {
           full_name: string | null
           id: string
           phone: string | null
+          referral_code: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -546,6 +556,7 @@ export type Database = {
           full_name?: string | null
           id: string
           phone?: string | null
+          referral_code?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -554,6 +565,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           phone?: string | null
+          referral_code?: string | null
         }
         Relationships: []
       }
@@ -671,6 +683,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      referrals: {
+        Row: {
+          code: string
+          converted_order_id: string | null
+          created_at: string
+          id: string
+          invitee_id: string | null
+          referrer_id: string
+          reward_amount: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          converted_order_id?: string | null
+          created_at?: string
+          id?: string
+          invitee_id?: string | null
+          referrer_id: string
+          reward_amount?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          converted_order_id?: string | null
+          created_at?: string
+          id?: string
+          invitee_id?: string | null
+          referrer_id?: string
+          reward_amount?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       reviews: {
         Row: {
@@ -972,6 +1020,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_referral_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
