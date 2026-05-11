@@ -1,1 +1,7 @@
 project_id = "virdfjjqohgrnsxkkmsl"
+
+[functions.og-image]
+verify_jwt = false
+
+[functions.pesapal-ipn]
+verify_jwt = false

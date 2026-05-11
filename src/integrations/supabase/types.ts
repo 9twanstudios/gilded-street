@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      audience_segments: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          filter: Json
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          filter?: Json
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          filter?: Json
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author: string
@@ -123,6 +153,7 @@ export type Database = {
       }
       commissions: {
         Row: {
+          attribution: Json
           created_at: string
           creator_earnings: number
           creator_id: string
@@ -133,6 +164,7 @@ export type Database = {
           platform_fee: number
         }
         Insert: {
+          attribution?: Json
           created_at?: string
           creator_earnings: number
           creator_id: string
@@ -143,6 +175,7 @@ export type Database = {
           platform_fee: number
         }
         Update: {
+          attribution?: Json
           created_at?: string
           creator_earnings?: number
           creator_id?: string
