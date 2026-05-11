@@ -111,6 +111,7 @@ Deno.serve(async (req) => {
         await admin.from("commissions").insert({
           order_id: order.id, creator_id: order.creator_id, order_total: order.total,
           platform_fee: feeAmount, creator_earnings: creatorAmount, growth_pool_share: growthAmount,
+          attribution: order.attribution ?? {},
         });
 
         // Reward referrer if applicable
