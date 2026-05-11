@@ -26,6 +26,7 @@ import CartPage from "@/pages/store/CartPage";
 import QRLandingPage from "@/pages/store/QRLandingPage";
 import ClusterPage from "@/pages/store/ClusterPage";
 import LocationPage from "@/pages/store/LocationPage";
+import ReferralCapturePage from "@/pages/store/ReferralCapturePage";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminProducts from "@/pages/admin/AdminProducts";
 import AdminCategories from "@/pages/admin/AdminCategories";
@@ -41,6 +42,7 @@ import AdminSettings from "@/pages/admin/AdminSettings";
 import AdminQR from "@/pages/admin/AdminQR";
 import AdminSEO from "@/pages/admin/AdminSEO";
 import AdminAnalytics from "@/pages/admin/AdminAnalytics";
+import AdminMarketing from "@/pages/admin/AdminMarketing";
 import LoginPage from "@/pages/auth/LoginPage";
 import SignupPage from "@/pages/auth/SignupPage";
 import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
@@ -73,6 +75,7 @@ const App = () => (
 
               {/* QR landing — standalone (no store layout) */}
               <Route path="/u/:slug" element={<QRLandingPage />} />
+              <Route path="/r/:code" element={<ReferralCapturePage />} />
 
               {/* Store */}
               <Route element={<StoreLayout />}>
@@ -120,6 +123,7 @@ const App = () => (
                 <Route path="qr" element={<AdminQR />} />
                 <Route path="seo" element={<AdminSEO />} />
                 <Route path="analytics" element={<AdminAnalytics />} />
+                <Route path="marketing" element={<AdminMarketing />} />
                 <Route path="customers" element={<AdminUsers />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="finance" element={<AdminLedger />} />

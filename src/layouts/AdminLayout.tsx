@@ -1,10 +1,11 @@
 import { Link, useLocation, Outlet } from "react-router-dom";
-import { LayoutDashboard, Package, Users, ShoppingCart, Bell, ChevronLeft, ChevronRight, FolderOpen, FileText, Zap, Wallet, BookOpen, ArrowDownToLine, ScrollText, Settings, QrCode, Globe, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Package, Users, ShoppingCart, Bell, ChevronLeft, ChevronRight, FolderOpen, FileText, Zap, Wallet, BookOpen, ArrowDownToLine, ScrollText, Settings, QrCode, Globe, BarChart3, Megaphone } from "lucide-react";
 import { useState } from "react";
 
 const adminLinks = [
   { label: "Dashboard", to: "/admin", icon: LayoutDashboard },
   { label: "Analytics", to: "/admin/analytics", icon: BarChart3 },
+  { label: "Marketing", to: "/admin/marketing", icon: Megaphone },
   { label: "Orders", to: "/admin/orders", icon: ShoppingCart },
   { label: "Products", to: "/admin/products", icon: Package },
   { label: "Categories", to: "/admin/categories", icon: FolderOpen },
