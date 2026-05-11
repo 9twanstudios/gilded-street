@@ -12,6 +12,8 @@ import { Link } from "react-router-dom";
 import { WhatsAppButton, buildOrderMessage } from "@/components/store/WhatsAppButton";
 import { CheckCircle, Wallet, CreditCard } from "lucide-react";
 import { track } from "@/lib/tracking";
+import { readAttribution } from "@/lib/attribution";
+import { getProvider } from "@/lib/upal";
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
@@ -30,7 +32,8 @@ export default function CheckoutPage() {
 
     setLoading(true);
     try {
-      // Create order
+      // Create order with captured attribution (utm/ref/qr)
+      const attribution = readAttribution();
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
@@ -39,6 +42,7 @@ export default function CheckoutPage() {
           shipping_address: formData.get("address") as string,
           phone: formData.get("phone") as string,
           status: "pending",
+          attribution: attribution as any,
         })
         .select()
         .single();
@@ -68,15 +72,15 @@ export default function CheckoutPage() {
         setOrderPlaced(true);
         clearCart();
       } else {
-        // Pay via Pesapal
-        const { data, error } = await supabase.functions.invoke("pesapal-checkout", {
-          body: { order_id: order.id, callback_url: `${window.location.origin}/profile` },
+        // Pay via UPAL provider (Pesapal today)
+        const provider = getProvider("pesapal");
+        const res = await provider.createCheckout({
+          orderId: order.id,
+          amount: total,
+          callbackUrl: `${window.location.origin}/profile`,
+          customer: { phone: formData.get("phone") as string },
         });
-        if (error) throw new Error(error.message || "Payment initiation failed");
-        if (data?.error) throw new Error(data.error);
-        if (data?.redirect_url) {
-          window.location.href = data.redirect_url;
-        }
+        if (res.redirectUrl) window.location.href = res.redirectUrl;
       }
     } catch (err: any) {
       toast.error(err.message || "Failed to place order");
