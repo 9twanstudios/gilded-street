@@ -43,6 +43,9 @@ import AdminQR from "@/pages/admin/AdminQR";
 import AdminSEO from "@/pages/admin/AdminSEO";
 import AdminAnalytics from "@/pages/admin/AdminAnalytics";
 import AdminMarketing from "@/pages/admin/AdminMarketing";
+import AdminCampaigns from "@/pages/admin/AdminCampaigns";
+import AdminSegments from "@/pages/admin/AdminSegments";
+import AttributionCapture from "@/components/AttributionCapture";
 import LoginPage from "@/pages/auth/LoginPage";
 import SignupPage from "@/pages/auth/SignupPage";
 import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
@@ -59,6 +62,7 @@ const App = () => (
       <AuthProvider>
         <CartProvider>
           <BrowserRouter>
+            <AttributionCapture />
             <Routes>
               {/* Auth — both legacy and /auth/* paths supported */}
               <Route path="/login" element={<LoginPage />} />
@@ -124,6 +128,8 @@ const App = () => (
                 <Route path="seo" element={<AdminSEO />} />
                 <Route path="analytics" element={<AdminAnalytics />} />
                 <Route path="marketing" element={<AdminMarketing />} />
+                <Route path="campaigns" element={<AdminCampaigns />} />
+                <Route path="segments" element={<AdminSegments />} />
                 <Route path="customers" element={<AdminUsers />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="finance" element={<AdminLedger />} />
