@@ -4,12 +4,13 @@ import { useAuth } from "@/hooks/use-auth";
 import { useOrders } from "@/hooks/use-orders";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useWallet, formatKES } from "@/hooks/use-wallet";
-import { User, Package, Heart, Wallet, ScanLine, LogOut } from "lucide-react";
+import { User, Package, Heart, Wallet, ScanLine, LogOut, Gift } from "lucide-react";
 import SEO from "@/components/SEO";
 import { EmptyState } from "@/components/store/EmptyState";
 import { formatPrice } from "@/hooks/use-products";
+import InviteTab from "@/components/store/InviteTab";
 
-type Tab = "overview" | "orders" | "profile" | "wishlist" | "wallet" | "qr";
+type Tab = "overview" | "orders" | "profile" | "wishlist" | "wallet" | "qr" | "invite";
 
 export default function AccountPage() {
   const { user, signOut } = useAuth();
@@ -24,6 +25,7 @@ export default function AccountPage() {
     { id: "wishlist", label: "Wishlist", icon: Heart },
     { id: "wallet", label: "Wallet", icon: Wallet },
     { id: "qr", label: "QR History", icon: ScanLine },
+    { id: "invite", label: "Invite & Earn", icon: Gift },
   ];
 
   if (!user) return null;
@@ -99,6 +101,7 @@ export default function AccountPage() {
             </div>
           )}
           {tab === "qr" && <QRHistory userId={user.id} />}
+          {tab === "invite" && <InviteTab />}
         </main>
       </div>
     </div>
