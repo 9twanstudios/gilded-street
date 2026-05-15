@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      aeo_metrics: {
+        Row: {
+          ai_clicks: number
+          ai_conversions: number
+          ai_referrals: number
+          created_at: string
+          date: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          semantic_score: number
+          source: string | null
+          structured_data_score: number
+        }
+        Insert: {
+          ai_clicks?: number
+          ai_conversions?: number
+          ai_referrals?: number
+          created_at?: string
+          date: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          semantic_score?: number
+          source?: string | null
+          structured_data_score?: number
+        }
+        Update: {
+          ai_clicks?: number
+          ai_conversions?: number
+          ai_referrals?: number
+          created_at?: string
+          date?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          semantic_score?: number
+          source?: string | null
+          structured_data_score?: number
+        }
+        Relationships: []
+      }
       audience_segments: {
         Row: {
           created_at: string
@@ -452,9 +494,12 @@ export type Database = {
           id: string
           payment_reference: string | null
           phone: string | null
+          search_query: string | null
+          seo_landing_page: string | null
           shipping_address: string | null
           status: Database["public"]["Enums"]["order_status"]
           total: number
+          traffic_source: string | null
           user_id: string | null
         }
         Insert: {
@@ -464,9 +509,12 @@ export type Database = {
           id?: string
           payment_reference?: string | null
           phone?: string | null
+          search_query?: string | null
+          seo_landing_page?: string | null
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           total: number
+          traffic_source?: string | null
           user_id?: string | null
         }
         Update: {
@@ -476,9 +524,12 @@ export type Database = {
           id?: string
           payment_reference?: string | null
           phone?: string | null
+          search_query?: string | null
+          seo_landing_page?: string | null
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           total?: number
+          traffic_source?: string | null
           user_id?: string | null
         }
         Relationships: []
@@ -791,6 +842,45 @@ export type Database = {
           },
         ]
       }
+      seo_alerts: {
+        Row: {
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          message: string
+          meta: Json | null
+          resolved_at: string | null
+          severity: string
+          type: string
+          url: string | null
+        }
+        Insert: {
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          message: string
+          meta?: Json | null
+          resolved_at?: string | null
+          severity?: string
+          type: string
+          url?: string | null
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          message?: string
+          meta?: Json | null
+          resolved_at?: string | null
+          severity?: string
+          type?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
       seo_clusters: {
         Row: {
           body_md: string
@@ -890,6 +980,102 @@ export type Database = {
           slug?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_metrics: {
+        Row: {
+          avg_position: number
+          clicks: number
+          crawl_errors: number
+          created_at: string
+          ctr: number
+          date: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          impressions: number
+          indexed: boolean
+          top_query: string | null
+          url: string | null
+        }
+        Insert: {
+          avg_position?: number
+          clicks?: number
+          crawl_errors?: number
+          created_at?: string
+          ctr?: number
+          date: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          impressions?: number
+          indexed?: boolean
+          top_query?: string | null
+          url?: string | null
+        }
+        Update: {
+          avg_position?: number
+          clicks?: number
+          crawl_errors?: number
+          created_at?: string
+          ctr?: number
+          date?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          impressions?: number
+          indexed?: boolean
+          top_query?: string | null
+          url?: string | null
+        }
+        Relationships: []
+      }
+      seo_pages: {
+        Row: {
+          canonical_url: string | null
+          created_at: string
+          description: string | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          index_status: string | null
+          last_crawled_at: string | null
+          og_image: string | null
+          structured_data: Json | null
+          title: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          canonical_url?: string | null
+          created_at?: string
+          description?: string | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          index_status?: string | null
+          last_crawled_at?: string | null
+          og_image?: string | null
+          structured_data?: Json | null
+          title?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          canonical_url?: string | null
+          created_at?: string
+          description?: string | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          index_status?: string | null
+          last_crawled_at?: string | null
+          og_image?: string | null
+          structured_data?: Json | null
+          title?: string | null
+          updated_at?: string
+          url?: string
         }
         Relationships: []
       }
