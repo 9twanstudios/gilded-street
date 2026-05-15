@@ -45,6 +45,9 @@ import AdminAnalytics from "@/pages/admin/AdminAnalytics";
 import AdminMarketing from "@/pages/admin/AdminMarketing";
 import AdminCampaigns from "@/pages/admin/AdminCampaigns";
 import AdminSegments from "@/pages/admin/AdminSegments";
+import AdminSeoInsights from "@/pages/admin/AdminSeoInsights";
+import AdminGrowthSeo from "@/pages/admin/AdminGrowthSeo";
+import AdminSeoContent from "@/pages/admin/AdminSeoContent";
 import AttributionCapture from "@/components/AttributionCapture";
 import LoginPage from "@/pages/auth/LoginPage";
 import SignupPage from "@/pages/auth/SignupPage";
@@ -126,6 +129,9 @@ const App = () => (
                 <Route path="orders" element={<AdminOrders />} />
                 <Route path="qr" element={<AdminQR />} />
                 <Route path="seo" element={<AdminSEO />} />
+                <Route path="seo-insights" element={<AdminSeoInsights />} />
+                <Route path="growth-seo" element={<AdminGrowthSeo />} />
+                <Route path="seo-content" element={<AdminSeoContent />} />
                 <Route path="analytics" element={<AdminAnalytics />} />
                 <Route path="marketing" element={<AdminMarketing />} />
                 <Route path="campaigns" element={<AdminCampaigns />} />

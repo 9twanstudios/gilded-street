@@ -32,7 +32,7 @@ export default function CheckoutPage() {
 
     setLoading(true);
     try {
-      // Create order with captured attribution (utm/ref/qr)
+      // Create order with captured attribution (utm/ref/qr) + surfaced SEO fields
       const attribution = readAttribution();
       const { data: order, error: orderError } = await supabase
         .from("orders")
@@ -43,7 +43,10 @@ export default function CheckoutPage() {
           phone: formData.get("phone") as string,
           status: "pending",
           attribution: attribution as any,
-        })
+          traffic_source: attribution.traffic_source ?? "direct",
+          seo_landing_page: attribution.landing ?? null,
+          search_query: attribution.search_query ?? null,
+        } as any)
         .select()
         .single();
       if (orderError) throw orderError;
