@@ -14,7 +14,7 @@ export default function AdminGrowthSeo() {
         .from("orders")
         .select("total, traffic_source, attribution, status, created_at")
         .gte("created_at", since)
-        .eq("status", "completed");
+        .in("status", ["delivered", "shipped", "processing"]);
       const grouped: Record<string, { orders: number; revenue: number }> = {};
       (orders || []).forEach((o: any) => {
         const src = o.traffic_source || "direct";
