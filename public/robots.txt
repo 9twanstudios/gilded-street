@@ -14,5 +14,10 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /admin/
+Disallow: /account
+Disallow: /account/
+Disallow: /checkout
+Disallow: /auth/
+Disallow: /onboarding/
 
 Sitemap: https://91fitz.com/sitemap.xml
