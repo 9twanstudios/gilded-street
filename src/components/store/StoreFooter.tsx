@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { Instagram, Twitter, MessageCircle, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { NewsletterSignup } from "./NewsletterSignup";
+import { SocialLinks } from "@/components/profile/SocialLinks";
 
 const ecosystemLinks = [
   { name: "91 Stay Woke", url: "https://91staywoke.vercel.app" },
@@ -51,14 +52,20 @@ export function StoreFooter() {
           </div>
           <div>
             <h4 className="font-display font-bold uppercase tracking-wider text-sm text-foreground mb-4">Connect</h4>
-            <div className="flex gap-4 mb-4">
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Instagram"><Instagram className="h-5 w-5" /></a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Twitter"><Twitter className="h-5 w-5" /></a>
-              <a href="https://wa.me/254769254086" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-green-500 transition-colors" aria-label="WhatsApp">
-                <MessageCircle className="h-5 w-5" />
-              </a>
+            <SocialLinks
+              socials={{ instagram: "91fitz", tiktok: "91fitz", x: "91fitz", whatsapp: "254769254086" }}
+              className="mb-4"
+            />
+            <div className="flex flex-col gap-1.5 text-xs">
+              <Link to="/about" className="text-muted-foreground hover:text-primary">About</Link>
+              <Link to="/contact" className="text-muted-foreground hover:text-primary">Contact</Link>
+              <Link to="/shipping" className="text-muted-foreground hover:text-primary">Shipping</Link>
+              <Link to="/returns" className="text-muted-foreground hover:text-primary">Returns</Link>
+              <Link to="/faq" className="text-muted-foreground hover:text-primary">FAQ</Link>
+              <Link to="/privacy" className="text-muted-foreground hover:text-primary">Privacy</Link>
+              <Link to="/terms" className="text-muted-foreground hover:text-primary">Terms</Link>
             </div>
-            <p className="text-muted-foreground text-xs">Nairobi, Kenya 🇰🇪</p>
+            <p className="text-muted-foreground text-xs mt-3">Nairobi, Kenya 🇰🇪</p>
           </div>
         </div>
         <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row items-center justify-between gap-3">
