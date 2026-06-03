@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { Instagram, Twitter, MessageCircle, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { NewsletterSignup } from "./NewsletterSignup";
+import { SocialLinks } from "@/components/profile/SocialLinks";
 
 const ecosystemLinks = [
   { name: "91 Stay Woke", url: "https://91staywoke.vercel.app" },
