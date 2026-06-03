@@ -75,7 +75,6 @@ const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <TooltipProvider>
           <Sonner />
           <AuthProvider>
             <CartProvider>
