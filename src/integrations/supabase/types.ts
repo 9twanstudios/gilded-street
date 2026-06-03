@@ -86,6 +86,36 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          id: string
+          meta: Json
+          target_id: string | null
+          target_type: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          meta?: Json
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          meta?: Json
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author: string
@@ -237,11 +267,57 @@ export type Database = {
           },
         ]
       }
+      creator_applications: {
+        Row: {
+          admin_note: string | null
+          bio: string
+          brand_name: string
+          created_at: string
+          decided_at: string | null
+          id: string
+          reviewer_id: string | null
+          sample_urls: string[]
+          socials: Json
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          bio?: string
+          brand_name: string
+          created_at?: string
+          decided_at?: string | null
+          id?: string
+          reviewer_id?: string | null
+          sample_urls?: string[]
+          socials?: Json
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          bio?: string
+          brand_name?: string
+          created_at?: string
+          decided_at?: string | null
+          id?: string
+          reviewer_id?: string | null
+          sample_urls?: string[]
+          socials?: Json
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       creators: {
         Row: {
           bio: string | null
           brand_name: string
           created_at: string
+          creator_tier: string
           id: string
           logo_url: string | null
           user_id: string
@@ -251,6 +327,7 @@ export type Database = {
           bio?: string | null
           brand_name: string
           created_at?: string
+          creator_tier?: string
           id?: string
           logo_url?: string | null
           user_id: string
@@ -260,6 +337,7 @@ export type Database = {
           bio?: string | null
           brand_name?: string
           created_at?: string
+          creator_tier?: string
           id?: string
           logo_url?: string | null
           user_id?: string
@@ -626,30 +704,69 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
+          birthday: string | null
+          cover_url: string | null
           created_at: string
+          display_name: string | null
           email: string | null
           full_name: string | null
           id: string
+          interests: string[]
+          location_city: string | null
+          onboarding_completed_at: string | null
+          onboarding_step: string | null
           phone: string | null
+          pronouns: string | null
           referral_code: string | null
+          social: Json
+          style_tags: string[]
+          suspended_at: string | null
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
+          birthday?: string | null
+          cover_url?: string | null
           created_at?: string
+          display_name?: string | null
           email?: string | null
           full_name?: string | null
           id: string
+          interests?: string[]
+          location_city?: string | null
+          onboarding_completed_at?: string | null
+          onboarding_step?: string | null
           phone?: string | null
+          pronouns?: string | null
           referral_code?: string | null
+          social?: Json
+          style_tags?: string[]
+          suspended_at?: string | null
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
+          birthday?: string | null
+          cover_url?: string | null
           created_at?: string
+          display_name?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
+          interests?: string[]
+          location_city?: string | null
+          onboarding_completed_at?: string | null
+          onboarding_step?: string | null
           phone?: string | null
+          pronouns?: string | null
           referral_code?: string | null
+          social?: Json
+          style_tags?: string[]
+          suspended_at?: string | null
+          username?: string | null
         }
         Relationships: []
       }
@@ -1246,6 +1363,15 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      log_admin_action: {
+        Args: {
+          _action: string
+          _meta?: Json
+          _target_id?: string
+          _target_type?: string
+        }
+        Returns: string
       }
     }
     Enums: {
