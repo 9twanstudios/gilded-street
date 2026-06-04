@@ -1,89 +1,55 @@
-# LDX v1.2 — Creator Economy Full Build
 
-Decisions locked: **flat 90/10 for all tiers**, **soft onboarding** (skippable + banner), **single `sitemap.xml`**, **placeholder copy** on new marketing pages.
+# LDX v1.3 — FitCheck, IG Embeds, PDP Carousel & Polish Pass
 
-Executed in 6 parallel batches. One DB migration up front; code lands afterwards.
-
----
-
-## Batch A — Database (single migration)
-
-New tables: `creator_applications`, `audit_logs`.
-New columns on `profiles`: `username citext UNIQUE`, `display_name`, `bio`, `location_city`, `cover_url`, `social jsonb DEFAULT '{}'`, `interests text[] DEFAULT '{}'`, `style_tags text[] DEFAULT '{}'`, `pronouns`, `birthday date`, `onboarding_step text`, `onboarding_completed_at timestamptz`, `suspended_at timestamptz`.
-New column on `creators`: `creator_tier text DEFAULT 'rising'` (rising|verified|elite, **commission unchanged at 90/10**).
-RLS: profiles update-own preserved; `creator_applications` insert-own + admin-read/update; `audit_logs` admin-read, insert via RPC only.
-Trigger: on `creator_applications.status='approved'` → upsert `creators` row + `user_roles(creator)`.
-Trigger: snapshot trigger on `products`/`drops`/`blog_posts`/`stories`/`seo_clusters`/`seo_locations` → upsert `seo_pages`.
-RPC: `log_admin_action(action text, target_type text, target_id uuid, meta jsonb)`.
-GRANTs on all new tables per platform rules.
-
-## Batch B — Profile rebuild + social embedding
-
-- Migration columns above.
-- `src/components/profile/AvatarUpload.tsx`, `SocialLinks.tsx`, `InterestPicker.tsx`, `CoverUpload.tsx`.
-- Storage: reuse `product-images` bucket under `profiles/{uid}/avatar.*` and `profiles/{uid}/cover.*`.
-- Rebuild `ProfilePage.tsx` as tabbed shell: Overview / Edit / Orders / Wishlist / Wallet / Referrals / Security.
-- Reuse `SocialLinks` in `CreatorStorefront` and `StoreFooter`.
-
-## Batch C — Roles, onboarding, creator lifecycle
-
-- Routes: `/onboarding/welcome`, `/onboarding/creator`, soft `OnboardingBanner` shown sitewide until `onboarding_completed_at`. No hard guard.
-- Creator application form writes to `creator_applications`.
-- `AdminUsers` upgraded: role chips, promote/demote/suspend (audited via `log_admin_action`).
-- New `AdminCreatorApplications.tsx`: approve/reject queue.
-- `use-auth.tsx` exposes `profile` (with onboarding state) alongside roles.
-
-## Batch D — Admin Control Panel refactor
-
-- Replace `AdminLayout.tsx` flat nav with grouped shadcn sidebar:
-  Overview · Catalog · Commerce · Finance · Growth · SEO · System (collapsible, icon-mini mode).
-- Shared primitives: `DataTable`, `PageHeader`, `StatTile`, `FilterBar`, `EmptyState` under `src/components/admin/`.
-- Migrate `AdminProducts`, `AdminOrders`, `AdminUsers`, `AdminLedger`, `AdminWithdrawals`, `AdminCampaigns`, `AdminSegments` to the shared primitives (remove duplicated table/loading/empty markup).
-- New pages: `AdminReviews`, `AdminNotifyRequests`, `AdminCommissions`, `AdminReferrals`, `AdminAuditLog`, `AdminAutomations`, `AdminCreatorApplications`.
-- Header: global search (cmd-K), env badge, notification feed (joins `seo_alerts` + pending `withdrawals` + `notify_requests`).
-
-## Batch E — SEO hardening (single sitemap)
-
-- Per-route `<SEO>` audit across all 12 store routes; add `productLd`, `articleLd`, `breadcrumbsLd`, new `personLd` (creator) and `itemListLd` (drops/clusters).
-- `index.html` cleanup: drop duplicate canonical, keep Org JSON-LD + Google verification meta.
-- `robots.txt`: keep single `User-agent: *` block, add `Disallow: /account`, `/checkout`, `/auth/`, keep `/admin`, keep `Sitemap: https://91fitz.com/sitemap.xml`.
-- Keep `scripts/generate-sitemap.ts` as single `public/sitemap.xml`; wire `predev` + `prebuild` in `package.json`; add `lastmod` from `updated_at`.
-- DB snapshot trigger (Batch A) keeps `seo_pages` live; `AdminSeoContent` already reads it.
-- Run `seo_chat--list_findings` after build, mark fixed where applicable.
-
-## Batch F — Codebase index, error handling, automation
-
-**Dedup**:
-- Canonical routes: `/account/profile`, `/account/wallet`, `/auth/sign-in`, `/shop`, `/blog/:slug`. The others stay as `<Navigate replace>` redirects.
-- `src/lib/format.ts` — single `formatKES` / `formatPrice` (re-exported from `use-products`, `use-wallet` for back-compat).
-- `src/lib/queries.ts` — shared filter builders for `use-products` / `use-drops`.
-- Attribution-merge consolidated in `src/lib/attribution.ts`.
-
-**Missing marketing pages (placeholder copy)**: `/about`, `/contact`, `/shipping`, `/returns`, `/privacy`, `/terms`, `/faq`, `/sizing`, `/track-order`, `/creators` (creator directory from `creators where verified`), `/sitemap` (HTML index).
-
-**Error handling**:
-- `src/components/ErrorBoundary.tsx` wrapping `<Routes>`.
-- `ServerError.tsx`, upgraded `NotFound.tsx` with related products/drops.
-- `useApiError` hook → toast + `events` log.
-- Edge functions `pesapal-ipn`, `gsc-sync`, `wallet-pay`: structured try/catch → write `seo_alerts` / `audit_logs` instead of silent swallow.
-
-**Automation layer** (cron via pg_cron, toggled by `platform_settings`):
-- `gsc-sync` daily
-- `low-stock-alert` daily
-- `drop-reminder` hourly
-- `abandoned-cart` every 2h
-- `commission-settlement` nightly
-`AdminAutomations` exposes toggles + last-run timestamps.
+Three feature batches + one polish batch, executed in parallel after the migration lands.
 
 ---
 
-## Execution order
+## Batch A — DB migration (must run first)
 
-1. **Migration** (Batch A) — must approve first; types regen after.
-2. After approval, the following ship in parallel: B (profile), C (onboarding/roles), D (ACP refactor), E (SEO), F (dedup/errors/automation).
+New tables, all `public` schema with GRANTs + RLS:
+
+- **`fits`** — `id`, `user_id`, `model` (`male`|`female`), `name`, `items jsonb` (array of `{product_id, slot, z, x, y, scale, rotation}`), `cover_image` (rendered PNG via html2canvas, uploaded to storage), `visibility` (`private`|`public`), `likes_count int default 0`, `featured bool default false`, `created_at`, `updated_at`.
+  - RLS: owner full; `public=true` readable by anon; admins full.
+- **`fit_likes`** — `id`, `fit_id`, `user_id`, unique `(fit_id, user_id)`. RLS: owner manage; anyone read.
+- **`ig_embeds`** — `id`, `scope` (`home_featured`|`creator`), `creator_id nullable`, `post_url`, `caption`, `order int`, `active bool`. RLS: admin write, creator write own, public read active.
+- **`creator_ig_tokens`** — `creator_id` PK, `access_token` (encrypted via pgsodium or stored only via edge function env if user prefers — default: store hashed reference, full token in edge function secret per creator is over-scope; v1 stores token text with RLS owner-only + admin). RLS: creator self only.
+- **Product slot metadata**: add `products.fit_slot text` (`top|bottom|outerwear|shoes|hat|accessory|fullbody`) and `products.fit_image text` (transparent PNG; falls back to `image`).
+- **Storage bucket** `fits` (public read, authenticated write own folder).
+
+## Batch B — FitCheck module (`/fitcheck`)
+
+Files:
+- `src/pages/store/FitCheckPage.tsx` — canvas studio.
+- `src/pages/store/FitsGalleryPage.tsx` — `/fits` community wall (public fits, like, sort by latest/popular/featured).
+- `src/pages/store/FitDetailPage.tsx` — `/fits/:id` share target with OG image.
+- `src/components/fitcheck/MannequinCanvas.tsx` — layered SVG/PNG dress-up with drag/scale/rotate (framer-motion drag + custom handles).
+- `src/components/fitcheck/ModelToggle.tsx` — male/female base swap.
+- `src/components/fitcheck/SlotPalette.tsx` — tabs by slot, paginated product picker filtered by `fit_slot`.
+- `src/components/fitcheck/FitActions.tsx` — Save (private/public), Add full outfit to cart, Share (WhatsApp/X/IG via Web Share API + share card), Submit to wall.
+- `src/hooks/use-fits.ts` — CRUD + likes.
+- `src/lib/fitcheck/render-card.ts` — html2canvas → upload to `fits` bucket → set `cover_image`.
+- Base mannequin assets generated via `imagegen` (transparent, front-facing, neutral): `src/assets/fitcheck/model-male.png`, `model-female.png`.
+
+Nav: add **FitCheck** entry in `StoreNavbar` + `MobileBottomNav`. Profile tab "My Fits".
+
+## Batch C — IG embeds (hybrid)
+
+- `src/components/social/IGEmbed.tsx` — renders official IG blockquote + loads `//www.instagram.com/embed.js` once (idempotent loader).
+- `src/components/social/IGFeed.tsx` — given handle + optional token: if token, fetch latest 6 via IG Basic Display in `supabase/functions/ig-feed/index.ts` (cached 1h in `seo_pages.meta`); else render handle CTA + last admin-curated posts for that creator.
+- Home: replace placeholder in `SocialFeedSection.tsx` with curated `ig_embeds` (scope=`home_featured`).
+- Creator storefront: `IGFeed` block under hero.
+- Admin: `src/pages/admin/AdminIGEmbeds.tsx` — CRUD curated posts; creator settings tab to paste handle + (optional) connect IG.
+
+## Batch D — PDP carousel + polish
+
+- `src/components/store/RelatedCarousel.tsx` — embla carousel of related products (same category, then drop, then creator). Reuses `ProductCard`.
+- `src/components/store/CompleteTheLookCarousel.tsx` — items sharing `drop_id` or `seo_clusters.related_product_ids`, "Shop the Look" CTA → opens FitCheck prefilled.
+- Wire both into `ProductDetailPage.tsx` below description.
+- Polishes: loading skeletons on PDP carousels, empty states, lazy-load images, `prefers-reduced-motion` respected on tilt/confetti, focus rings, `aria-label`s on icon buttons in `ProductCard`, `SocialLinks`, `MobileBottomNav`.
 
 ## Out of scope
+- AI try-on render; user photo upload; real-time IG webhook; multi-pose mannequins; payouts.
 
-LLM-referral scraping, realtime ACP presence, mobile app shell, multi-currency, payouts UX redesign, Stripe.
-
-Approve the plan and I'll fire the migration first, then ship all five code batches in parallel.
+## Open questions
+None — proceeding with answered choices (2D paper-doll, all four outputs, hybrid IG, PDP carousel).
