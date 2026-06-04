@@ -15,7 +15,7 @@ export default function AdminIGEmbeds() {
 
   return (
     <div>
-      <PageHeader title="Instagram Embeds" description="Curate IG posts for the homepage and creator pages." />
+      <PageHeader title="Instagram Embeds" subtitle="Curate IG posts for the homepage and creator pages." />
 
       <div className="bg-card border border-border rounded-lg p-4 mb-6">
         <h3 className="font-display font-bold uppercase tracking-wider text-sm text-foreground mb-3">Add embed</h3>
