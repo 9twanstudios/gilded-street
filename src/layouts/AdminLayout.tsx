@@ -40,6 +40,7 @@ const GROUPS: Group[] = [
     { label: "Segments", to: "/admin/segments", icon: UsersRound },
     { label: "QR", to: "/admin/qr", icon: QrCode },
     { label: "Referrals", to: "/admin/referrals", icon: Share2 },
+    { label: "IG Embeds", to: "/admin/ig-embeds", icon: Megaphone },
   ]},
   { name: "SEO", items: [
     { label: "SEO Pages", to: "/admin/seo", icon: Globe },

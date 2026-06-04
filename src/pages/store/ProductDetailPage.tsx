@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ShoppingBag, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { ProductGrid } from "@/components/store/ProductGrid";
+import { RelatedCarousel } from "@/components/store/RelatedCarousel";
 import { WhatsAppButton, buildProductMessage } from "@/components/store/WhatsAppButton";
 import { WishlistButton } from "@/components/store/WishlistButton";
 import { ReviewSection } from "@/components/store/ReviewSection";
@@ -52,11 +53,14 @@ export default function ProductDetailPage() {
     );
   }
 
-  const recommended = allProducts?.filter((p) => p.id !== product.id && p.category === product.category).slice(0, 4) ?? [];
+  const recommended = allProducts?.filter((p) => p.id !== product.id && p.category === product.category).slice(0, 12) ?? [];
 
   // Find which drop this product belongs to
   const productDrop = drops?.find((d) => d.product_ids.includes(product.id));
   const dropStories = stories?.filter((s) => s.published && productDrop && s.related_drop_id === productDrop.id) ?? [];
+  const completeTheLook = productDrop
+    ? (allProducts?.filter((p) => p.id !== product.id && productDrop.product_ids.includes(p.id)).slice(0, 12) ?? [])
+    : [];
 
   const handleAddToCart = () => {
     if (!selectedSize) return;
@@ -243,9 +247,33 @@ export default function ProductDetailPage() {
 
       <ReviewSection productId={product.id} />
 
-      {recommended.length > 0 && (
-        <ProductGrid products={recommended} title="You May Also Like" />
+      {completeTheLook.length > 0 && (
+        <RelatedCarousel
+          subtitle="Complete the look"
+          title="Shop the full drop"
+          products={completeTheLook as any}
+          cta={productDrop ? { label: "View drop", href: `/drops/${productDrop.slug}` } : undefined}
+        />
       )}
+
+      {recommended.length > 0 && (
+        <RelatedCarousel
+          subtitle="You may also like"
+          title="More from this category"
+          products={recommended as any}
+          cta={{ label: "Shop all", href: "/shop" }}
+        />
+      )}
+
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-3 py-6 border-t border-border">
+        <p className="text-xs font-display uppercase tracking-[0.3em] text-muted-foreground">Try it on first?</p>
+        <a
+          href={`/fitcheck?product=${product.id}`}
+          className="inline-flex items-center gap-2 px-5 py-2 rounded bg-primary text-primary-foreground text-xs font-display font-bold uppercase tracking-wider hover:bg-gold-dark transition-colors"
+        >
+          Open in FitCheck →
+        </a>
+      </div>
     </div>
   );
 }

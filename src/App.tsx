@@ -61,6 +61,10 @@ import AdminReferrals from "@/pages/admin/AdminReferrals";
 import AdminAuditLog from "@/pages/admin/AdminAuditLog";
 import AdminAutomations from "@/pages/admin/AdminAutomations";
 import AdminCreatorApplications from "@/pages/admin/AdminCreatorApplications";
+import AdminIGEmbeds from "@/pages/admin/AdminIGEmbeds";
+import FitCheckPage from "@/pages/store/FitCheckPage";
+import FitsGalleryPage from "@/pages/store/FitsGalleryPage";
+import FitDetailPage from "@/pages/store/FitDetailPage";
 import AttributionCapture from "@/components/AttributionCapture";
 import LoginPage from "@/pages/auth/LoginPage";
 import SignupPage from "@/pages/auth/SignupPage";
@@ -148,6 +152,10 @@ const App = () => (
                     <Route path="/faq" element={<FaqPage />} />
                     <Route path="/sizing" element={<SizingPage />} />
                     <Route path="/track-order" element={<TrackOrderPage />} />
+                    {/* FitCheck */}
+                    <Route path="/fitcheck" element={<FitCheckPage />} />
+                    <Route path="/fits" element={<FitsGalleryPage />} />
+                    <Route path="/fits/:id" element={<FitDetailPage />} />
                   </Route>
 
                   {/* Admin (ACP) */}
@@ -183,6 +191,7 @@ const App = () => (
                     <Route path="creator-applications" element={<AdminCreatorApplications />} />
                     <Route path="audit-log" element={<AdminAuditLog />} />
                     <Route path="automations" element={<AdminAutomations />} />
+                    <Route path="ig-embeds" element={<AdminIGEmbeds />} />
                     <Route path="settings" element={<AdminSettings />} />
                   </Route>
 

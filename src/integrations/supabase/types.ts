@@ -312,6 +312,36 @@ export type Database = {
         }
         Relationships: []
       }
+      creator_ig_tokens: {
+        Row: {
+          access_token: string
+          created_at: string
+          creator_id: string
+          expires_at: string | null
+          ig_handle: string | null
+          ig_user_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          creator_id: string
+          expires_at?: string | null
+          ig_handle?: string | null
+          ig_user_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          creator_id?: string
+          expires_at?: string | null
+          ig_handle?: string | null
+          ig_user_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       creators: {
         Row: {
           bio: string | null
@@ -422,6 +452,105 @@ export type Database = {
           properties?: Json | null
           session_id?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      fit_likes: {
+        Row: {
+          created_at: string
+          fit_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          fit_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          fit_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      fits: {
+        Row: {
+          cover_image: string | null
+          created_at: string
+          featured: boolean
+          id: string
+          items: Json
+          likes_count: number
+          model: string
+          name: string
+          updated_at: string
+          user_id: string
+          visibility: string
+        }
+        Insert: {
+          cover_image?: string | null
+          created_at?: string
+          featured?: boolean
+          id?: string
+          items?: Json
+          likes_count?: number
+          model?: string
+          name?: string
+          updated_at?: string
+          user_id: string
+          visibility?: string
+        }
+        Update: {
+          cover_image?: string | null
+          created_at?: string
+          featured?: boolean
+          id?: string
+          items?: Json
+          likes_count?: number
+          model?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
+      ig_embeds: {
+        Row: {
+          active: boolean
+          caption: string | null
+          created_at: string
+          creator_id: string | null
+          id: string
+          order: number
+          post_url: string
+          scope: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          caption?: string | null
+          created_at?: string
+          creator_id?: string | null
+          id?: string
+          order?: number
+          post_url: string
+          scope: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          caption?: string | null
+          created_at?: string
+          creator_id?: string | null
+          id?: string
+          order?: number
+          post_url?: string
+          scope?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -639,6 +768,8 @@ export type Database = {
           created_at: string
           creator_id: string | null
           description: string | null
+          fit_image: string | null
+          fit_slot: string | null
           id: string
           image: string
           in_stock: boolean
@@ -659,6 +790,8 @@ export type Database = {
           created_at?: string
           creator_id?: string | null
           description?: string | null
+          fit_image?: string | null
+          fit_slot?: string | null
           id?: string
           image: string
           in_stock?: boolean
@@ -679,6 +812,8 @@ export type Database = {
           created_at?: string
           creator_id?: string | null
           description?: string | null
+          fit_image?: string | null
+          fit_slot?: string | null
           id?: string
           image?: string
           in_stock?: boolean
