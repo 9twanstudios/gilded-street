@@ -10,9 +10,10 @@ import { useStories } from "@/hooks/use-stories";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
+import { QueryError } from "@/components/QueryError";
 
 export default function HomePage() {
-  const { data: products, isLoading } = useProducts();
+  const { data: products, isLoading, isError, refetch } = useProducts();
   const { data: drops } = useDrops();
   const { data: stories } = useStories();
 
@@ -20,6 +21,14 @@ export default function HomePage() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (isError && !products) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <QueryError message="Couldn't load the store. Check your connection and try again." onRetry={() => refetch()} />
       </div>
     );
   }
