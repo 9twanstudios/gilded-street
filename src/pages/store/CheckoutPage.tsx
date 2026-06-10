@@ -103,10 +103,10 @@ export default function CheckoutPage() {
         <p className="text-muted-foreground mb-8">Your order has been placed and payment received.</p>
         <div className="flex flex-col gap-3">
           <Button asChild className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
-            <Link to="/products">Continue Shopping</Link>
+            <Link to="/shop">Continue Shopping</Link>
           </Button>
           <Button asChild variant="outline" className="border-primary text-primary font-display font-bold uppercase tracking-wider hover:bg-primary hover:text-primary-foreground">
-            <Link to="/profile">View My Orders</Link>
+            <Link to="/account/orders">View My Orders</Link>
           </Button>
         </div>
       </div>
