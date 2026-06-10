@@ -1,8 +1,9 @@
-import html2canvas from "html2canvas";
 import { supabase } from "@/integrations/supabase/client";
 
 export async function renderAndUploadFitCover(node: HTMLElement, userId: string, fitId: string): Promise<string | null> {
   try {
+    // Lazy-load html2canvas so it never ships in the main bundle.
+    const { default: html2canvas } = await import("html2canvas");
     const canvas = await html2canvas(node, { backgroundColor: "#0a0a0a", useCORS: true, scale: 1.5 });
     const blob: Blob = await new Promise((resolve, reject) =>
       canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("canvas->blob failed"))), "image/png", 0.9)
