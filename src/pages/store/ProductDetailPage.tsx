@@ -48,7 +48,7 @@ export default function ProductDetailPage() {
     return (
       <div className="container py-20 text-center">
         <p className="text-muted-foreground text-lg">Product not found.</p>
-        <Link to="/products" className="text-primary hover:underline mt-4 inline-block">Back to Shop</Link>
+        <Link to="/shop" className="text-primary hover:underline mt-4 inline-block">Back to Shop</Link>
       </div>
     );
   }
@@ -116,7 +116,7 @@ export default function ProductDetailPage() {
       <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-6" aria-label="Breadcrumb">
         <Link to="/" className="hover:text-primary transition-colors">Home</Link>
         <ChevronRight className="h-3 w-3" />
-        <Link to="/products" className="hover:text-primary transition-colors">Shop</Link>
+        <Link to="/shop" className="hover:text-primary transition-colors">Shop</Link>
         <ChevronRight className="h-3 w-3" />
         <span className="text-foreground truncate max-w-[200px]">{product.name}</span>
       </nav>

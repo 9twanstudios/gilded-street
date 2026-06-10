@@ -50,7 +50,7 @@ export default function CreatorDashboard() {
       <div className="container py-8 text-center">
         <p className="text-muted-foreground">Sign in to access creator dashboard</p>
         <Button asChild className="mt-4 bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
-          <Link to="/login">Sign In</Link>
+          <Link to="/auth/sign-in">Sign In</Link>
         </Button>
       </div>
     );

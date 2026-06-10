@@ -36,7 +36,7 @@ export default function WalletPage() {
         <h1 className="font-heading text-5xl text-gold-gradient mb-4">Wallet</h1>
         <p className="text-muted-foreground mb-4">Sign in to access your wallet.</p>
         <Button asChild className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
-          <Link to="/login">Sign In</Link>
+          <Link to="/auth/sign-in">Sign In</Link>
         </Button>
       </div>
     );

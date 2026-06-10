@@ -69,7 +69,7 @@ export function HeroBanner() {
           className="flex flex-col sm:flex-row gap-4 justify-center"
         >
           <Button asChild size="lg" className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark transition-all duration-300 shadow-gold hover:shadow-gold-lg">
-            <Link to="/products">Enter the Drop</Link>
+            <Link to="/shop">Enter the Drop</Link>
           </Button>
           <Button asChild variant="outline" size="lg" className="border-neon text-neon font-display font-bold uppercase tracking-wider hover:bg-neon hover:text-neon-foreground transition-all duration-300">
             <Link to="/products?badge=LIMITED">Limited Drops</Link>

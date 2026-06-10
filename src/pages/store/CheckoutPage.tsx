@@ -140,7 +140,7 @@ export default function CheckoutPage() {
         <div className="bg-card border border-primary/30 rounded-lg p-4 mb-6 flex items-center justify-between">
           <p className="text-muted-foreground text-sm">Sign in to place your order</p>
           <Button asChild size="sm" className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
-            <Link to="/login">Sign In</Link>
+            <Link to="/auth/sign-in">Sign In</Link>
           </Button>
         </div>
       )}

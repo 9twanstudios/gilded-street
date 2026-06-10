@@ -88,14 +88,14 @@ export default function AccountPage() {
             !wishlist?.length ? (
               <EmptyState icon={Heart} title="Wishlist is empty" description="Save fits you love for later." actionLabel="Browse Drops" actionHref="/drops" />
             ) : (
-              <p className="text-muted-foreground text-sm">{wishlist.length} saved item(s). View on the <Link to="/products" className="text-primary underline">shop page</Link>.</p>
+              <p className="text-muted-foreground text-sm">{wishlist.length} saved item(s). View on the <Link to="/shop" className="text-primary underline">shop page</Link>.</p>
             )
           )}
           {tab === "wallet" && (
             <div>
               <p className="text-muted-foreground text-sm mb-4">Available balance</p>
               <p className="font-heading text-5xl text-gold-gradient mb-6">{formatKES(wallet?.balance ?? 0)}</p>
-              <Link to="/wallet" className="inline-block px-6 py-3 bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider text-sm rounded hover:bg-gold-dark">
+              <Link to="/account/wallet" className="inline-block px-6 py-3 bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider text-sm rounded hover:bg-gold-dark">
                 Manage Wallet
               </Link>
             </div>
