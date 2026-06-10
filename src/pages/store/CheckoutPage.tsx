@@ -119,7 +119,7 @@ export default function CheckoutPage() {
         <h1 className="font-heading text-4xl text-foreground mb-4">Your cart is empty</h1>
         <p className="text-muted-foreground mb-6">Add some items to proceed to checkout.</p>
         <Button asChild className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
-          <Link to="/products">Shop Now</Link>
+          <Link to="/shop">Shop Now</Link>
         </Button>
       </div>
     );
