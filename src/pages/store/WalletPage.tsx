@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import SEO from "@/components/SEO";
 
 const statusIcon = (status: string) => {
   if (status === "completed" || status === "approved") return <CheckCircle className="h-4 w-4 text-success" />;
@@ -53,6 +54,7 @@ export default function WalletPage() {
 
   return (
     <div className="container py-8">
+      <SEO title="Wallet | 91 Fitz" description="Manage your 91 Fitz wallet balance and withdrawals." noindex />
       <h1 className="font-heading text-5xl text-gold-gradient mb-8">Wallet</h1>
 
       <div className="grid md:grid-cols-3 gap-6 mb-8">

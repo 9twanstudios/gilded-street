@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { formatPrice } from "@/hooks/use-products";
 import { ProductFormDialog } from "@/components/admin/ProductFormDialog";
 import { EmptyState } from "@/components/store/EmptyState";
+import SEO from "@/components/SEO";
 
 export default function CreatorDashboard() {
   const { user } = useAuth();
@@ -72,6 +73,7 @@ export default function CreatorDashboard() {
 
   return (
     <div className="container py-8">
+      <SEO title="Creator Dashboard | 91 Fitz" description="Manage your products and earnings." noindex />
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-heading text-5xl text-gold-gradient">Creator Dashboard</h1>

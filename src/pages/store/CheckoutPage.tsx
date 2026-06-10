@@ -14,6 +14,7 @@ import { CheckCircle, Wallet, CreditCard } from "lucide-react";
 import { track } from "@/lib/tracking";
 import { readAttribution } from "@/lib/attribution";
 import { getProvider } from "@/lib/upal";
+import SEO from "@/components/SEO";
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
@@ -132,6 +133,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="container py-8">
+      <SEO title="Checkout | 91 Fitz" description="Complete your 91 Fitz order." noindex />
       <h1 className="font-heading text-5xl text-gold-gradient mb-8">Checkout</h1>
 
       {!user && (
