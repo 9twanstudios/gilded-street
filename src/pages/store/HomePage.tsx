@@ -101,7 +101,7 @@ export default function HomePage() {
                   <Link to={`/drops/${drop.slug}`} className="group block">
                     <div className="aspect-[4/3] rounded-lg overflow-hidden bg-surface mb-3 relative">
                       {drop.cover_image ? (
-                        <img src={drop.cover_image} alt={drop.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <img src={drop.cover_image} alt={drop.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-primary/20 to-surface flex items-center justify-center">
                           <span className="font-heading text-5xl text-primary/30">{drop.title[0]}</span>
@@ -132,7 +132,7 @@ export default function HomePage() {
             >
               {latestStory.cover_image && (
                 <div className="aspect-[4/3] rounded-lg overflow-hidden bg-surface">
-                  <img src={latestStory.cover_image} alt={latestStory.title} className="w-full h-full object-cover" />
+                  <img src={latestStory.cover_image} alt={latestStory.title} loading="lazy" className="w-full h-full object-cover" />
                 </div>
               )}
               <div>
