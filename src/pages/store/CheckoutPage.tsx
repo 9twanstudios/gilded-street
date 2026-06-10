@@ -95,8 +95,8 @@ export default function CheckoutPage() {
   if (orderPlaced) {
     return (
       <div className="container py-20 text-center max-w-md mx-auto">
-        <div className="w-16 h-16 rounded-full bg-green-600/20 flex items-center justify-center mx-auto mb-6">
-          <CheckCircle className="h-8 w-8 text-green-500" />
+        <div className="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-6">
+          <CheckCircle className="h-8 w-8 text-success" />
         </div>
         <h1 className="font-heading text-4xl text-gold-gradient mb-4">Order Confirmed!</h1>
         <p className="text-muted-foreground mb-8">Your order has been placed and payment received.</p>

@@ -9,13 +9,13 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 
 const statusIcon = (status: string) => {
-  if (status === "completed" || status === "approved") return <CheckCircle className="h-4 w-4 text-green-400" />;
+  if (status === "completed" || status === "approved") return <CheckCircle className="h-4 w-4 text-success" />;
   if (status === "failed" || status === "rejected") return <XCircle className="h-4 w-4 text-destructive" />;
   return <Clock className="h-4 w-4 text-muted-foreground" />;
 };
 
 const typeColor = (type: string) => {
-  if (type === "deposit") return "text-green-400";
+  if (type === "deposit") return "text-success";
   if (type === "purchase" || type === "fee") return "text-destructive";
   if (type === "payout") return "text-primary";
   return "text-muted-foreground";
@@ -126,7 +126,7 @@ export default function WalletPage() {
                     <td className="p-4">
                       <div className="flex items-center gap-2">
                         {entry.type === "deposit" || entry.type === "refund" ? (
-                          <ArrowDownLeft className="h-4 w-4 text-green-400" />
+                          <ArrowDownLeft className="h-4 w-4 text-success" />
                         ) : (
                           <ArrowUpRight className="h-4 w-4 text-destructive" />
                         )}

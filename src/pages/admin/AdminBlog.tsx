@@ -83,7 +83,7 @@ export default function AdminBlog() {
                     </td>
                     <td className="p-4">
                       <span className={`text-xs font-display font-bold uppercase tracking-wider px-2 py-1 rounded ${
-                        post.published ? "bg-green-500/10 text-green-500" : "bg-muted text-muted-foreground"
+                        post.published ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
                       }`}>
                         {post.published ? "Published" : "Draft"}
                       </span>

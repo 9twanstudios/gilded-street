@@ -75,7 +75,7 @@ export default function AdminProducts() {
 
   const statusColor = (status: string) => {
     switch (status) {
-      case "approved": return "bg-green-900/30 text-green-400";
+      case "approved": return "bg-success/10 text-success";
       case "rejected": return "bg-destructive/20 text-destructive";
       default: return "bg-primary/10 text-primary";
     }
@@ -158,7 +158,7 @@ export default function AdminProducts() {
                           {status === "pending" && (
                             <>
                               <button onClick={() => handleApprove(product.id)}
-                                className="p-1.5 rounded text-green-400 hover:bg-green-900/30 transition-colors" title="Approve">
+                                className="p-1.5 rounded text-success hover:bg-success/10 transition-colors" title="Approve">
                                 <Check className="h-4 w-4" />
                               </button>
                               <button onClick={() => handleReject(product.id)}

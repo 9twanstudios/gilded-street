@@ -49,7 +49,7 @@ export default function AdminWithdrawals() {
                     <td className="p-4 text-sm text-primary font-display font-bold">{formatKES(w.amount)}</td>
                     <td className="p-4">
                       <div className="flex items-center gap-1">
-                        {w.status === "approved" || w.status === "completed" ? <CheckCircle className="h-4 w-4 text-green-400" /> :
+                        {w.status === "approved" || w.status === "completed" ? <CheckCircle className="h-4 w-4 text-success" /> :
                          w.status === "rejected" ? <XCircle className="h-4 w-4 text-destructive" /> :
                          <Clock className="h-4 w-4 text-muted-foreground" />}
                         <span className="text-xs font-display font-bold uppercase tracking-wider">{w.status}</span>
@@ -59,7 +59,7 @@ export default function AdminWithdrawals() {
                     <td className="p-4">
                       {w.status === "pending" && (
                         <div className="flex gap-2">
-                          <Button size="sm" onClick={() => updateStatus(w.id, "approved")} className="bg-green-600 hover:bg-green-700 text-white text-xs">Approve</Button>
+                          <Button size="sm" onClick={() => updateStatus(w.id, "approved")} className="bg-success hover:bg-success/90 text-success-foreground text-xs">Approve</Button>
                           <Button size="sm" variant="outline" onClick={() => updateStatus(w.id, "rejected")} className="border-destructive text-destructive text-xs">Reject</Button>
                         </div>
                       )}

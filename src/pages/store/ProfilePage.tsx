@@ -205,7 +205,7 @@ export default function ProfilePage() {
           {ledger && ledger.length > 0 ? <div className="space-y-3">{ledger.slice(0, 8).map((e: any) => (
             <div key={e.id} className="flex justify-between items-center border-b border-border/50 pb-3">
               <div><p className="text-sm text-foreground font-medium capitalize">{e.type}</p><p className="text-xs text-muted-foreground">{e.description}</p></div>
-              <div className="text-right"><p className={`text-sm font-display font-bold ${e.type === "deposit" || e.type === "refund" ? "text-green-400" : "text-destructive"}`}>{formatKES(e.amount)}</p><span className="text-xs text-muted-foreground">{e.status}</span></div>
+              <div className="text-right"><p className={`text-sm font-display font-bold ${e.type === "deposit" || e.type === "refund" ? "text-success" : "text-destructive"}`}>{formatKES(e.amount)}</p><span className="text-xs text-muted-foreground">{e.status}</span></div>
             </div>
           ))}</div> : <p className="text-muted-foreground text-sm">No transactions yet.</p>}
         </div>

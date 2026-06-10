@@ -124,7 +124,7 @@ export default function AdminDrops() {
                   <td className="p-4 text-sm font-medium text-foreground">{drop.title}</td>
                   <td className="p-4 text-sm text-muted-foreground">{new Date(drop.drop_date).toLocaleDateString()}</td>
                   <td className="p-4">
-                    <span className={`text-xs font-display font-bold uppercase tracking-wider px-2 py-1 rounded ${drop.active ? "bg-green-900/30 text-green-400" : "bg-muted text-muted-foreground"}`}>
+                    <span className={`text-xs font-display font-bold uppercase tracking-wider px-2 py-1 rounded ${drop.active ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
                       {drop.active ? "Active" : "Inactive"}
                     </span>
                   </td>

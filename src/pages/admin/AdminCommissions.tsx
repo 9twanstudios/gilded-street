@@ -23,7 +23,7 @@ export default function AdminCommissions() {
           { key: "order", header: "Order", render: (r: any) => <span className="font-mono text-xs">{r.order_id?.slice(0,8)}</span> },
           { key: "creator", header: "Creator", render: (r: any) => <span className="font-mono text-xs">{r.creator_id?.slice(0,8)}</span> },
           { key: "total", header: "Order total", render: (r: any) => <span>{formatKES(r.order_total)}</span> },
-          { key: "creator_e", header: "Creator (90%)", render: (r: any) => <span className="text-green-400">{formatKES(r.creator_earnings)}</span> },
+          { key: "creator_e", header: "Creator (90%)", render: (r: any) => <span className="text-success">{formatKES(r.creator_earnings)}</span> },
           { key: "platform", header: "Platform (10%)", render: (r: any) => <span className="text-primary">{formatKES(r.platform_fee)}</span> },
           { key: "date", header: "Date", render: (r: any) => <span className="text-muted-foreground">{formatDate(r.created_at)}</span> },
         ]}
