@@ -4,7 +4,7 @@ interface Props {
 }
 export function ModelToggle({ value, onChange }: Props) {
   return (
-    <div className="inline-flex rounded-full border border-border bg-surface p-1">
+    <div role="group" aria-label="Choose model" className="inline-flex rounded-full border border-border bg-surface p-1">
       {(["male", "female"] as const).map((m) => (
         <button
           key={m}

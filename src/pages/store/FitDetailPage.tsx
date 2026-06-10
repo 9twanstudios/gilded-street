@@ -4,16 +4,22 @@ import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
 import { Heart, ShoppingBag, Edit3 } from "lucide-react";
 import SEO from "@/components/SEO";
+import { QueryError } from "@/components/QueryError";
 import { toast } from "sonner";
 
 export default function FitDetailPage() {
   const { id } = useParams();
-  const { data: fit, isLoading } = useFit(id);
+  const { data: fit, isLoading, isError, refetch } = useFit(id);
   const like = useToggleLike(id!);
   const { addItem, setIsOpen } = useCart();
   const navigate = useNavigate();
 
-  if (isLoading) return <div className="container py-20 text-center text-muted-foreground">Loading…</div>;
+  if (isLoading) return <div className="container py-20 text-center text-muted-foreground" role="status">Loading…</div>;
+  if (isError) return (
+    <div className="container py-20">
+      <QueryError message="Couldn't load this fit." onRetry={() => refetch()} />
+    </div>
+  );
   if (!fit) return (
     <div className="container py-20 text-center">
       <p className="text-muted-foreground">Fit not found.</p>
