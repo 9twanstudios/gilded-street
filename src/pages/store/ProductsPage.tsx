@@ -7,6 +7,7 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { QueryError } from "@/components/QueryError";
 
 const SORT_OPTIONS = [
   { label: "Newest", value: "newest" },
@@ -26,7 +27,7 @@ const PRICE_RANGES = [
 const PAGE_SIZE = 12;
 
 export default function ProductsPage() {
-  const { data: products, isLoading } = useProducts();
+  const { data: products, isLoading, isError, refetch } = useProducts();
   const { data: drops } = useDrops();
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("q") ?? "");
@@ -113,6 +114,14 @@ export default function ProductsPage() {
     return <div className="container py-8"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mt-20" /></div>;
   }
 
+  if (isError && !products) {
+    return (
+      <div className="container py-8">
+        <QueryError message="Couldn't load products. Check your connection and try again." onRetry={() => refetch()} />
+      </div>
+    );
+  }
+
   const visible = filtered.slice(0, visibleCount);
 
   return (
@@ -121,10 +130,6 @@ export default function ProductsPage() {
         <title>Shop 91 Fitz — Premium Streetwear Kenya | Hoodies, Tees, Cargo</title>
         <meta name="description" content="Browse 91 Fitz collection. Premium hoodies Kenya, streetwear tees, cargo pants. Filter by size, price, category. M-Pesa checkout. Nairobi same-day delivery." />
         <link rel="canonical" href="https://91fitz.com/shop" />
-      </Helmet>
-
-      {isError && !products ? (
-        <QueryError message="Couldn't load products." onRetry={() => refetch()} />
       </Helmet>
 
       <h1 className="font-heading text-5xl md:text-6xl text-gold-gradient mb-6">
