@@ -18,7 +18,7 @@ const statusColors: Record<OrderStatus, string> = {
   pending: "bg-yellow-900/30 text-yellow-400",
   processing: "bg-primary/10 text-primary",
   shipped: "bg-blue-900/30 text-blue-400",
-  delivered: "bg-green-900/30 text-green-400",
+  delivered: "bg-success/10 text-success",
   cancelled: "bg-destructive/10 text-destructive",
 };
 

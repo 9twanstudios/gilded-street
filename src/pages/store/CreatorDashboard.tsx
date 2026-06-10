@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { formatPrice } from "@/hooks/use-products";
 import { ProductFormDialog } from "@/components/admin/ProductFormDialog";
 import { EmptyState } from "@/components/store/EmptyState";
+import SEO from "@/components/SEO";
 
 export default function CreatorDashboard() {
   const { user } = useAuth();
@@ -49,7 +50,7 @@ export default function CreatorDashboard() {
       <div className="container py-8 text-center">
         <p className="text-muted-foreground">Sign in to access creator dashboard</p>
         <Button asChild className="mt-4 bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
-          <Link to="/login">Sign In</Link>
+          <Link to="/auth/sign-in">Sign In</Link>
         </Button>
       </div>
     );
@@ -59,7 +60,7 @@ export default function CreatorDashboard() {
 
   const statusColor = (status: string) => {
     switch (status) {
-      case "approved": return "bg-green-900/30 text-green-400";
+      case "approved": return "bg-success/10 text-success";
       case "rejected": return "bg-destructive/20 text-destructive";
       default: return "bg-primary/10 text-primary";
     }
@@ -72,6 +73,7 @@ export default function CreatorDashboard() {
 
   return (
     <div className="container py-8">
+      <SEO title="Creator Dashboard | 91 Fitz" description="Manage your products and earnings." noindex />
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-heading text-5xl text-gold-gradient">Creator Dashboard</h1>
@@ -94,8 +96,8 @@ export default function CreatorDashboard() {
           <p className="text-muted-foreground text-sm font-display uppercase tracking-wider mt-1">Wallet Balance</p>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-card border border-border rounded-lg p-5">
-          <TrendingUp className="h-5 w-5 text-green-400 mb-2" />
-          <p className="text-green-400 font-heading text-3xl">{formatKES(totalEarnings)}</p>
+          <TrendingUp className="h-5 w-5 text-success mb-2" />
+          <p className="text-success font-heading text-3xl">{formatKES(totalEarnings)}</p>
           <p className="text-muted-foreground text-sm font-display uppercase tracking-wider mt-1">Total Earnings</p>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-card border border-border rounded-lg p-5">

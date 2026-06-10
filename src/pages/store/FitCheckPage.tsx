@@ -54,15 +54,19 @@ export default function FitCheckPage() {
 
   const handleSave = async () => {
     if (!user) return navigate("/auth/sign-in");
-    const created = await save.mutateAsync({ model, name, items, visibility });
-    if (created && canvasRef.current) {
-      const url = await renderAndUploadFitCover(canvasRef.current, user.id, created.id);
-      if (url) await save.mutateAsync({ id: created.id, model, name, items, visibility, cover_image: url });
+    try {
+      const created = await save.mutateAsync({ model, name, items, visibility });
+      if (created && canvasRef.current) {
+        const url = await renderAndUploadFitCover(canvasRef.current, user.id, created.id);
+        if (url) await save.mutateAsync({ id: created.id, model, name, items, visibility, cover_image: url });
+      }
+    } catch {
+      // useSaveFit already surfaces the error via toast; this prevents an unhandled rejection.
     }
   };
 
   return (
-    <div className="container py-6">
+    <div className="container py-6 overflow-x-hidden">
       <SEO title="FitCheck — Style your look | 91Fitz" description="Dress the mannequin with 91Fitz drops. Save your fit, share with friends, shop the look." />
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
         <div>
@@ -108,14 +112,14 @@ export default function FitCheckPage() {
 
         {/* Right: actions */}
         <div className="bg-card border border-border rounded-lg p-3 space-y-3">
-          <h3 className="font-display font-bold uppercase tracking-wider text-xs text-foreground">In this fit</h3>
+          <h2 className="font-display font-bold uppercase tracking-wider text-xs text-foreground">In this fit</h2>
           {items.length === 0 ? (
             <p className="text-xs text-muted-foreground">No items yet.</p>
           ) : (
             <ul className="space-y-1.5 max-h-48 overflow-y-auto">
               {items.map((it, i) => (
                 <li key={i} className="flex items-center gap-2 text-xs">
-                  <img src={it.image} alt="" className="h-8 w-8 rounded object-cover bg-surface" />
+                  <img src={it.image} alt={it.name} loading="lazy" className="h-8 w-8 rounded object-cover bg-surface" />
                   <div className="flex-1 min-w-0">
                     <p className="truncate font-display font-bold text-foreground">{it.name}</p>
                     <p className="text-primary">KES {it.price.toLocaleString()}</p>

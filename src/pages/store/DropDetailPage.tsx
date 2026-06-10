@@ -111,7 +111,7 @@ export default function DropDetailPage() {
                 <Link key={story.id} to={`/stories/${story.slug}`} className="group bg-card border border-border rounded-lg overflow-hidden hover:border-primary/50 transition-colors">
                   {story.cover_image && (
                     <div className="aspect-video overflow-hidden">
-                      <img src={story.cover_image} alt={story.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={story.cover_image} alt={story.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
                   )}
                   <div className="p-4">

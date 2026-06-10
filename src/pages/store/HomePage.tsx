@@ -10,9 +10,10 @@ import { useStories } from "@/hooks/use-stories";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
+import { QueryError } from "@/components/QueryError";
 
 export default function HomePage() {
-  const { data: products, isLoading } = useProducts();
+  const { data: products, isLoading, isError, refetch } = useProducts();
   const { data: drops } = useDrops();
   const { data: stories } = useStories();
 
@@ -20,6 +21,14 @@ export default function HomePage() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (isError && !products) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <QueryError message="Couldn't load the store. Check your connection and try again." onRetry={() => refetch()} />
       </div>
     );
   }
@@ -101,7 +110,7 @@ export default function HomePage() {
                   <Link to={`/drops/${drop.slug}`} className="group block">
                     <div className="aspect-[4/3] rounded-lg overflow-hidden bg-surface mb-3 relative">
                       {drop.cover_image ? (
-                        <img src={drop.cover_image} alt={drop.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <img src={drop.cover_image} alt={drop.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-primary/20 to-surface flex items-center justify-center">
                           <span className="font-heading text-5xl text-primary/30">{drop.title[0]}</span>
@@ -132,7 +141,7 @@ export default function HomePage() {
             >
               {latestStory.cover_image && (
                 <div className="aspect-[4/3] rounded-lg overflow-hidden bg-surface">
-                  <img src={latestStory.cover_image} alt={latestStory.title} className="w-full h-full object-cover" />
+                  <img src={latestStory.cover_image} alt={latestStory.title} loading="lazy" className="w-full h-full object-cover" />
                 </div>
               )}
               <div>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
-import { CartItem, Product } from "@/lib/data";
+import { CartItem, Product } from "@/lib/cart-types";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { track } from "@/lib/tracking";

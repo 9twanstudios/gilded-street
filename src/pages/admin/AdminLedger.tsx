@@ -62,14 +62,14 @@ export default function AdminLedger() {
                   <tr key={e.id} className="border-b border-border/50 hover:bg-surface-elevated transition-colors">
                     <td className="p-4">
                       <div className="flex items-center gap-2">
-                        {e.type === "deposit" || e.type === "refund" ? <ArrowDownLeft className="h-4 w-4 text-green-400" /> : <ArrowUpRight className="h-4 w-4 text-destructive" />}
+                        {e.type === "deposit" || e.type === "refund" ? <ArrowDownLeft className="h-4 w-4 text-success" /> : <ArrowUpRight className="h-4 w-4 text-destructive" />}
                         <span className="text-xs font-display font-bold uppercase tracking-wider">{e.type}</span>
                       </div>
                     </td>
                     <td className="p-4 text-sm text-muted-foreground">{e.profiles?.full_name || e.profiles?.email || e.user_id.slice(0, 8)}</td>
                     <td className="p-4 text-sm text-primary font-display font-bold">{formatKES(e.amount)}</td>
                     <td className="p-4"><span className={`text-xs font-display font-bold uppercase tracking-wider px-2 py-1 rounded ${
-                      e.status === "completed" ? "bg-green-900/30 text-green-400" : e.status === "failed" ? "bg-red-900/30 text-red-400" : "bg-muted text-muted-foreground"
+                      e.status === "completed" ? "bg-success/10 text-success" : e.status === "failed" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"
                     }`}>{e.status}</span></td>
                     <td className="p-4 text-sm text-muted-foreground max-w-[200px] truncate">{e.description}</td>
                     <td className="p-4 text-sm text-muted-foreground">{new Date(e.created_at).toLocaleDateString()}</td>

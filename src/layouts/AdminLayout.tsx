@@ -1,5 +1,7 @@
 import { Link, useLocation, Outlet } from "react-router-dom";
-import { useState } from "react";
+import { useState, Suspense } from "react";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PageLoader } from "@/components/PageLoader";
 import {
   LayoutDashboard, Package, Users, ShoppingCart, Bell, ChevronLeft, ChevronRight,
   FolderOpen, FileText, Zap, Wallet, BookOpen, ArrowDownToLine, ScrollText, Settings,
@@ -125,7 +127,11 @@ export default function AdminLayout() {
         </header>
 
         <main className="flex-1 p-6 overflow-auto">
-          <Outlet />
+          <ErrorBoundary>
+            <Suspense fallback={<PageLoader />}>
+              <Outlet />
+            </Suspense>
+          </ErrorBoundary>
         </main>
       </div>
     </div>

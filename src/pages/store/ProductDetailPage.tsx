@@ -48,7 +48,7 @@ export default function ProductDetailPage() {
     return (
       <div className="container py-20 text-center">
         <p className="text-muted-foreground text-lg">Product not found.</p>
-        <Link to="/products" className="text-primary hover:underline mt-4 inline-block">Back to Shop</Link>
+        <Link to="/shop" className="text-primary hover:underline mt-4 inline-block">Back to Shop</Link>
       </div>
     );
   }
@@ -100,6 +100,16 @@ export default function ProductDetailPage() {
     },
   };
 
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://91fitz.com/" },
+      { "@type": "ListItem", position: 2, name: "Shop", item: "https://91fitz.com/shop" },
+      { "@type": "ListItem", position: 3, name: product.name, item: `https://91fitz.com/products/${product.slug}` },
+    ],
+  };
+
   return (
     <div className="container py-8">
       <Helmet>
@@ -111,12 +121,13 @@ export default function ProductDetailPage() {
         <meta property="og:url" content={`https://91fitz.com/products/${product.slug}`} />
         <link rel="canonical" href={`https://91fitz.com/products/${product.slug}`} />
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbLd)}</script>
       </Helmet>
 
       <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-6" aria-label="Breadcrumb">
         <Link to="/" className="hover:text-primary transition-colors">Home</Link>
         <ChevronRight className="h-3 w-3" />
-        <Link to="/products" className="hover:text-primary transition-colors">Shop</Link>
+        <Link to="/shop" className="hover:text-primary transition-colors">Shop</Link>
         <ChevronRight className="h-3 w-3" />
         <span className="text-foreground truncate max-w-[200px]">{product.name}</span>
       </nav>

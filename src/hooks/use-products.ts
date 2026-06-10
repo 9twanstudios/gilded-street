@@ -30,7 +30,8 @@ export interface Category {
   created_at: string;
 }
 
-export const formatPrice = (price: number) => `KES ${price.toLocaleString()}`;
+// Canonical formatter lives in @/lib/format — re-exported here for existing call sites.
+export { formatPrice } from "@/lib/format";
 
 export function generateSlug(name: string): string {
   return name

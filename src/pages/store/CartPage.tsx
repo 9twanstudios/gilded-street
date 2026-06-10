@@ -22,7 +22,7 @@ export default function CartPage() {
           <ShoppingBag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground text-lg mb-6">Your cart is empty</p>
           <Button asChild className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
-            <Link to="/products">Continue Shopping</Link>
+            <Link to="/shop">Continue Shopping</Link>
           </Button>
         </div>
       ) : (
@@ -72,7 +72,7 @@ export default function CartPage() {
                 <Link to="/checkout">Proceed to Checkout</Link>
               </Button>
               <Button asChild variant="outline" className="flex-1 border-border text-muted-foreground font-display font-bold uppercase tracking-wider hover:border-primary hover:text-primary">
-                <Link to="/products">Continue Shopping</Link>
+                <Link to="/shop">Continue Shopping</Link>
               </Button>
             </div>
           </div>

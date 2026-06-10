@@ -27,7 +27,7 @@ export default function AdminNotifyRequests() {
         columns={[
           { key: "email", header: "Email", render: (r: any) => <span className="font-mono text-xs">{r.email}</span> },
           { key: "product", header: "Product", render: (r: any) => <span>{r.products?.name || r.product_id?.slice(0, 8)}</span> },
-          { key: "stock", header: "In stock?", render: (r: any) => <span className={r.products?.in_stock ? "text-green-400" : "text-destructive"}>{r.products?.in_stock ? "Yes" : "No"}</span> },
+          { key: "stock", header: "In stock?", render: (r: any) => <span className={r.products?.in_stock ? "text-success" : "text-destructive"}>{r.products?.in_stock ? "Yes" : "No"}</span> },
           { key: "status", header: "Status", render: (r: any) => <span className="text-xs uppercase tracking-wider text-muted-foreground">{r.notified ? "notified" : "pending"}</span> },
           { key: "date", header: "Requested", render: (r: any) => <span className="text-muted-foreground">{formatDate(r.created_at)}</span> },
           { key: "actions", header: "", render: (r: any) => !r.notified && <Button size="sm" onClick={() => markNotified.mutate(r.id)} className="bg-primary text-primary-foreground">Mark notified</Button> },

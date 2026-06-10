@@ -50,7 +50,7 @@ export default function AdminQR() {
                   <p className="font-display font-bold text-foreground">{c.name}</p>
                   <p className="text-xs text-muted-foreground">/u/{c.slug}</p>
                 </div>
-                <span className={`text-[10px] font-display font-bold uppercase px-2 py-1 rounded ${c.active ? "bg-green-900/30 text-green-400" : "bg-muted text-muted-foreground"}`}>
+                <span className={`text-[10px] font-display font-bold uppercase px-2 py-1 rounded ${c.active ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
                   {c.active ? "Live" : "Off"}
                 </span>
               </div>

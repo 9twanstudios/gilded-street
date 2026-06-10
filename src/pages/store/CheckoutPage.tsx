@@ -14,6 +14,7 @@ import { CheckCircle, Wallet, CreditCard } from "lucide-react";
 import { track } from "@/lib/tracking";
 import { readAttribution } from "@/lib/attribution";
 import { getProvider } from "@/lib/upal";
+import SEO from "@/components/SEO";
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
@@ -95,17 +96,17 @@ export default function CheckoutPage() {
   if (orderPlaced) {
     return (
       <div className="container py-20 text-center max-w-md mx-auto">
-        <div className="w-16 h-16 rounded-full bg-green-600/20 flex items-center justify-center mx-auto mb-6">
-          <CheckCircle className="h-8 w-8 text-green-500" />
+        <div className="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-6">
+          <CheckCircle className="h-8 w-8 text-success" />
         </div>
         <h1 className="font-heading text-4xl text-gold-gradient mb-4">Order Confirmed!</h1>
         <p className="text-muted-foreground mb-8">Your order has been placed and payment received.</p>
         <div className="flex flex-col gap-3">
           <Button asChild className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
-            <Link to="/products">Continue Shopping</Link>
+            <Link to="/shop">Continue Shopping</Link>
           </Button>
           <Button asChild variant="outline" className="border-primary text-primary font-display font-bold uppercase tracking-wider hover:bg-primary hover:text-primary-foreground">
-            <Link to="/profile">View My Orders</Link>
+            <Link to="/account/orders">View My Orders</Link>
           </Button>
         </div>
       </div>
@@ -118,7 +119,7 @@ export default function CheckoutPage() {
         <h1 className="font-heading text-4xl text-foreground mb-4">Your cart is empty</h1>
         <p className="text-muted-foreground mb-6">Add some items to proceed to checkout.</p>
         <Button asChild className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
-          <Link to="/products">Shop Now</Link>
+          <Link to="/shop">Shop Now</Link>
         </Button>
       </div>
     );
@@ -132,13 +133,14 @@ export default function CheckoutPage() {
 
   return (
     <div className="container py-8">
+      <SEO title="Checkout | 91 Fitz" description="Complete your 91 Fitz order." noindex />
       <h1 className="font-heading text-5xl text-gold-gradient mb-8">Checkout</h1>
 
       {!user && (
         <div className="bg-card border border-primary/30 rounded-lg p-4 mb-6 flex items-center justify-between">
           <p className="text-muted-foreground text-sm">Sign in to place your order</p>
           <Button asChild size="sm" className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
-            <Link to="/login">Sign In</Link>
+            <Link to="/auth/sign-in">Sign In</Link>
           </Button>
         </div>
       )}

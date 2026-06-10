@@ -7,15 +7,16 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import SEO from "@/components/SEO";
 
 const statusIcon = (status: string) => {
-  if (status === "completed" || status === "approved") return <CheckCircle className="h-4 w-4 text-green-400" />;
+  if (status === "completed" || status === "approved") return <CheckCircle className="h-4 w-4 text-success" />;
   if (status === "failed" || status === "rejected") return <XCircle className="h-4 w-4 text-destructive" />;
   return <Clock className="h-4 w-4 text-muted-foreground" />;
 };
 
 const typeColor = (type: string) => {
-  if (type === "deposit") return "text-green-400";
+  if (type === "deposit") return "text-success";
   if (type === "purchase" || type === "fee") return "text-destructive";
   if (type === "payout") return "text-primary";
   return "text-muted-foreground";
@@ -35,7 +36,7 @@ export default function WalletPage() {
         <h1 className="font-heading text-5xl text-gold-gradient mb-4">Wallet</h1>
         <p className="text-muted-foreground mb-4">Sign in to access your wallet.</p>
         <Button asChild className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
-          <Link to="/login">Sign In</Link>
+          <Link to="/auth/sign-in">Sign In</Link>
         </Button>
       </div>
     );
@@ -53,6 +54,7 @@ export default function WalletPage() {
 
   return (
     <div className="container py-8">
+      <SEO title="Wallet | 91 Fitz" description="Manage your 91 Fitz wallet balance and withdrawals." noindex />
       <h1 className="font-heading text-5xl text-gold-gradient mb-8">Wallet</h1>
 
       <div className="grid md:grid-cols-3 gap-6 mb-8">
@@ -126,7 +128,7 @@ export default function WalletPage() {
                     <td className="p-4">
                       <div className="flex items-center gap-2">
                         {entry.type === "deposit" || entry.type === "refund" ? (
-                          <ArrowDownLeft className="h-4 w-4 text-green-400" />
+                          <ArrowDownLeft className="h-4 w-4 text-success" />
                         ) : (
                           <ArrowUpRight className="h-4 w-4 text-destructive" />
                         )}

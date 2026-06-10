@@ -45,7 +45,7 @@ export default function AdminSeoContent() {
           <div className="space-y-3">
             {pages.map((p) => {
               const sc = score(p);
-              const color = sc.value >= 80 ? "bg-green-600" : sc.value >= 50 ? "bg-yellow-600" : "bg-destructive";
+              const color = sc.value >= 80 ? "bg-success" : sc.value >= 50 ? "bg-yellow-600" : "bg-destructive";
               return (
                 <div key={p.id} className="border border-border rounded-lg p-4">
                   <div className="flex items-center justify-between gap-3 mb-2">

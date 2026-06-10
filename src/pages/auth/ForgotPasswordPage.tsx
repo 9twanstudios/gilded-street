@@ -42,7 +42,7 @@ export default function ForgotPasswordPage() {
             <Mail className="h-12 w-12 text-primary mx-auto mb-4" />
             <p className="text-foreground font-display font-bold">Check your email</p>
             <p className="text-muted-foreground text-sm mt-2">We sent a password reset link to {email}</p>
-            <Link to="/login" className="text-primary hover:underline text-sm mt-4 inline-block">Back to login</Link>
+            <Link to="/auth/sign-in" className="text-primary hover:underline text-sm mt-4 inline-block">Back to login</Link>
           </div>
         ) : (
           <form onSubmit={handleReset} className="bg-card border border-border rounded-lg p-8 space-y-5">
@@ -65,7 +65,7 @@ export default function ForgotPasswordPage() {
               {loading ? "Sending..." : "Send Reset Link"}
             </Button>
             <p className="text-center text-sm">
-              <Link to="/login" className="text-muted-foreground hover:text-primary transition-colors">Back to login</Link>
+              <Link to="/auth/sign-in" className="text-muted-foreground hover:text-primary transition-colors">Back to login</Link>
             </p>
           </form>
         )}

@@ -49,7 +49,7 @@ export function CartSidebar() {
               ) : (
                 items.map((item) => (
                   <div key={`${item.product.id}-${item.size}`} className="flex gap-4 bg-surface rounded-lg p-3">
-                    <img src={item.product.image} alt={item.product.name} className="w-20 h-20 object-cover rounded" />
+                    <img src={item.product.image} alt={item.product.name} loading="lazy" className="w-20 h-20 object-cover rounded" />
                     <div className="flex-1 min-w-0">
                       <h4 className="text-sm font-display font-bold text-foreground truncate">{item.product.name}</h4>
                       <p className="text-xs text-muted-foreground">Size: {item.size}</p>

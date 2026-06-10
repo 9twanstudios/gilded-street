@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 
@@ -7,71 +8,88 @@ import { CartProvider } from "@/hooks/use-cart";
 import { AuthProvider } from "@/hooks/use-auth";
 import AdminGuard from "@/components/admin/AdminGuard";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PageLoader } from "@/components/PageLoader";
 import StoreLayout from "@/layouts/StoreLayout";
 import AdminLayout from "@/layouts/AdminLayout";
-import HomePage from "@/pages/store/HomePage";
-import ProductsPage from "@/pages/store/ProductsPage";
-import ProductDetailPage from "@/pages/store/ProductDetailPage";
-import CheckoutPage from "@/pages/store/CheckoutPage";
-import ProfilePage from "@/pages/store/ProfilePage";
-import AccountPage from "@/pages/store/AccountPage";
-import BlogPage from "@/pages/store/BlogPage";
-import BlogPostPage from "@/pages/store/BlogPostPage";
-import DropsPage from "@/pages/store/DropsPage";
-import DropDetailPage from "@/pages/store/DropDetailPage";
-import WalletPage from "@/pages/store/WalletPage";
-import CreatorStorefront from "@/pages/store/CreatorStorefront";
-import CreatorDashboard from "@/pages/store/CreatorDashboard";
-import CreatorsIndexPage from "@/pages/store/CreatorsIndexPage";
-import StoriesPage from "@/pages/store/StoriesPage";
-import StoryDetailPage from "@/pages/store/StoryDetailPage";
-import CartPage from "@/pages/store/CartPage";
-import QRLandingPage from "@/pages/store/QRLandingPage";
-import ClusterPage from "@/pages/store/ClusterPage";
-import LocationPage from "@/pages/store/LocationPage";
-import ReferralCapturePage from "@/pages/store/ReferralCapturePage";
-import { AboutPage, ContactPage, ShippingPage, ReturnsPage, PrivacyPage, TermsPage, FaqPage, SizingPage, TrackOrderPage } from "@/pages/store/MarketingPages";
-import OnboardingPage from "@/pages/onboarding/OnboardingPage";
-import CreatorApplicationPage from "@/pages/onboarding/CreatorApplicationPage";
-import AdminDashboard from "@/pages/admin/AdminDashboard";
-import AdminProducts from "@/pages/admin/AdminProducts";
-import AdminCategories from "@/pages/admin/AdminCategories";
-import AdminDrops from "@/pages/admin/AdminDrops";
-import AdminBlog from "@/pages/admin/AdminBlog";
-import AdminStories from "@/pages/admin/AdminStories";
-import AdminOrders from "@/pages/admin/AdminOrders";
-import AdminUsers from "@/pages/admin/AdminUsers";
-import AdminWallets from "@/pages/admin/AdminWallets";
-import AdminLedger from "@/pages/admin/AdminLedger";
-import AdminWithdrawals from "@/pages/admin/AdminWithdrawals";
-import AdminSettings from "@/pages/admin/AdminSettings";
-import AdminQR from "@/pages/admin/AdminQR";
-import AdminSEO from "@/pages/admin/AdminSEO";
-import AdminAnalytics from "@/pages/admin/AdminAnalytics";
-import AdminMarketing from "@/pages/admin/AdminMarketing";
-import AdminCampaigns from "@/pages/admin/AdminCampaigns";
-import AdminSegments from "@/pages/admin/AdminSegments";
-import AdminSeoInsights from "@/pages/admin/AdminSeoInsights";
-import AdminGrowthSeo from "@/pages/admin/AdminGrowthSeo";
-import AdminSeoContent from "@/pages/admin/AdminSeoContent";
-import AdminReviews from "@/pages/admin/AdminReviews";
-import AdminNotifyRequests from "@/pages/admin/AdminNotifyRequests";
-import AdminCommissions from "@/pages/admin/AdminCommissions";
-import AdminReferrals from "@/pages/admin/AdminReferrals";
-import AdminAuditLog from "@/pages/admin/AdminAuditLog";
-import AdminAutomations from "@/pages/admin/AdminAutomations";
-import AdminCreatorApplications from "@/pages/admin/AdminCreatorApplications";
-import AdminIGEmbeds from "@/pages/admin/AdminIGEmbeds";
-import FitCheckPage from "@/pages/store/FitCheckPage";
-import FitsGalleryPage from "@/pages/store/FitsGalleryPage";
-import FitDetailPage from "@/pages/store/FitDetailPage";
 import AttributionCapture from "@/components/AttributionCapture";
-import LoginPage from "@/pages/auth/LoginPage";
-import SignupPage from "@/pages/auth/SignupPage";
-import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
-import ResetPasswordPage from "@/pages/auth/ResetPasswordPage";
-import AdminLoginPage from "@/pages/auth/AdminLoginPage";
+import HomePage from "@/pages/store/HomePage";
 import NotFound from "./pages/NotFound";
+
+// Store (lazy)
+const ProductsPage = lazy(() => import("@/pages/store/ProductsPage"));
+const ProductDetailPage = lazy(() => import("@/pages/store/ProductDetailPage"));
+const CheckoutPage = lazy(() => import("@/pages/store/CheckoutPage"));
+const ProfilePage = lazy(() => import("@/pages/store/ProfilePage"));
+const AccountPage = lazy(() => import("@/pages/store/AccountPage"));
+const BlogPage = lazy(() => import("@/pages/store/BlogPage"));
+const BlogPostPage = lazy(() => import("@/pages/store/BlogPostPage"));
+const DropsPage = lazy(() => import("@/pages/store/DropsPage"));
+const DropDetailPage = lazy(() => import("@/pages/store/DropDetailPage"));
+const WalletPage = lazy(() => import("@/pages/store/WalletPage"));
+const CreatorStorefront = lazy(() => import("@/pages/store/CreatorStorefront"));
+const CreatorDashboard = lazy(() => import("@/pages/store/CreatorDashboard"));
+const CreatorsIndexPage = lazy(() => import("@/pages/store/CreatorsIndexPage"));
+const StoriesPage = lazy(() => import("@/pages/store/StoriesPage"));
+const StoryDetailPage = lazy(() => import("@/pages/store/StoryDetailPage"));
+const CartPage = lazy(() => import("@/pages/store/CartPage"));
+const QRLandingPage = lazy(() => import("@/pages/store/QRLandingPage"));
+const ClusterPage = lazy(() => import("@/pages/store/ClusterPage"));
+const LocationPage = lazy(() => import("@/pages/store/LocationPage"));
+const ReferralCapturePage = lazy(() => import("@/pages/store/ReferralCapturePage"));
+const FitCheckPage = lazy(() => import("@/pages/store/FitCheckPage"));
+const FitsGalleryPage = lazy(() => import("@/pages/store/FitsGalleryPage"));
+const FitDetailPage = lazy(() => import("@/pages/store/FitDetailPage"));
+
+// Marketing (lazy, named exports)
+const AboutPage = lazy(() => import("@/pages/store/MarketingPages").then((m) => ({ default: m.AboutPage })));
+const ContactPage = lazy(() => import("@/pages/store/MarketingPages").then((m) => ({ default: m.ContactPage })));
+const ShippingPage = lazy(() => import("@/pages/store/MarketingPages").then((m) => ({ default: m.ShippingPage })));
+const ReturnsPage = lazy(() => import("@/pages/store/MarketingPages").then((m) => ({ default: m.ReturnsPage })));
+const PrivacyPage = lazy(() => import("@/pages/store/MarketingPages").then((m) => ({ default: m.PrivacyPage })));
+const TermsPage = lazy(() => import("@/pages/store/MarketingPages").then((m) => ({ default: m.TermsPage })));
+const FaqPage = lazy(() => import("@/pages/store/MarketingPages").then((m) => ({ default: m.FaqPage })));
+const SizingPage = lazy(() => import("@/pages/store/MarketingPages").then((m) => ({ default: m.SizingPage })));
+const TrackOrderPage = lazy(() => import("@/pages/store/MarketingPages").then((m) => ({ default: m.TrackOrderPage })));
+
+// Onboarding + auth (lazy)
+const OnboardingPage = lazy(() => import("@/pages/onboarding/OnboardingPage"));
+const CreatorApplicationPage = lazy(() => import("@/pages/onboarding/CreatorApplicationPage"));
+const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
+const SignupPage = lazy(() => import("@/pages/auth/SignupPage"));
+const ForgotPasswordPage = lazy(() => import("@/pages/auth/ForgotPasswordPage"));
+const ResetPasswordPage = lazy(() => import("@/pages/auth/ResetPasswordPage"));
+const AdminLoginPage = lazy(() => import("@/pages/auth/AdminLoginPage"));
+
+// Admin (lazy — keeps the entire ACP out of the storefront bundle)
+const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
+const AdminProducts = lazy(() => import("@/pages/admin/AdminProducts"));
+const AdminCategories = lazy(() => import("@/pages/admin/AdminCategories"));
+const AdminDrops = lazy(() => import("@/pages/admin/AdminDrops"));
+const AdminBlog = lazy(() => import("@/pages/admin/AdminBlog"));
+const AdminStories = lazy(() => import("@/pages/admin/AdminStories"));
+const AdminOrders = lazy(() => import("@/pages/admin/AdminOrders"));
+const AdminUsers = lazy(() => import("@/pages/admin/AdminUsers"));
+const AdminWallets = lazy(() => import("@/pages/admin/AdminWallets"));
+const AdminLedger = lazy(() => import("@/pages/admin/AdminLedger"));
+const AdminWithdrawals = lazy(() => import("@/pages/admin/AdminWithdrawals"));
+const AdminSettings = lazy(() => import("@/pages/admin/AdminSettings"));
+const AdminQR = lazy(() => import("@/pages/admin/AdminQR"));
+const AdminSEO = lazy(() => import("@/pages/admin/AdminSEO"));
+const AdminAnalytics = lazy(() => import("@/pages/admin/AdminAnalytics"));
+const AdminMarketing = lazy(() => import("@/pages/admin/AdminMarketing"));
+const AdminCampaigns = lazy(() => import("@/pages/admin/AdminCampaigns"));
+const AdminSegments = lazy(() => import("@/pages/admin/AdminSegments"));
+const AdminSeoInsights = lazy(() => import("@/pages/admin/AdminSeoInsights"));
+const AdminGrowthSeo = lazy(() => import("@/pages/admin/AdminGrowthSeo"));
+const AdminSeoContent = lazy(() => import("@/pages/admin/AdminSeoContent"));
+const AdminReviews = lazy(() => import("@/pages/admin/AdminReviews"));
+const AdminNotifyRequests = lazy(() => import("@/pages/admin/AdminNotifyRequests"));
+const AdminCommissions = lazy(() => import("@/pages/admin/AdminCommissions"));
+const AdminReferrals = lazy(() => import("@/pages/admin/AdminReferrals"));
+const AdminAuditLog = lazy(() => import("@/pages/admin/AdminAuditLog"));
+const AdminAutomations = lazy(() => import("@/pages/admin/AdminAutomations"));
+const AdminCreatorApplications = lazy(() => import("@/pages/admin/AdminCreatorApplications"));
+const AdminIGEmbeds = lazy(() => import("@/pages/admin/AdminIGEmbeds"));
 
 const queryClient = new QueryClient();
 
@@ -84,6 +102,7 @@ const App = () => (
             <CartProvider>
               <BrowserRouter>
                 <AttributionCapture />
+                <Suspense fallback={<PageLoader />}>
                 <Routes>
                   {/* Auth — canonical /auth/* + legacy redirects */}
                   <Route path="/auth/sign-in" element={<LoginPage />} />
@@ -138,10 +157,10 @@ const App = () => (
                     <Route path="/account/qr-history" element={<AccountPage />} />
                     <Route path="/profile" element={<Navigate to="/account/profile" replace />} />
                     <Route path="/wallet" element={<Navigate to="/account/wallet" replace />} />
-                    {/* Creators */}
+                    {/* Creators — static segment declared before the dynamic one */}
                     <Route path="/creators" element={<CreatorsIndexPage />} />
-                    <Route path="/creator/:id" element={<CreatorStorefront />} />
                     <Route path="/creator/dashboard" element={<CreatorDashboard />} />
+                    <Route path="/creator/:id" element={<CreatorStorefront />} />
                     {/* Marketing */}
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/contact" element={<ContactPage />} />
@@ -197,6 +216,7 @@ const App = () => (
 
                   <Route path="*" element={<NotFound />} />
                 </Routes>
+                </Suspense>
               </BrowserRouter>
           </CartProvider>
         </AuthProvider>

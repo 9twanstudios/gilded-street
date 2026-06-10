@@ -33,7 +33,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between mb-3">
               <stat.icon className="h-5 w-5 text-primary" />
               {stat.change && (
-                <span className="text-xs text-green-400 font-display font-semibold flex items-center gap-1">
+                <span className="text-xs text-success font-display font-semibold flex items-center gap-1">
                   <TrendingUp className="h-3 w-3" /> {stat.change}
                 </span>
               )}
@@ -69,7 +69,7 @@ export default function AdminDashboard() {
                     <td className="p-4 text-sm text-primary font-display font-bold">{formatPrice(order.total)}</td>
                     <td className="p-4">
                       <span className={`text-xs font-display font-bold uppercase tracking-wider px-2 py-1 rounded ${
-                        order.status === "delivered" ? "bg-green-900/30 text-green-400" :
+                        order.status === "delivered" ? "bg-success/10 text-success" :
                         order.status === "processing" ? "bg-primary/10 text-primary" :
                         "bg-muted text-muted-foreground"
                       }`}>
