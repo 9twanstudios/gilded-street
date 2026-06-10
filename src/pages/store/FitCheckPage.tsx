@@ -54,10 +54,14 @@ export default function FitCheckPage() {
 
   const handleSave = async () => {
     if (!user) return navigate("/auth/sign-in");
-    const created = await save.mutateAsync({ model, name, items, visibility });
-    if (created && canvasRef.current) {
-      const url = await renderAndUploadFitCover(canvasRef.current, user.id, created.id);
-      if (url) await save.mutateAsync({ id: created.id, model, name, items, visibility, cover_image: url });
+    try {
+      const created = await save.mutateAsync({ model, name, items, visibility });
+      if (created && canvasRef.current) {
+        const url = await renderAndUploadFitCover(canvasRef.current, user.id, created.id);
+        if (url) await save.mutateAsync({ id: created.id, model, name, items, visibility, cover_image: url });
+      }
+    } catch {
+      // useSaveFit already surfaces the error via toast; this prevents an unhandled rejection.
     }
   };
 
