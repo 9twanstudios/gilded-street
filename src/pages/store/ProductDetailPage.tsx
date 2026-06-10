@@ -100,6 +100,16 @@ export default function ProductDetailPage() {
     },
   };
 
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://91fitz.com/" },
+      { "@type": "ListItem", position: 2, name: "Shop", item: "https://91fitz.com/shop" },
+      { "@type": "ListItem", position: 3, name: product.name, item: `https://91fitz.com/products/${product.slug}` },
+    ],
+  };
+
   return (
     <div className="container py-8">
       <Helmet>
@@ -111,6 +121,7 @@ export default function ProductDetailPage() {
         <meta property="og:url" content={`https://91fitz.com/products/${product.slug}`} />
         <link rel="canonical" href={`https://91fitz.com/products/${product.slug}`} />
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbLd)}</script>
       </Helmet>
 
       <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-6" aria-label="Breadcrumb">
