@@ -3,11 +3,12 @@ import { usePublicFits } from "@/hooks/use-fits";
 import { Link } from "react-router-dom";
 import { Heart, Sparkles, Plus } from "lucide-react";
 import SEO from "@/components/SEO";
+import { QueryError } from "@/components/QueryError";
 import { motion } from "framer-motion";
 
 export default function FitsGalleryPage() {
   const [sort, setSort] = useState<"latest" | "popular" | "featured">("latest");
-  const { data: fits = [], isLoading } = usePublicFits(sort);
+  const { data: fits = [], isLoading, isError, refetch } = usePublicFits(sort);
 
   return (
     <div className="container py-8">
@@ -42,6 +43,8 @@ export default function FitsGalleryPage() {
             <div key={i} className="aspect-[3/4] rounded-lg bg-surface animate-pulse" />
           ))}
         </div>
+      ) : isError ? (
+        <QueryError message="Couldn't load community fits." onRetry={() => refetch()} />
       ) : fits.length === 0 ? (
         <div className="text-center py-20">
           <p className="text-muted-foreground">No public fits yet. Be the first!</p>

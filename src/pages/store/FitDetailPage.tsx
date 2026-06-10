@@ -55,13 +55,13 @@ export default function FitDetailPage() {
           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-4">{fit.model} model · {fit.items.length} pieces</p>
 
           <div className="flex gap-2 mb-6">
-            <Button onClick={() => like.mutate()} variant="outline" className="border-primary text-primary">
+            <Button onClick={() => like.mutate()} variant="outline" className="border-primary text-primary" aria-label={`Like this fit (${fit.likes_count} likes)`}>
               <Heart className="mr-2 h-4 w-4" /> {fit.likes_count}
             </Button>
             <Button onClick={addAll} className="flex-1 bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
               <ShoppingBag className="mr-2 h-4 w-4" /> Shop full look
             </Button>
-            <Button onClick={() => navigate(`/fitcheck?remix=${fit.id}`)} variant="ghost" title="Remix">
+            <Button onClick={() => navigate(`/fitcheck?remix=${fit.id}`)} variant="ghost" aria-label="Remix this fit" title="Remix">
               <Edit3 className="h-4 w-4" />
             </Button>
           </div>
