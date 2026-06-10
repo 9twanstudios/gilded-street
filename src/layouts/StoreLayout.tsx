@@ -4,7 +4,10 @@ import { CartSidebar } from "@/components/store/CartSidebar";
 import { ScrollToTop } from "@/components/store/ScrollToTop";
 import { MobileBottomNav } from "@/components/store/MobileBottomNav";
 import { OnboardingBanner } from "@/components/OnboardingBanner";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PageLoader } from "@/components/PageLoader";
 import { Outlet } from "react-router-dom";
+import { Suspense } from "react";
 
 export default function StoreLayout() {
   return (
@@ -14,11 +17,14 @@ export default function StoreLayout() {
       <StoreNavbar />
       <CartSidebar />
       <main className="flex-1 pb-16 md:pb-0">
-        <Outlet />
+        <ErrorBoundary>
+          <Suspense fallback={<PageLoader />}>
+            <Outlet />
+          </Suspense>
+        </ErrorBoundary>
       </main>
       <StoreFooter />
       <MobileBottomNav />
     </div>
   );
 }
-
