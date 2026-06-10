@@ -5,10 +5,10 @@ import { useAuth } from "@/hooks/use-auth";
 
 const navItems = [
   { icon: Home, label: "Home", to: "/" },
-  { icon: Search, label: "Shop", to: "/products" },
+  { icon: Search, label: "Shop", to: "/shop" },
   { icon: Shirt, label: "FitCheck", to: "/fitcheck" },
   { icon: ShoppingBag, label: "Cart", to: "/cart", isCart: true },
-  { icon: User, label: "Account", to: "/profile" },
+  { icon: User, label: "Account", to: "/account/profile" },
 ];
 
 export function MobileBottomNav() {
@@ -28,6 +28,7 @@ export function MobileBottomNav() {
               <button
                 key={item.label}
                 onClick={() => setIsOpen(true)}
+                aria-label={`Open cart${itemCount > 0 ? ` (${itemCount} items)` : ""}`}
                 className="relative flex flex-col items-center gap-0.5 text-muted-foreground"
               >
                 <Icon className="h-5 w-5" />
@@ -41,7 +42,7 @@ export function MobileBottomNav() {
             );
           }
 
-          const to = item.to === "/profile" && !user ? "/login" : item.to;
+          const to = item.to === "/account/profile" && !user ? "/auth/sign-in" : item.to;
 
           return (
             <Link

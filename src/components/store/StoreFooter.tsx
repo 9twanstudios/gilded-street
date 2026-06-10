@@ -26,8 +26,8 @@ export function StoreFooter() {
           <div>
             <h4 className="font-display font-bold uppercase tracking-wider text-sm text-foreground mb-4">Shop</h4>
             <div className="flex flex-col gap-2">
-              <Link to="/products" className="text-muted-foreground hover:text-primary transition-colors text-sm">All Products</Link>
-              <Link to="/products?badge=NEW" className="text-muted-foreground hover:text-primary transition-colors text-sm">New Arrivals</Link>
+              <Link to="/shop" className="text-muted-foreground hover:text-primary transition-colors text-sm">All Products</Link>
+              <Link to="/shop?badge=NEW" className="text-muted-foreground hover:text-primary transition-colors text-sm">New Arrivals</Link>
               <Link to="/drops" className="text-muted-foreground hover:text-primary transition-colors text-sm">Drops</Link>
               <Link to="/blog" className="text-muted-foreground hover:text-primary transition-colors text-sm">Fashion Tips</Link>
             </div>
@@ -35,8 +35,8 @@ export function StoreFooter() {
           <div>
             <h4 className="font-display font-bold uppercase tracking-wider text-sm text-foreground mb-4">Account</h4>
             <div className="flex flex-col gap-2">
-              <Link to="/profile" className="text-muted-foreground hover:text-primary transition-colors text-sm">My Account</Link>
-              <Link to="/wallet" className="text-muted-foreground hover:text-primary transition-colors text-sm">Wallet</Link>
+              <Link to="/account/profile" className="text-muted-foreground hover:text-primary transition-colors text-sm">My Account</Link>
+              <Link to="/account/wallet" className="text-muted-foreground hover:text-primary transition-colors text-sm">Wallet</Link>
               <Link to="/checkout" className="text-muted-foreground hover:text-primary transition-colors text-sm">Cart & Checkout</Link>
             </div>
           </div>

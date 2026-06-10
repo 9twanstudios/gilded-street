@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 const navLinks = [
   { label: "Home", to: "/" },
-  { label: "Shop", to: "/products" },
+  { label: "Shop", to: "/shop" },
   { label: "Drops", to: "/drops" },
   { label: "FitCheck", to: "/fitcheck" },
   { label: "Stories", to: "/stories" },
@@ -28,7 +28,7 @@ export function StoreNavbar() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/products?q=${encodeURIComponent(searchQuery.trim())}`);
+      navigate(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchOpen(false);
       setSearchQuery("");
     }
@@ -68,25 +68,26 @@ export function StoreNavbar() {
 
         <div className="flex items-center gap-3">
           {/* Search toggle */}
-          <button onClick={() => setSearchOpen(!searchOpen)} className="text-foreground hover:text-primary transition-colors duration-200">
+          <button onClick={() => setSearchOpen(!searchOpen)} aria-label="Search products" aria-expanded={searchOpen} className="text-foreground hover:text-primary transition-colors duration-200">
             <Search className="h-5 w-5" />
           </button>
           {user && (
-            <Link to="/wallet" className="text-foreground hover:text-primary transition-colors duration-200 hidden sm:block" title="Wallet">
+            <Link to="/account/wallet" className="text-foreground hover:text-primary transition-colors duration-200 hidden sm:block" aria-label="Wallet">
               <Wallet className="h-5 w-5" />
             </Link>
           )}
           {user ? (
-            <Link to="/profile" className="text-foreground hover:text-primary transition-colors duration-200 hidden sm:block">
+            <Link to="/account/profile" className="text-foreground hover:text-primary transition-colors duration-200 hidden sm:block" aria-label="My account">
               <User className="h-5 w-5" />
             </Link>
           ) : (
-            <Link to="/login" className="text-foreground hover:text-primary transition-colors duration-200 hidden sm:block">
+            <Link to="/auth/sign-in" className="text-foreground hover:text-primary transition-colors duration-200 hidden sm:block" aria-label="Sign in">
               <LogIn className="h-5 w-5" />
             </Link>
           )}
           <button
             onClick={() => setIsOpen(true)}
+            aria-label={`Open cart${itemCount > 0 ? ` (${itemCount} items)` : ""}`}
             className="relative text-foreground hover:text-primary transition-colors duration-200"
           >
             <ShoppingBag className="h-5 w-5" />
@@ -96,7 +97,7 @@ export function StoreNavbar() {
               </span>
             )}
           </button>
-          <button className="md:hidden text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
+          <button className="md:hidden text-foreground" aria-label={mobileOpen ? "Close menu" : "Open menu"} aria-expanded={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
