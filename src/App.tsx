@@ -90,6 +90,7 @@ const AdminAuditLog = lazy(() => import("@/pages/admin/AdminAuditLog"));
 const AdminAutomations = lazy(() => import("@/pages/admin/AdminAutomations"));
 const AdminCreatorApplications = lazy(() => import("@/pages/admin/AdminCreatorApplications"));
 const AdminIGEmbeds = lazy(() => import("@/pages/admin/AdminIGEmbeds"));
+const AdminFitCheck = lazy(() => import("@/pages/admin/AdminFitCheck"));
 
 const queryClient = new QueryClient();
 
@@ -211,6 +212,7 @@ const App = () => (
                     <Route path="audit-log" element={<AdminAuditLog />} />
                     <Route path="automations" element={<AdminAutomations />} />
                     <Route path="ig-embeds" element={<AdminIGEmbeds />} />
+                    <Route path="fitcheck" element={<AdminFitCheck />} />
                     <Route path="settings" element={<AdminSettings />} />
                   </Route>
 

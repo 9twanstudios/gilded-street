@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Package, Users, ShoppingCart, Bell, ChevronLeft, ChevronRight,
   FolderOpen, FileText, Zap, Wallet, BookOpen, ArrowDownToLine, ScrollText, Settings,
   QrCode, Globe, BarChart3, Megaphone, FlaskConical, UsersRound, Star, BellRing,
-  Coins, Share2, History, Bot, UserCheck, ChevronDown,
+  Coins, Share2, History, Bot, UserCheck, ChevronDown, Shirt,
 } from "lucide-react";
 
 type Item = { label: string; to: string; icon: any };
@@ -23,6 +23,7 @@ const GROUPS: Group[] = [
     { label: "Drops", to: "/admin/drops", icon: Zap },
     { label: "Stories", to: "/admin/stories", icon: ScrollText },
     { label: "Blog", to: "/admin/blog", icon: FileText },
+    { label: "FitCheck Ops", to: "/admin/fitcheck", icon: Shirt },
   ]},
   { name: "Commerce", items: [
     { label: "Orders", to: "/admin/orders", icon: ShoppingCart },
