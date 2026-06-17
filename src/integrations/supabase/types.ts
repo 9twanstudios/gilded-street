@@ -478,40 +478,49 @@ export type Database = {
       }
       fits: {
         Row: {
+          body_type: string | null
           cover_image: string | null
           created_at: string
+          environment: string | null
           featured: boolean
           id: string
           items: Json
           likes_count: number
           model: string
           name: string
+          render_url: string | null
           updated_at: string
           user_id: string
           visibility: string
         }
         Insert: {
+          body_type?: string | null
           cover_image?: string | null
           created_at?: string
+          environment?: string | null
           featured?: boolean
           id?: string
           items?: Json
           likes_count?: number
           model?: string
           name?: string
+          render_url?: string | null
           updated_at?: string
           user_id: string
           visibility?: string
         }
         Update: {
+          body_type?: string | null
           cover_image?: string | null
           created_at?: string
+          environment?: string | null
           featured?: boolean
           id?: string
           items?: Json
           likes_count?: number
           model?: string
           name?: string
+          render_url?: string | null
           updated_at?: string
           user_id?: string
           visibility?: string
@@ -768,11 +777,16 @@ export type Database = {
           created_at: string
           creator_id: string | null
           description: string | null
+          dgr_code: string | null
           fit_image: string | null
+          fit_metadata: Json
+          fit_readiness: number | null
           fit_slot: string | null
+          fit_status: Database["public"]["Enums"]["fit_status_t"]
           id: string
           image: string
           in_stock: boolean
+          mask_url: string | null
           name: string
           original_price: number | null
           price: number
@@ -781,6 +795,7 @@ export type Database = {
           status: Database["public"]["Enums"]["product_status"]
           stock_count: number | null
           updated_at: string
+          views: Json
         }
         Insert: {
           approved?: boolean
@@ -790,11 +805,16 @@ export type Database = {
           created_at?: string
           creator_id?: string | null
           description?: string | null
+          dgr_code?: string | null
           fit_image?: string | null
+          fit_metadata?: Json
+          fit_readiness?: number | null
           fit_slot?: string | null
+          fit_status?: Database["public"]["Enums"]["fit_status_t"]
           id?: string
           image: string
           in_stock?: boolean
+          mask_url?: string | null
           name: string
           original_price?: number | null
           price: number
@@ -803,6 +823,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["product_status"]
           stock_count?: number | null
           updated_at?: string
+          views?: Json
         }
         Update: {
           approved?: boolean
@@ -812,11 +833,16 @@ export type Database = {
           created_at?: string
           creator_id?: string | null
           description?: string | null
+          dgr_code?: string | null
           fit_image?: string | null
+          fit_metadata?: Json
+          fit_readiness?: number | null
           fit_slot?: string | null
+          fit_status?: Database["public"]["Enums"]["fit_status_t"]
           id?: string
           image?: string
           in_stock?: boolean
+          mask_url?: string | null
           name?: string
           original_price?: number | null
           price?: number
@@ -825,6 +851,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["product_status"]
           stock_count?: number | null
           updated_at?: string
+          views?: Json
         }
         Relationships: [
           {
@@ -1518,6 +1545,7 @@ export type Database = {
         | "commerce"
         | "marketing"
         | "support"
+      fit_status_t: "draft" | "processing" | "ready" | "failed"
       ledger_status: "pending" | "completed" | "failed"
       ledger_type: "deposit" | "purchase" | "payout" | "fee" | "refund"
       order_status:
@@ -1664,6 +1692,7 @@ export const Constants = {
         "marketing",
         "support",
       ],
+      fit_status_t: ["draft", "processing", "ready", "failed"],
       ledger_status: ["pending", "completed", "failed"],
       ledger_type: ["deposit", "purchase", "payout", "fee", "refund"],
       order_status: [
