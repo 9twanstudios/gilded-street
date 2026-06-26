@@ -12,6 +12,8 @@ import { StudioSidebar } from "@/components/fitcheck/StudioSidebar";
 import { BodyPanel } from "@/components/fitcheck/BodyPanel";
 import { EnvironmentPanel } from "@/components/fitcheck/EnvironmentPanel";
 import { SavedFitsPanel } from "@/components/fitcheck/SavedFitsPanel";
+import { AiRenderPanel } from "@/components/fitcheck/AiRenderPanel";
+import { useFitRender } from "@/hooks/use-fit-render";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
@@ -41,6 +43,7 @@ export default function FitCheckPage() {
   const [visibility, setVisibility] = useState<"private" | "public">("private");
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const ai = useFitRender();
 
   useEffect(() => {
     const pid = params.get("product");
@@ -73,6 +76,7 @@ export default function FitCheckPage() {
     setName("Untitled Fit");
     setVisibility("private");
     setSelectedIdx(null);
+    ai.setRenderUrl(null);
   };
 
   const loadFit = (f: Fit) => {
@@ -84,6 +88,22 @@ export default function FitCheckPage() {
     setItems(f.items || []);
     setVisibility(f.visibility);
     setSelectedIdx(null);
+    ai.setRenderUrl(f.render_url || null);
+  };
+
+  const handleAiRender = async () => {
+    if (!user) return navigate("/auth/sign-in");
+    let id = fitId;
+    // Auto-save first so we have a row to attach the render to.
+    if (!id) {
+      const created = await save.mutateAsync({
+        model, name, items, visibility, body_type: bodyType, environment,
+      });
+      if (!created) return;
+      id = created.id;
+      setFitId(id);
+    }
+    await ai.render({ fit_id: id, model, body_type: bodyType, environment, items });
   };
 
   const handleSave = async () => {
@@ -221,6 +241,13 @@ export default function FitCheckPage() {
               ))}
             </ul>
           )}
+          <AiRenderPanel
+            loading={ai.loading}
+            renderUrl={ai.renderUrl}
+            disabled={items.length === 0}
+            onGenerate={handleAiRender}
+            onClose={() => ai.setRenderUrl(null)}
+          />
           <FitActions
             items={items}
             visibility={visibility}
