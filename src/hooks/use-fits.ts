@@ -16,6 +16,9 @@ export type FitItem = {
   price: number;
 };
 
+export type BodyType = "slim" | "regular" | "athletic" | "curvy";
+export type Environment = "studio" | "street" | "sunset" | "club" | "rooftop";
+
 export type Fit = {
   id: string;
   user_id: string;
@@ -26,6 +29,9 @@ export type Fit = {
   visibility: "private" | "public";
   likes_count: number;
   featured: boolean;
+  body_type: BodyType | null;
+  environment: Environment | null;
+  render_url: string | null;
   created_at: string;
   updated_at: string;
 };
