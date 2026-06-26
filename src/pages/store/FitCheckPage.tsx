@@ -43,6 +43,7 @@ export default function FitCheckPage() {
   const [visibility, setVisibility] = useState<"private" | "public">("private");
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const ai = useFitRender();
 
   useEffect(() => {
     const pid = params.get("product");
