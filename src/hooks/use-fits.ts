@@ -16,6 +16,9 @@ export type FitItem = {
   price: number;
 };
 
+export type BodyType = "slim" | "regular" | "athletic" | "curvy";
+export type Environment = "studio" | "street" | "sunset" | "club" | "rooftop";
+
 export type Fit = {
   id: string;
   user_id: string;
@@ -26,6 +29,9 @@ export type Fit = {
   visibility: "private" | "public";
   likes_count: number;
   featured: boolean;
+  body_type: BodyType | null;
+  environment: Environment | null;
+  render_url: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -87,6 +93,9 @@ export function useSaveFit() {
         items: input.items ?? [],
         cover_image: input.cover_image ?? null,
         visibility: input.visibility ?? "private",
+        body_type: input.body_type ?? null,
+        environment: input.environment ?? null,
+        render_url: input.render_url ?? null,
       };
       if (input.id) {
         const { data, error } = await supabase.from("fits" as any).update(payload).eq("id", input.id).select().maybeSingle();
