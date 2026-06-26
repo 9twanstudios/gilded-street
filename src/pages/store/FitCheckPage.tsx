@@ -241,6 +241,13 @@ export default function FitCheckPage() {
               ))}
             </ul>
           )}
+          <AiRenderPanel
+            loading={ai.loading}
+            renderUrl={ai.renderUrl}
+            disabled={items.length === 0}
+            onGenerate={handleAiRender}
+            onClose={() => ai.setRenderUrl(null)}
+          />
           <FitActions
             items={items}
             visibility={visibility}
