@@ -93,6 +93,9 @@ export function useSaveFit() {
         items: input.items ?? [],
         cover_image: input.cover_image ?? null,
         visibility: input.visibility ?? "private",
+        body_type: input.body_type ?? null,
+        environment: input.environment ?? null,
+        render_url: input.render_url ?? null,
       };
       if (input.id) {
         const { data, error } = await supabase.from("fits" as any).update(payload).eq("id", input.id).select().maybeSingle();
