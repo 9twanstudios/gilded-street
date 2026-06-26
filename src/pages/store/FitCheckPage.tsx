@@ -12,6 +12,8 @@ import { StudioSidebar } from "@/components/fitcheck/StudioSidebar";
 import { BodyPanel } from "@/components/fitcheck/BodyPanel";
 import { EnvironmentPanel } from "@/components/fitcheck/EnvironmentPanel";
 import { SavedFitsPanel } from "@/components/fitcheck/SavedFitsPanel";
+import { AiRenderPanel } from "@/components/fitcheck/AiRenderPanel";
+import { useFitRender } from "@/hooks/use-fit-render";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
