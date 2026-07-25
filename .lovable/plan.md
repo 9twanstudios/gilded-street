@@ -1,91 +1,95 @@
-# 9TwanFitz — System Audit Report & Phase 0 Remediation
 
-## 1. Project Health Report
+# 91Fitz Merch → FitCheck Catalog Seed
 
-### Working (complete systems)
-- Commerce core: shop, PDP, cart, checkout, Pesapal + wallet pay, orders, drops, stories, blog
-- Auth + roles (user/creator/admin), creator applications, referrals, wallets/ledger (90/10)
-- Admin CP: 30+ pages (products, orders, finance, growth, SEO, audit log, IG embeds)
-- SEO infra: SEO component, JSON-LD builders, sitemap generator, cluster/location pages
-- FitCheck v1: 2D paper-doll canvas, save/share/like, community wall, PDP carousels
-- IG embeds: curated feed + admin curation (6 active embeds in DB)
+Takes the 8 uploaded reference designs, produces a **FitCheck-ready** version of each (catalog shot + transparent mannequin cutout + auto-slotted), then seeds 20 additional pieces in the same visual language across tops, outerwear, bottoms, and accessories.
 
-### Partial
-- **FitCheck content readiness: 0%** — all 4 products are missing `fit_slot` AND `fit_image`; the palette works but garments render as raw product photos. 0 fits saved so far.
-- SEO coverage: 14 pages missing `<SEO>` — including the highest-traffic ones: `/`, `/shop`, `/products/:slug`, `/blog`, `/drops` (the SEO component exists but isn't mounted there)
-- Loading/error states: loading states exist on ~half the store pages; **error states are ignored on all 14 `useQuery` consumers**
-- IG embeds robustness: no fallback when the Instagram script is blocked/fails; fragile 200ms timeout race; no skeleton-to-content transition
-- Supabase types: ~10 tables missing from `types.ts` → **100 `as any` casts** across hooks/pages
+## Visual language (locked across all 28 pieces)
 
-### Missing (required, not implemented)
-- Digital Garment Registry (DGR codes, masks, multi-view assets, readiness tracking)
-- AI model rendering / composite engine
-- Outfit presets, garment controls (tuck/oversize), environment engine
-- FitCheck Studio shell (model/body/style/env panels)
-- FitCheck analytics events + ops dashboard
-- Code splitting (zero `React.lazy` — all 60+ pages ship in one bundle)
+Kept identical to the uploads so the catalog reads as one line, not a mashup:
 
-## 2. Route Audit Matrix (highlights)
+- **Palette:** matte black / bone white base; Pan-African red-gold-green accents; distressed gold-foil headliners; light-blue sport variant only for the jersey family.
+- **Typography:** heavy display slabs (Bebas / condensed collegiate), spray-graffiti sub-heads, small "91FITZ" chest/hem lockup.
+- **Textures:** DTF distress, halftone drips, tribal border tape, subtle map/street-grid ghosting.
+- **Signatures on every piece:** "91FITZ" wordmark, tiny QR patch corner (references DGR code), Pan-African sleeve/hem stripe, gold "91" hit somewhere.
 
-63 of 64 page files registered; full matrix verified.
-- **Dead**: `src/pages/Index.tsx` — never imported (delete)
-- **Stale nav links**: Navbar/Footer/MobileNav link to legacy paths (`/products`, `/profile`, `/wallet`, `/login`) — every click pays a redirect hop
-- **Shadow risk**: `/creator/dashboard` declared after `/creator/:id` (works by score, fragile)
-- **Error isolation**: single root ErrorBoundary — one page crash kills the whole app
+## The 28-piece catalog
 
-## 3. Technical Debt (ranked)
+**Redesigned from uploads (8)** — front-view catalog shot + transparent garment cutout each:
 
-**Critical**
-1. No code splitting; `html2canvas` (~200KB) eagerly bundled for every visitor
-2. MannequinCanvas fixed 360×640px → horizontal overflow on 320px phones
-3. `<SEO>` missing on `/`, `/shop`, `/products/:slug`, `/blog`, `/drops`
+| # | Name | Slot |
+|---|---|---|
+| 1 | Rebel Athletics "Freedom Street" Jersey — powder blue | `top` |
+| 2 | Rise Up Africa — Marcus Garvey Tee (black) | `top` |
+| 3 | Africa Unite Pan-African Tee (washed black) | `top` |
+| 4 | Badlands Clan Tee — Onyx | `top` |
+| 5 | Badlands Clan Tee — Bone | `top` |
+| 6 | If Can't Sip Ayam Juice Tee | `top` |
+| 7 | Jah Soldier "King of Kings" Field Jacket (olive) | `outerwear` |
+| 8 | Umoja Freedom Street Denim Jacket (Raila portrait back) | `outerwear` |
 
-**High**
-4. 100 `as any` casts — root cause: `fits`, `fit_likes`, `ig_embeds`, `qr_campaigns`, `qr_scans`, `audit_logs`, `events`, `seo_clusters/locations` missing from generated types (types regenerate on next migration; casts then removable)
-5. All error states silently swallowed; FitCheck save failures invisible to user
-6. IG embed: no failure fallback, no caching, no skeleton
-7. 3 duplicate `formatPrice` implementations; `src/lib/data.ts` is ~170 lines of dead mock data
+**New seed (20)** — same design system, expanding coverage:
 
-**Medium**
-8. Dead code: `NavLink.tsx`, `ShippingCalculator.tsx`, `use-events.ts` (zero imports)
-9. A11y: icon buttons missing `aria-label` (Remix btn uses `title`), meaningful images with `alt=""`, ModelToggle missing `role="group"`, heading skips (h1→h3)
-10. `text-green-400` used as ad-hoc "success" color in 6+ files — no `--success` token
+Tops (5): Sankara "Upright Man" tee · Lumumba "Independence Cha Cha" tee · Nkrumah "Africa Must Unite" long-sleeve · Dedan Kimathi Mau-Mau tee · 91 Rebel Numerals gold-foil tee.
+Outerwear (5): Roots Energy zip hoodie (black/gold) · Fuel Di Rebel bomber (olive) · Pan-African varsity jacket · Nairobi Grid coach jacket · Staywoke Champion pullover hoodie.
+Bottoms (5): Umoja cargo pants (black) · 91 Fitz joggers (heather) · Rebel denim shorts (indigo) · Tactical utility pant (olive) · Pan-African stripe track pant.
+Accessories (5): Lion of Judah bucket hat · 91 Fitz gold-embroidered snapback · Rebel sling bag · Freedom Street chain · Ethiopia stripe knit beanie.
 
-**Low**
-11. Only 1 `loading="lazy"` image sitewide; admin table overflow risk
+## Asset pipeline (per piece)
 
-## 4. Security Review (scanner findings)
-- **Error**: `user_roles` published to Realtime with no channel policy — any signed-in user can subscribe to live role grants
-- **Warn**: creators can create products but can't upload to `product-images` (admin-only storage INSERT policy)
-- **Warn**: leaked-password protection disabled; public bucket allows listing; SECURITY DEFINER functions publicly executable; permissive RLS expressions
-- FitCheck covers upload to the public `product-images` bucket under `fits/` — should move to a dedicated `fits` bucket with owner-scoped policies (V2 batch)
+Two images per SKU, both stored via CDN pointers under `src/assets/catalog/…`:
 
-## 5. LDX Compliance
-- Product-first: ✅ mostly — remove dead mock data/components; `/admin` breadth is justified by ops
-- Every FitCheck feature maps to discovery → visualization → commerce ✅
-- Gap: no analytics on the FitCheck funnel (opens → saves → cart adds → purchases)
+1. **Catalog shot** — front view of the garment on a clean charcoal backdrop, 1024×1024 JPG, used as `products.image`.
+2. **FitCheck cutout** — same garment isolated on transparent background, 1024×1024 PNG, used as `products.fit_image` (this is what stacks on the mannequin in the Studio).
 
----
+For the 8 uploads: use `imagegen--edit_image` on the reference photo — one call to re-render it as a clean single-view catalog shot, one call with `transparent_background: true` to produce the mannequin cutout. Keeps the exact artwork visible in the reference.
 
-# Phase 0 — Remediation (what implementing THIS plan does)
+For the 20 new pieces: use `imagegen--generate_image` twice per SKU (catalog shot + transparent cutout) with a locked style prompt block so every generation stays inside the visual system above.
 
-Frontend-only fixes, no DB migration, no regressions to working flows:
+Total generations: **56 images** (28 × 2). Run in parallel batches of 4–6 to keep it moving.
 
-1. **Code splitting**: convert all admin routes + FitCheck/Fits + auth pages to `React.lazy` with Suspense fallback; per-layout ErrorBoundaries (store / admin); dynamic-import `html2canvas` inside `render-card.ts`
-2. **SEO**: mount `<SEO>` + JSON-LD on HomePage, ProductsPage, ProductDetailPage (Product schema + breadcrumbs), DropsPage/DropDetail, Blog list/post (Article schema), Stories; `noindex` on cart/checkout/wallet/dashboard
-3. **Error & loading states**: shared `<QueryBoundary>` pattern (skeleton on load, retry card on error) applied to the 14 store-page queries; toast on FitCheck save failure
-4. **IG embeds hardening**: skeleton while loading, script-failure detection with a branded fallback card (caption + "View on Instagram" link), processed-state caching so re-mounts don't re-race
-5. **Mobile**: MannequinCanvas responsive (`max-w-full` + aspect-ratio scaling, items positioned in % so saved fits stay valid); `overflow-x-hidden` guard on FitCheck page; `loading="lazy"` on grid/list images
-6. **A11y**: aria-labels on icon buttons, real `alt` text, `role="group"` on ModelToggle, heading-order fixes
-7. **Cleanup**: delete `Index.tsx`, `NavLink.tsx`, `ShippingCalculator.tsx`, `use-events.ts`, `lib/data.ts`; unify on `formatKES` from `lib/format.ts`; fix stale nav links to canonical routes; reorder `/creator/dashboard` route; add `--success` token and replace `text-green-400`
+## Database seed
 
-## Roadmap — V2 batches after Phase 0 (each gets its own plan)
-- **Batch B — DGR**: migration (`dgr_code`, `views jsonb`, `mask_url`, `fit_status`, dedicated `fits` storage bucket + policies), auto-code trigger (DGR-TEE-0001…), admin FitCheck Ops dashboard with readiness %, bulk asset pipeline edge function (transparent garment extraction via Lovable AI image editing, with admin review queue). Migrations here also regenerate types → kill the 100 `as any` casts.
-- **Batch C — Studio shell**: rebuild `/fitcheck` into panel-based Studio (Model/Body/Style/Environment/Garment controls, presets, saved/recent looks) on top of the existing canvas + `use-fits`.
-- **Batch D — AI composite renderer**: edge function generating photoreal model (body type × environment) via Lovable AI, compositing DGR garment assets with masks; outfit presets; share cards.
-- **Batch E — Discovery + analytics**: `/fits` trending/staff-picks/shoppable sections, FitCheck funnel events + admin analytics, security fixes (realtime policy, storage policies, leaked-password protection).
+One migration inserts all 28 rows into `public.products` with:
 
-## Technical notes
-- Phase 0 touches ~30 files, all frontend; no schema changes, so `types.ts` cleanup waits for Batch B's migration.
-- Saved-fit JSON stays backward compatible: canvas scaling converts px offsets to percentages on load.
-- Security scanner errors (user_roles realtime) need a migration — scheduled for Batch E, or earlier on request.
+- `name`, `slug`, `price` (KES integer), `description`, `category`
+- `image` = catalog CDN URL, `fit_image` = transparent-cutout CDN URL
+- `fit_slot` = `top` | `outerwear` | `bottom` | `accessory`
+- `fit_status = 'ready'`, `fit_readiness = 100` — bypasses the extract queue since we're pre-classifying
+- `status = 'approved'`, `approved = true`, `in_stock = true`
+- `dgr_code` auto-assigned by the existing `assign_dgr_code` trigger
+- `sizes` — S/M/L/XL for wearables, `["OS"]` for hats/bags/chains
+- `badge` — "New Drop" on the 8 flagship redesigns, null on the rest
+
+Pricing tiers (whole KES per project convention):
+
+- Tees: 2,500
+- Long-sleeves / jerseys: 3,200
+- Hoodies / bombers / coach jackets: 5,500
+- Field jacket / denim jacket / varsity: 7,500
+- Cargos / joggers / tactical pants: 4,200
+- Denim shorts / track pants: 3,500
+- Bucket hat / snapback / beanie: 1,800
+- Sling bag: 3,500
+- Chain: 2,200
+
+## What the user sees after this ships
+
+- Studio → Garments tab has 28 real pieces ready to drop onto the mannequin, split across all four slot filters.
+- Shop grid, Drops, and Community remixes all render immediately (they read from `products`).
+- FitCheck Ops admin shows `28 total · 28 ready · avg readiness 100%`.
+
+## Out of scope
+
+- Product detail copy beyond a one-line description — can be expanded later.
+- New drop pages tying subsets together — reuse existing `AdminDrops` flow.
+- Category page redesigns — using existing `ProductsPage` + `ProductGrid`.
+
+## File touch list
+
+```text
+src/assets/catalog/<slug>.jpg.asset.json           x28  (catalog CDN pointers)
+src/assets/catalog/<slug>.cutout.png.asset.json    x28  (FitCheck cutout pointers)
+supabase/migrations/<ts>_seed_fitcheck_catalog.sql  1  (inserts 28 products)
+```
+
+No app-code changes required — the Studio, Shop, and Admin already consume `products.fit_image` + `fit_slot` + `fit_status` set here.
