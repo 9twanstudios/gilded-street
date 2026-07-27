@@ -1,95 +1,96 @@
 
-# 91Fitz Merch → FitCheck Catalog Seed
+# LDX v1.3 — Content Unification, Catalog Expansion & Creator Uploads
 
-Takes the 8 uploaded reference designs, produces a **FitCheck-ready** version of each (catalog shot + transparent mannequin cutout + auto-slotted), then seeds 20 additional pieces in the same visual language across tops, outerwear, bottoms, and accessories.
+## 1. Merge Stories + Blog (with seeded content)
 
-## Visual language (locked across all 28 pieces)
+- New unified route `/journal` with type filter tabs: All · Stories · Articles · Drop Notes.
+- Add `post_type` column to `blog_posts` (`article` | `story` | `drop_note`); migrate every `stories` row into `blog_posts` with `post_type='story'` (preserve figure_name/era/relevance via `meta jsonb`).
+- Redirects: `/stories` → `/journal?type=story`, `/stories/:slug` → `/journal/:slug`, `/blog` → `/journal`, `/blog/:slug` → `/journal/:slug`.
+- Admin: single `AdminJournal` page replaces AdminBlog + AdminStories.
+- Seed 8 posts (2 articles, 3 stories, 3 drop notes) with generated cover images tied to the new catalog.
 
-Kept identical to the uploads so the catalog reads as one line, not a mashup:
+## 2. Stub FitCheck (hide from public)
 
-- **Palette:** matte black / bone white base; Pan-African red-gold-green accents; distressed gold-foil headliners; light-blue sport variant only for the jersey family.
-- **Typography:** heavy display slabs (Bebas / condensed collegiate), spray-graffiti sub-heads, small "91FITZ" chest/hem lockup.
-- **Textures:** DTF distress, halftone drips, tribal border tape, subtle map/street-grid ghosting.
-- **Signatures on every piece:** "91FITZ" wordmark, tiny QR patch corner (references DGR code), Pan-African sleeve/hem stripe, gold "91" hit somewhere.
+- Remove `FITCHECK` link from `StoreNavbar` + `MobileBottomNav` + `StoreFooter`.
+- Remove `/fitcheck`, `/fits`, `/fits/:id` from `public/sitemap.xml` and `scripts/generate-sitemap.ts`.
+- Routes stay live for admins/direct link; add a small "beta" banner on the Studio page.
+- No DB or edge function changes.
 
-## The 28-piece catalog
+## 3. Catalog expansion — +20 pieces
 
-**Redesigned from uploads (8)** — front-view catalog shot + transparent garment cutout each:
+Per user: **10 female · 6 male · 4 unisex accessories (silver chains + rings)**.
 
-| # | Name | Slot |
-|---|---|---|
-| 1 | Rebel Athletics "Freedom Street" Jersey — powder blue | `top` |
-| 2 | Rise Up Africa — Marcus Garvey Tee (black) | `top` |
-| 3 | Africa Unite Pan-African Tee (washed black) | `top` |
-| 4 | Badlands Clan Tee — Onyx | `top` |
-| 5 | Badlands Clan Tee — Bone | `top` |
-| 6 | If Can't Sip Ayam Juice Tee | `top` |
-| 7 | Jah Soldier "King of Kings" Field Jacket (olive) | `outerwear` |
-| 8 | Umoja Freedom Street Denim Jacket (Raila portrait back) | `outerwear` |
+Female (10): Uhuru Crop Tee, Sankofa Mesh Top, Nairobi Nights Slip Dress, Rebel Femme Corset Tee, Freedom Wrap Skirt, Ankara Bomber (Fem), Warrior Queen Cargo Pant, Pan-Afri Tube Top, Uprising Denim Mini, Highlife Halter.
 
-**New seed (20)** — same design system, expanding coverage:
+Male (6): Rebel Council Overshirt, Uprising Utility Vest, Kilifi Linen Set (top), Kilifi Linen Set (bottom), Mau Mau Souvenir Jacket, 91 Track Top.
 
-Tops (5): Sankara "Upright Man" tee · Lumumba "Independence Cha Cha" tee · Nkrumah "Africa Must Unite" long-sleeve · Dedan Kimathi Mau-Mau tee · 91 Rebel Numerals gold-foil tee.
-Outerwear (5): Roots Energy zip hoodie (black/gold) · Fuel Di Rebel bomber (olive) · Pan-African varsity jacket · Nairobi Grid coach jacket · Staywoke Champion pullover hoodie.
-Bottoms (5): Umoja cargo pants (black) · 91 Fitz joggers (heather) · Rebel denim shorts (indigo) · Tactical utility pant (olive) · Pan-African stripe track pant.
-Accessories (5): Lion of Judah bucket hat · 91 Fitz gold-embroidered snapback · Rebel sling bag · Freedom Street chain · Ethiopia stripe knit beanie.
+Accessories (4): Sterling Byzantine Chain, Iced Cuban Link Chain, Signet Rebel Ring, Stacked Freedom Ring Set.
 
-## Asset pipeline (per piece)
+Pipeline: `imagegen` premium with locked 91Fitz prompt style → cutout PNG + catalog JPG → `lovable-assets create` → seed into `products` with correct `fit_slot`, `category_id`, `drop_type`, `gender`.
 
-Two images per SKU, both stored via CDN pointers under `src/assets/catalog/…`:
+**Naming convention (guide):**
+- `{slug}.jpg.asset.json` — catalog shot (1024×1024, charcoal bg)
+- `{slug}.cutout.png.asset.json` — transparent FitCheck cutout
+- slug format: `kebab-case-descriptive` (e.g. `sterling-byzantine-chain`)
+- accessories use slot `accessory-neck` / `accessory-hand`
 
-1. **Catalog shot** — front view of the garment on a clean charcoal backdrop, 1024×1024 JPG, used as `products.image`.
-2. **FitCheck cutout** — same garment isolated on transparent background, 1024×1024 PNG, used as `products.fit_image` (this is what stacks on the mannequin in the Studio).
+## 4. Drop categories & taxonomy
 
-For the 8 uploads: use `imagegen--edit_image` on the reference photo — one call to re-render it as a clean single-view catalog shot, one call with `transparent_background: true` to produce the mannequin cutout. Keeps the exact artwork visible in the reference.
+- New enum `drop_type`: `seasonal | capsule | collab | archive`.
+- New column `drops.narrative`: `freedom | rebel | unity | ecosystem | general`.
+- New column `products.drop_type` + `products.gender` (`male | female | unisex`).
+- Seed 4 drop rows: "Freedom Season SS26", "Rebel Capsule 001", "Unity × Ecosystem Collab", "Archive Vault".
+- Assign every existing + new product to a drop via `product_ids`.
+- Add filter chips to `/drops` and `/shop` (by narrative + type + gender).
 
-For the 20 new pieces: use `imagegen--generate_image` twice per SKU (catalog shot + transparent cutout) with a locked style prompt block so every generation stays inside the visual system above.
+## 5. Remove redundancies (audit findings)
 
-Total generations: **56 images** (28 × 2). Run in parallel batches of 4–6 to keep it moving.
+- Delete unused `stories` table + `AdminStories.tsx` + `StoriesPage.tsx` + `StoryDetailPage.tsx` + `StoryFormDialog.tsx` after migration.
+- Fold `AdminBlog` and `AdminStories` into `AdminJournal`.
+- Remove duplicate KES formatters (already unified in `lib/format.ts`) — sweep remaining `.toLocaleString()` calls.
+- Drop dead `fits.mask_url` reference in seed migration (column still used, just unused in seeds).
+- Consolidate `AdminFitCheck` under a single "Fits (beta)" nav group.
 
-## Database seed
+## 6. Creator economy — finish uploads
 
-One migration inserts all 28 rows into `public.products` with:
+- `CreatorDashboard`: add "Upload product" flow using `ProductFormDialog` restricted fields (name, description, price, sizes, images, drop, gender, fit_slot).
+- New storage bucket `creator-uploads` (public read) + RLS: creators write only to `{user_id}/*`; admins read all.
+- New `products.status='pending'` gate + email/toast to admin queue (`AdminProducts` filter chip).
+- Creator sees own products list with status badges (pending/approved/rejected) and reject reason.
+- Auto-fill `creator_id` from session; `approved=false` until admin action.
 
-- `name`, `slug`, `price` (KES integer), `description`, `category`
-- `image` = catalog CDN URL, `fit_image` = transparent-cutout CDN URL
-- `fit_slot` = `top` | `outerwear` | `bottom` | `accessory`
-- `fit_status = 'ready'`, `fit_readiness = 100` — bypasses the extract queue since we're pre-classifying
-- `status = 'approved'`, `approved = true`, `in_stock = true`
-- `dgr_code` auto-assigned by the existing `assign_dgr_code` trigger
-- `sizes` — S/M/L/XL for wearables, `["OS"]` for hats/bags/chains
-- `badge` — "New Drop" on the 8 flagship redesigns, null on the rest
+## 7. Vercel live-data verification
 
-Pricing tiers (whole KES per project convention):
+Root cause the user is flagging via the screenshot: seeded rows exist in Supabase but the deployed site shows cached/broken cards.
 
-- Tees: 2,500
-- Long-sleeves / jerseys: 3,200
-- Hoodies / bombers / coach jackets: 5,500
-- Field jacket / denim jacket / varsity: 7,500
-- Cargos / joggers / tactical pants: 4,200
-- Denim shorts / track pants: 3,500
-- Bucket hat / snapback / beanie: 1,800
-- Sling bag: 3,500
-- Chain: 2,200
+- Verify `VITE_SUPABASE_URL` + `VITE_SUPABASE_PUBLISHABLE_KEY` are set in Vercel env (not just `.env` locally).
+- Force a redeploy after seed; add a small "Data freshness" indicator on Admin dashboard showing `products.updated_at` max.
+- Fix broken image cards visible in screenshot: some `products.image` URLs point at asset paths that were never uploaded — the seed will re-check and use `.asset.json` URLs.
+- Add `<link rel="preconnect">` to Supabase + CDN in `index.html`.
 
-## What the user sees after this ships
+## Technical details
 
-- Studio → Garments tab has 28 real pieces ready to drop onto the mannequin, split across all four slot filters.
-- Shop grid, Drops, and Community remixes all render immediately (they read from `products`).
-- FitCheck Ops admin shows `28 total · 28 ready · avg readiness 100%`.
+- Migrations (single file):
+  - `ALTER TABLE blog_posts ADD COLUMN post_type text NOT NULL DEFAULT 'article', ADD COLUMN meta jsonb NOT NULL DEFAULT '{}'::jsonb;`
+  - `INSERT INTO blog_posts (…) SELECT …, 'story', jsonb_build_object('figure_name',figure_name,'era',era,'relevance',relevance) FROM stories;`
+  - `CREATE TYPE drop_type_t AS ENUM ('seasonal','capsule','collab','archive');`
+  - `ALTER TABLE drops ADD COLUMN narrative text; ALTER TABLE products ADD COLUMN drop_type drop_type_t, ADD COLUMN gender text CHECK (gender IN ('male','female','unisex'));`
+  - GRANTs preserved; RLS unchanged.
+- Storage: `creator-uploads` bucket via `storage_create_bucket`; policies via migration.
+- Sitemap regenerated to include `/journal`, journal slugs, drop filters.
+- Redirects handled client-side in `App.tsx` via `<Navigate>` components.
 
-## Out of scope
+## Out of scope (this pass)
 
-- Product detail copy beyond a one-line description — can be expanded later.
-- New drop pages tying subsets together — reuse existing `AdminDrops` flow.
-- Category page redesigns — using existing `ProductsPage` + `ProductGrid`.
+- FitCheck AI improvements (module stubbed).
+- Payment/wallet changes.
+- New admin analytics beyond data-freshness tile.
 
-## File touch list
+## Rollout order
 
-```text
-src/assets/catalog/<slug>.jpg.asset.json           x28  (catalog CDN pointers)
-src/assets/catalog/<slug>.cutout.png.asset.json    x28  (FitCheck cutout pointers)
-supabase/migrations/<ts>_seed_fitcheck_catalog.sql  1  (inserts 28 products)
-```
-
-No app-code changes required — the Studio, Shop, and Admin already consume `products.fit_image` + `fit_slot` + `fit_status` set here.
+1. Migration (schema + drop enum + creator uploads bucket).
+2. Image generation (20 pieces) → CDN upload → seed insert.
+3. Journal unification + redirects + AdminJournal.
+4. Nav/sitemap FitCheck stub.
+5. Creator upload flow + admin approval queue.
+6. Vercel env verify + redeploy prompt.
