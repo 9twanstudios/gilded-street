@@ -124,6 +124,8 @@ export type Database = {
           created_at: string
           excerpt: string | null
           id: string
+          meta: Json
+          post_type: string
           published: boolean
           related_product_ids: string[]
           slug: string
@@ -138,6 +140,8 @@ export type Database = {
           created_at?: string
           excerpt?: string | null
           id?: string
+          meta?: Json
+          post_type?: string
           published?: boolean
           related_product_ids?: string[]
           slug: string
@@ -152,6 +156,8 @@ export type Database = {
           created_at?: string
           excerpt?: string | null
           id?: string
+          meta?: Json
+          post_type?: string
           published?: boolean
           related_product_ids?: string[]
           slug?: string
@@ -390,7 +396,9 @@ export type Database = {
           created_at: string
           description: string | null
           drop_date: string
+          drop_type: Database["public"]["Enums"]["drop_type_t"] | null
           id: string
+          narrative: string | null
           product_ids: string[]
           slug: string
           title: string
@@ -402,7 +410,9 @@ export type Database = {
           created_at?: string
           description?: string | null
           drop_date: string
+          drop_type?: Database["public"]["Enums"]["drop_type_t"] | null
           id?: string
+          narrative?: string | null
           product_ids?: string[]
           slug: string
           title: string
@@ -414,7 +424,9 @@ export type Database = {
           created_at?: string
           description?: string | null
           drop_date?: string
+          drop_type?: Database["public"]["Enums"]["drop_type_t"] | null
           id?: string
+          narrative?: string | null
           product_ids?: string[]
           slug?: string
           title?: string
@@ -778,16 +790,19 @@ export type Database = {
           creator_id: string | null
           description: string | null
           dgr_code: string | null
+          drop_type: Database["public"]["Enums"]["drop_type_t"] | null
           fit_image: string | null
           fit_metadata: Json
           fit_readiness: number | null
           fit_slot: string | null
           fit_status: Database["public"]["Enums"]["fit_status_t"]
+          gender: string | null
           id: string
           image: string
           in_stock: boolean
           mask_url: string | null
           name: string
+          narrative: string | null
           original_price: number | null
           price: number
           sizes: string[]
@@ -806,16 +821,19 @@ export type Database = {
           creator_id?: string | null
           description?: string | null
           dgr_code?: string | null
+          drop_type?: Database["public"]["Enums"]["drop_type_t"] | null
           fit_image?: string | null
           fit_metadata?: Json
           fit_readiness?: number | null
           fit_slot?: string | null
           fit_status?: Database["public"]["Enums"]["fit_status_t"]
+          gender?: string | null
           id?: string
           image: string
           in_stock?: boolean
           mask_url?: string | null
           name: string
+          narrative?: string | null
           original_price?: number | null
           price: number
           sizes?: string[]
@@ -834,16 +852,19 @@ export type Database = {
           creator_id?: string | null
           description?: string | null
           dgr_code?: string | null
+          drop_type?: Database["public"]["Enums"]["drop_type_t"] | null
           fit_image?: string | null
           fit_metadata?: Json
           fit_readiness?: number | null
           fit_slot?: string | null
           fit_status?: Database["public"]["Enums"]["fit_status_t"]
+          gender?: string | null
           id?: string
           image?: string
           in_stock?: boolean
           mask_url?: string | null
           name?: string
+          narrative?: string | null
           original_price?: number | null
           price?: number
           sizes?: string[]
@@ -1545,6 +1566,7 @@ export type Database = {
         | "commerce"
         | "marketing"
         | "support"
+      drop_type_t: "seasonal" | "capsule" | "collab" | "archive"
       fit_status_t: "draft" | "processing" | "ready" | "failed"
       ledger_status: "pending" | "completed" | "failed"
       ledger_type: "deposit" | "purchase" | "payout" | "fee" | "refund"
@@ -1692,6 +1714,7 @@ export const Constants = {
         "marketing",
         "support",
       ],
+      drop_type_t: ["seasonal", "capsule", "collab", "archive"],
       fit_status_t: ["draft", "processing", "ready", "failed"],
       ledger_status: ["pending", "completed", "failed"],
       ledger_type: ["deposit", "purchase", "payout", "fee", "refund"],
