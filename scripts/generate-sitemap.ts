@@ -1,6 +1,6 @@
 /**
  * Sitemap generator — runs predev/prebuild. Pulls published products,
- * drops, blog posts, stories, seo_clusters, seo_locations from Supabase
+ * drops, journal entries, seo_clusters, seo_locations from Supabase
  * and writes public/sitemap.xml. Falls back gracefully when offline.
  */
 import { createClient } from "@supabase/supabase-js";
@@ -22,7 +22,6 @@ async function main() {
         { name: "products", prefix: "/products/", filter: { status: "approved" } },
         { name: "drops", prefix: "/drops/", filter: { active: true } },
         { name: "blog_posts", prefix: "/journal/", filter: { published: true } },
-        { name: "stories", prefix: "/stories/", filter: { published: true } },
         { name: "seo_clusters", prefix: "/c/", filter: { published: true } },
         { name: "seo_locations", prefix: "/l/", filter: { published: true } },
       ];
