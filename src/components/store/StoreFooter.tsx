@@ -29,7 +29,7 @@ export function StoreFooter() {
               <Link to="/shop" className="text-muted-foreground hover:text-primary transition-colors text-sm">All Products</Link>
               <Link to="/shop?badge=NEW" className="text-muted-foreground hover:text-primary transition-colors text-sm">New Arrivals</Link>
               <Link to="/drops" className="text-muted-foreground hover:text-primary transition-colors text-sm">Drops</Link>
-              <Link to="/blog" className="text-muted-foreground hover:text-primary transition-colors text-sm">Fashion Tips</Link>
+              <Link to="/journal" className="text-muted-foreground hover:text-primary transition-colors text-sm">Journal</Link>
             </div>
           </div>
           <div>

@@ -11,10 +11,10 @@ const navLinks = [
   { label: "Home", to: "/" },
   { label: "Shop", to: "/shop" },
   { label: "Drops", to: "/drops" },
-  { label: "FitCheck", to: "/fitcheck" },
-  { label: "Stories", to: "/stories" },
-  { label: "Blog", to: "/blog" },
+  { label: "Journal", to: "/journal" },
+  { label: "Creators", to: "/creators" },
 ];
+
 
 export function StoreNavbar() {
   const { itemCount, setIsOpen } = useCart();
