@@ -1,6 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+export type PostType = "article" | "story" | "drop_note";
+
+export const POST_TYPE_LABELS: Record<PostType, string> = {
+  article: "Article",
+  story: "Story",
+  drop_note: "Drop Note",
+};
+
 export interface BlogPost {
   id: string;
   title: string;
@@ -12,6 +20,8 @@ export interface BlogPost {
   published: boolean;
   tags: string[];
   related_product_ids: string[];
+  post_type: PostType;
+  meta: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }
@@ -31,7 +41,7 @@ export function useBlogPosts(includeUnpublished = false) {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as BlogPost[];
+      return (data ?? []) as unknown as BlogPost[];
     },
   });
 }
@@ -47,7 +57,7 @@ export function useBlogPost(slug: string | undefined) {
         .eq("slug", slug)
         .maybeSingle();
       if (error) throw error;
-      return data as BlogPost | null;
+      return (data ?? null) as unknown as BlogPost | null;
     },
     enabled: !!slug,
   });

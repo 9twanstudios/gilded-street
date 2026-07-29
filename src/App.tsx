@@ -1,6 +1,13 @@
 import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, useParams } from "react-router-dom";
+
+/** Legacy /blog/:slug, /stories/:slug and /story/:slug all resolve to /journal/:slug. */
+function JournalSlugRedirect() {
+  const { slug } = useParams();
+  return <Navigate to={`/journal/${slug}`} replace />;
+}
+
 
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,16 +28,17 @@ const ProductDetailPage = lazy(() => import("@/pages/store/ProductDetailPage"));
 const CheckoutPage = lazy(() => import("@/pages/store/CheckoutPage"));
 const ProfilePage = lazy(() => import("@/pages/store/ProfilePage"));
 const AccountPage = lazy(() => import("@/pages/store/AccountPage"));
-const BlogPage = lazy(() => import("@/pages/store/BlogPage"));
+const JournalPage = lazy(() => import("@/pages/store/JournalPage"));
 const BlogPostPage = lazy(() => import("@/pages/store/BlogPostPage"));
+
 const DropsPage = lazy(() => import("@/pages/store/DropsPage"));
 const DropDetailPage = lazy(() => import("@/pages/store/DropDetailPage"));
 const WalletPage = lazy(() => import("@/pages/store/WalletPage"));
 const CreatorStorefront = lazy(() => import("@/pages/store/CreatorStorefront"));
 const CreatorDashboard = lazy(() => import("@/pages/store/CreatorDashboard"));
 const CreatorsIndexPage = lazy(() => import("@/pages/store/CreatorsIndexPage"));
-const StoriesPage = lazy(() => import("@/pages/store/StoriesPage"));
-const StoryDetailPage = lazy(() => import("@/pages/store/StoryDetailPage"));
+
+
 const CartPage = lazy(() => import("@/pages/store/CartPage"));
 const QRLandingPage = lazy(() => import("@/pages/store/QRLandingPage"));
 const ClusterPage = lazy(() => import("@/pages/store/ClusterPage"));
@@ -66,7 +74,6 @@ const AdminProducts = lazy(() => import("@/pages/admin/AdminProducts"));
 const AdminCategories = lazy(() => import("@/pages/admin/AdminCategories"));
 const AdminDrops = lazy(() => import("@/pages/admin/AdminDrops"));
 const AdminBlog = lazy(() => import("@/pages/admin/AdminBlog"));
-const AdminStories = lazy(() => import("@/pages/admin/AdminStories"));
 const AdminOrders = lazy(() => import("@/pages/admin/AdminOrders"));
 const AdminUsers = lazy(() => import("@/pages/admin/AdminUsers"));
 const AdminWallets = lazy(() => import("@/pages/admin/AdminWallets"));
@@ -135,15 +142,16 @@ const App = () => (
                     <Route path="/products/:slug" element={<ProductDetailPage />} />
                     <Route path="/drops" element={<DropsPage />} />
                     <Route path="/drops/:slug" element={<DropDetailPage />} />
-                    {/* Canonical: /stories */}
-                    <Route path="/stories" element={<StoriesPage />} />
-                    <Route path="/stories/:slug" element={<StoryDetailPage />} />
-                    <Route path="/story" element={<Navigate to="/stories" replace />} />
-                    <Route path="/story/:slug" element={<StoryDetailPage />} />
-                    {/* Canonical: /blog */}
-                    <Route path="/blog" element={<BlogPage />} />
-                    <Route path="/blog/:slug" element={<BlogPostPage />} />
+                    {/* Canonical: /journal (Stories + Blog merged) */}
+                    <Route path="/journal" element={<JournalPage />} />
                     <Route path="/journal/:slug" element={<BlogPostPage />} />
+                    <Route path="/stories" element={<Navigate to="/journal?type=story" replace />} />
+                    <Route path="/stories/:slug" element={<JournalSlugRedirect />} />
+                    <Route path="/story" element={<Navigate to="/journal?type=story" replace />} />
+                    <Route path="/story/:slug" element={<JournalSlugRedirect />} />
+                    <Route path="/blog" element={<Navigate to="/journal" replace />} />
+                    <Route path="/blog/:slug" element={<JournalSlugRedirect />} />
+
                     <Route path="/archive" element={<DropsPage />} />
                     <Route path="/c/:cluster" element={<ClusterPage />} />
                     <Route path="/l/:location" element={<LocationPage />} />
@@ -186,8 +194,9 @@ const App = () => (
                     <Route path="categories" element={<AdminCategories />} />
                     <Route path="drops" element={<AdminDrops />} />
                     <Route path="content" element={<AdminBlog />} />
-                    <Route path="blog" element={<AdminBlog />} />
-                    <Route path="stories" element={<AdminStories />} />
+                    <Route path="journal" element={<AdminBlog />} />
+                    <Route path="blog" element={<Navigate to="/admin/journal" replace />} />
+                    <Route path="stories" element={<Navigate to="/admin/journal" replace />} />
                     <Route path="orders" element={<AdminOrders />} />
                     <Route path="qr" element={<AdminQR />} />
                     <Route path="seo" element={<AdminSEO />} />

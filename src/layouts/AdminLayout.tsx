@@ -21,8 +21,7 @@ const GROUPS: Group[] = [
     { label: "Products", to: "/admin/products", icon: Package },
     { label: "Categories", to: "/admin/categories", icon: FolderOpen },
     { label: "Drops", to: "/admin/drops", icon: Zap },
-    { label: "Stories", to: "/admin/stories", icon: ScrollText },
-    { label: "Blog", to: "/admin/blog", icon: FileText },
+    { label: "Journal", to: "/admin/journal", icon: FileText },
     { label: "FitCheck Ops", to: "/admin/fitcheck", icon: Shirt },
   ]},
   { name: "Commerce", items: [

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useBlogPosts } from "@/hooks/use-blog";
+import { useBlogPosts, POST_TYPE_LABELS } from "@/hooks/use-blog";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
@@ -44,12 +44,12 @@ export default function AdminBlog() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-heading text-4xl text-gold-gradient">Blog Posts</h1>
+        <h1 className="font-heading text-4xl text-gold-gradient">Journal</h1>
         <Button
           onClick={() => { setEditPost(null); setFormOpen(true); }}
           className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-primary/90"
         >
-          <Plus className="h-4 w-4 mr-2" /> New Post
+          <Plus className="h-4 w-4 mr-2" /> New Entry
         </Button>
       </div>
 
@@ -59,6 +59,7 @@ export default function AdminBlog() {
             <thead>
               <tr className="border-b border-border">
                 <th className="text-left p-4 text-xs font-display uppercase tracking-wider text-muted-foreground">Title</th>
+                <th className="text-left p-4 text-xs font-display uppercase tracking-wider text-muted-foreground">Type</th>
                 <th className="text-left p-4 text-xs font-display uppercase tracking-wider text-muted-foreground">Status</th>
                 <th className="text-left p-4 text-xs font-display uppercase tracking-wider text-muted-foreground">Tags</th>
                 <th className="text-left p-4 text-xs font-display uppercase tracking-wider text-muted-foreground">Date</th>
@@ -67,9 +68,9 @@ export default function AdminBlog() {
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan={5} className="p-4 text-muted-foreground text-center">Loading...</td></tr>
+                <tr><td colSpan={6} className="p-4 text-muted-foreground text-center">Loading...</td></tr>
               ) : posts?.length === 0 ? (
-                <tr><td colSpan={5} className="p-4 text-muted-foreground text-center">No blog posts yet</td></tr>
+                <tr><td colSpan={6} className="p-4 text-muted-foreground text-center">No journal entries yet</td></tr>
               ) : (
                 posts?.map((post) => (
                   <tr key={post.id} className="border-b border-border/50 hover:bg-surface-elevated transition-colors">
@@ -80,6 +81,11 @@ export default function AdminBlog() {
                         )}
                         <span className="text-sm font-medium text-foreground">{post.title}</span>
                       </div>
+                    </td>
+                    <td className="p-4">
+                      <span className="text-xs font-display font-bold uppercase tracking-wider px-2 py-1 rounded bg-primary/10 text-primary">
+                        {POST_TYPE_LABELS[post.post_type] ?? "Article"}
+                      </span>
                     </td>
                     <td className="p-4">
                       <span className={`text-xs font-display font-bold uppercase tracking-wider px-2 py-1 rounded ${

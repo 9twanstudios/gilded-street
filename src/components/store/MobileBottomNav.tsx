@@ -1,12 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, ShoppingBag, Search, User, Shirt } from "lucide-react";
+import { Home, ShoppingBag, Search, User, Sparkles } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 
 const navItems = [
   { icon: Home, label: "Home", to: "/" },
   { icon: Search, label: "Shop", to: "/shop" },
-  { icon: Shirt, label: "FitCheck", to: "/fitcheck" },
+  { icon: Sparkles, label: "Drops", to: "/drops" },
   { icon: ShoppingBag, label: "Cart", to: "/cart", isCart: true },
   { icon: User, label: "Account", to: "/account/profile" },
 ];

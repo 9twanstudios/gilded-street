@@ -1,6 +1,6 @@
 /**
  * Sitemap generator — runs predev/prebuild. Pulls published products,
- * drops, blog posts, stories, seo_clusters, seo_locations from Supabase
+ * drops, journal entries, seo_clusters, seo_locations from Supabase
  * and writes public/sitemap.xml. Falls back gracefully when offline.
  */
 import { createClient } from "@supabase/supabase-js";
@@ -11,7 +11,7 @@ const SUPABASE_URL = process.env.VITE_SUPABASE_URL || "";
 const SUPABASE_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
 const ORIGIN = process.env.SITE_ORIGIN || "https://91fitz.com";
 
-const STATIC = ["/", "/shop", "/drops", "/stories", "/blog", "/login", "/signup"];
+const STATIC = ["/", "/shop", "/drops", "/journal", "/login", "/signup"];
 
 async function main() {
   const urls = new Set<string>(STATIC.map((p) => `${ORIGIN}${p}`));
@@ -21,8 +21,7 @@ async function main() {
       const tables = [
         { name: "products", prefix: "/products/", filter: { status: "approved" } },
         { name: "drops", prefix: "/drops/", filter: { active: true } },
-        { name: "blog_posts", prefix: "/blog/", filter: { published: true } },
-        { name: "stories", prefix: "/stories/", filter: { published: true } },
+        { name: "blog_posts", prefix: "/journal/", filter: { published: true } },
         { name: "seo_clusters", prefix: "/c/", filter: { published: true } },
         { name: "seo_locations", prefix: "/l/", filter: { published: true } },
       ];
