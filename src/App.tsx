@@ -1,6 +1,13 @@
 import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, useParams } from "react-router-dom";
+
+/** Legacy /blog/:slug, /stories/:slug and /story/:slug all resolve to /journal/:slug. */
+function JournalSlugRedirect() {
+  const { slug } = useParams();
+  return <Navigate to={`/journal/${slug}`} replace />;
+}
+
 
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
