@@ -74,7 +74,6 @@ const AdminProducts = lazy(() => import("@/pages/admin/AdminProducts"));
 const AdminCategories = lazy(() => import("@/pages/admin/AdminCategories"));
 const AdminDrops = lazy(() => import("@/pages/admin/AdminDrops"));
 const AdminBlog = lazy(() => import("@/pages/admin/AdminBlog"));
-const AdminStories = lazy(() => import("@/pages/admin/AdminStories"));
 const AdminOrders = lazy(() => import("@/pages/admin/AdminOrders"));
 const AdminUsers = lazy(() => import("@/pages/admin/AdminUsers"));
 const AdminWallets = lazy(() => import("@/pages/admin/AdminWallets"));
@@ -195,8 +194,9 @@ const App = () => (
                     <Route path="categories" element={<AdminCategories />} />
                     <Route path="drops" element={<AdminDrops />} />
                     <Route path="content" element={<AdminBlog />} />
-                    <Route path="blog" element={<AdminBlog />} />
-                    <Route path="stories" element={<AdminStories />} />
+                    <Route path="journal" element={<AdminBlog />} />
+                    <Route path="blog" element={<Navigate to="/admin/journal" replace />} />
+                    <Route path="stories" element={<Navigate to="/admin/journal" replace />} />
                     <Route path="orders" element={<AdminOrders />} />
                     <Route path="qr" element={<AdminQR />} />
                     <Route path="seo" element={<AdminSEO />} />
