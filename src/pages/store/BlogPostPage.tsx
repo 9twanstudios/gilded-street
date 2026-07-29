@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useBlogPost } from "@/hooks/use-blog";
+import { useBlogPost, POST_TYPE_LABELS } from "@/hooks/use-blog";
 import { useProducts } from "@/hooks/use-products";
 import { ProductGrid } from "@/components/store/ProductGrid";
 import { Helmet } from "react-helmet-async";
@@ -28,7 +28,7 @@ export default function BlogPostPage() {
     return (
       <div className="container py-20 text-center">
         <p className="text-muted-foreground text-lg">Post not found.</p>
-        <Link to="/blog" className="text-primary hover:underline mt-4 inline-block">Back to Blog</Link>
+        <Link to="/journal" className="text-primary hover:underline mt-4 inline-block">Back to Journal</Link>
       </div>
     );
   }
@@ -36,19 +36,19 @@ export default function BlogPostPage() {
   return (
     <div className="container py-8">
       <Helmet>
-        <title>{post.title} — 9twanfitz Fashion Tips</title>
-        <meta name="description" content={post.excerpt || `Read "${post.title}" on the 9twanfitz blog.`} />
-        <meta property="og:title" content={`${post.title} — 9twanfitz`} />
+        <title>{post.title} — 91Fitz Journal</title>
+        <meta name="description" content={post.excerpt || `Read "${post.title}" on the 91Fitz Journal.`} />
+        <meta property="og:title" content={`${post.title} — 91Fitz`} />
         <meta property="og:description" content={post.excerpt || post.title} />
         {post.cover_image && <meta property="og:image" content={post.cover_image} />}
-        <meta property="og:url" content={`https://9twanfitz.vercel.app/blog/${post.slug}`} />
-        <link rel="canonical" href={`https://9twanfitz.vercel.app/blog/${post.slug}`} />
+        <meta property="og:url" content={`https://9twanfitz.vercel.app/journal/${post.slug}`} />
+        <link rel="canonical" href={`https://9twanfitz.vercel.app/journal/${post.slug}`} />
       </Helmet>
 
       <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-6" aria-label="Breadcrumb">
         <Link to="/" className="hover:text-primary transition-colors">Home</Link>
         <ChevronRight className="h-3 w-3" />
-        <Link to="/blog" className="hover:text-primary transition-colors">Blog</Link>
+        <Link to="/journal" className="hover:text-primary transition-colors">Journal</Link>
         <ChevronRight className="h-3 w-3" />
         <span className="text-foreground truncate max-w-[250px]">{post.title}</span>
       </nav>
@@ -68,6 +68,9 @@ export default function BlogPostPage() {
           <span>By {post.author}</span>
         </div>
 
+        <p className="text-neon font-display font-bold uppercase tracking-[0.3em] text-xs mb-2">
+          {POST_TYPE_LABELS[post.post_type] ?? "Article"}
+        </p>
         <h1 className="font-heading text-4xl md:text-5xl text-foreground mb-6">{post.title}</h1>
 
         {post.tags.length > 0 && (
@@ -101,8 +104,8 @@ export default function BlogPostPage() {
           })}
         </div>
 
-        <Link to="/blog" className="inline-flex items-center gap-2 text-primary hover:underline font-display font-semibold text-sm uppercase tracking-wider">
-          <ArrowLeft className="h-4 w-4" /> Back to Blog
+        <Link to="/journal" className="inline-flex items-center gap-2 text-primary hover:underline font-display font-semibold text-sm uppercase tracking-wider">
+          <ArrowLeft className="h-4 w-4" /> Back to Journal
         </Link>
       </article>
 
