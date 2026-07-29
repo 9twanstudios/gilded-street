@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const blogSchema = z.object({
   title: z.string().trim().min(1, "Title is required").max(200),
@@ -26,6 +27,7 @@ const blogSchema = z.object({
   author: z.string().trim().min(1),
   published: z.boolean(),
   tags: z.string().optional(),
+  post_type: z.enum(["article", "story", "drop_note"]),
 });
 
 type BlogFormValues = z.infer<typeof blogSchema>;
@@ -51,6 +53,7 @@ export function BlogFormDialog({ open, onOpenChange, post }: BlogFormDialogProps
       author: "91Fitz",
       published: false,
       tags: "",
+      post_type: "article",
     },
   });
 
@@ -65,11 +68,12 @@ export function BlogFormDialog({ open, onOpenChange, post }: BlogFormDialogProps
         author: post.author,
         published: post.published,
         tags: post.tags?.join(", ") || "",
+        post_type: post.post_type ?? "article",
       });
     } else if (open) {
       form.reset({
         title: "", slug: "", excerpt: "", content: "",
-        cover_image: "", author: "91Fitz", published: false, tags: "",
+        cover_image: "", author: "91Fitz", published: false, tags: "", post_type: "article",
       });
     }
   }, [open, post, form]);
@@ -95,6 +99,7 @@ export function BlogFormDialog({ open, onOpenChange, post }: BlogFormDialogProps
       author: values.author,
       published: values.published,
       tags,
+      post_type: values.post_type,
       updated_at: new Date().toISOString(),
     };
 
@@ -117,10 +122,10 @@ export function BlogFormDialog({ open, onOpenChange, post }: BlogFormDialogProps
       <DialogContent className="bg-card border-border max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-heading text-2xl text-primary">
-            {isEdit ? "Edit Post" : "New Blog Post"}
+            {isEdit ? "Edit Entry" : "New Journal Entry"}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            {isEdit ? "Update the post details." : "Create a new blog post."}
+            {isEdit ? "Update the entry details." : "Create a story, article or drop note."}
           </DialogDescription>
         </DialogHeader>
 
@@ -162,6 +167,23 @@ export function BlogFormDialog({ open, onOpenChange, post }: BlogFormDialogProps
               <FormItem>
                 <FormLabel className="text-foreground">Cover Image URL</FormLabel>
                 <FormControl><Input {...field} placeholder="https://..." className="bg-background border-border" /></FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
+
+            <FormField control={form.control} name="post_type" render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-foreground">Journal type</FormLabel>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <FormControl>
+                    <SelectTrigger className="bg-background border-border"><SelectValue /></SelectTrigger>
+                  </FormControl>
+                  <SelectContent className="bg-card border-border">
+                    <SelectItem value="article">Article</SelectItem>
+                    <SelectItem value="story">Story</SelectItem>
+                    <SelectItem value="drop_note">Drop Note</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )} />
