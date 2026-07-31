@@ -5,6 +5,3 @@ verify_jwt = false
 
 [functions.pesapal-ipn]
 verify_jwt = false
-
-[functions.asset-mirror]
-verify_jwt = false
