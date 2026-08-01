@@ -1,96 +1,46 @@
+# Security Cleanup — Next Phase
 
-# LDX v1.3 — Content Unification, Catalog Expansion & Creator Uploads
+Verified current state before planning (queried `pg_policies`, `pg_publication_tables`, function privileges).
 
-## 1. Merge Stories + Blog (with seeded content)
+## What I found
 
-- New unified route `/journal` with type filter tabs: All · Stories · Articles · Drop Notes.
-- Add `post_type` column to `blog_posts` (`article` | `story` | `drop_note`); migrate every `stories` row into `blog_posts` with `post_type='story'` (preserve figure_name/era/relevance via `meta jsonb`).
-- Redirects: `/stories` → `/journal?type=story`, `/stories/:slug` → `/journal/:slug`, `/blog` → `/journal`, `/blog/:slug` → `/journal/:slug`.
-- Admin: single `AdminJournal` page replaces AdminBlog + AdminStories.
-- Seed 8 posts (2 articles, 3 stories, 3 drop notes) with generated cover images tied to the new catalog.
+- **`user_roles` realtime**: the `supabase_realtime` publication currently contains **no tables at all**. Nothing is broadcast, so this "critical" finding is not reproducible against the live database. I'll still add a defensive `realtime.messages` policy and then mark the finding resolved.
+- **Orders**: `INSERT` policy is `WITH CHECK (auth.uid() = user_id)` on role `public`, and `user_id` is nullable. Guest orders can't actually be created (NULL = NULL fails), but the policies target `public` rather than `authenticated`, and guest checkout has no readable path.
+- **Storage `product-images`**: INSERT/UPDATE/DELETE are admin-only, while creators can insert products — so creators genuinely cannot upload product imagery. Also the SELECT policy is bucket-wide, which allows listing every object.
+- **SECURITY DEFINER functions**: 9 functions in `public` are executable by `anon`/`authenticated`. Only `has_role` needs to stay callable (it's used inside policies). Trigger functions and `log_admin_action` should not be directly callable.
+- **Always-true policies**: write policies with `WITH CHECK (true)` exist on `events`, `newsletter_subscribers`, `notify_requests`, `qr_scans`. These are intentional public-write endpoints, but they can be tightened with column/shape constraints instead of blanket `true`.
+- **Leaked password protection**: an Auth dashboard setting, not something a migration can change.
 
-## 2. Stub FitCheck (hide from public)
+## Plan
 
-- Remove `FITCHECK` link from `StoreNavbar` + `MobileBottomNav` + `StoreFooter`.
-- Remove `/fitcheck`, `/fits`, `/fits/:id` from `public/sitemap.xml` and `scripts/generate-sitemap.ts`.
-- Routes stay live for admins/direct link; add a small "beta" banner on the Studio page.
-- No DB or edge function changes.
+### 1. Migration — orders
+- Make `orders.user_id` `NOT NULL` (after confirming no NULL rows exist) so ownership is always enforced.
+- Rescope orders policies from `public` to `authenticated`.
 
-## 3. Catalog expansion — +20 pieces
+### 2. Migration — storage policies
+- Add an INSERT/UPDATE/DELETE policy on `product-images` for users holding the `creator` role, scoped to a `creators/<auth.uid()>/` path prefix; keep admin full access.
+- Narrow the public SELECT policy on `product-images` and `creator-uploads` so anonymous clients can read objects but not enumerate the whole bucket (restrict to known path prefixes).
 
-Per user: **10 female · 6 male · 4 unisex accessories (silver chains + rings)**.
+### 3. Migration — SECURITY DEFINER hardening
+- `REVOKE EXECUTE ... FROM PUBLIC, anon, authenticated` on all trigger functions (`handle_new_user`, `assign_dgr_code`, `fits_likes_count_sync`, `handle_creator_application_decision`, `profiles_default_username`, `snapshot_seo_page`, `rls_auto_enable`) — triggers still run as the table owner.
+- `log_admin_action`: revoke from `anon`, keep `authenticated` (it already checks `has_role(auth.uid(),'admin')` internally).
+- `has_role`: keep executable — required by policies.
 
-Female (10): Uhuru Crop Tee, Sankofa Mesh Top, Nairobi Nights Slip Dress, Rebel Femme Corset Tee, Freedom Wrap Skirt, Ankara Bomber (Fem), Warrior Queen Cargo Pant, Pan-Afri Tube Top, Uprising Denim Mini, Highlife Halter.
+### 4. Migration — tighten always-true write policies
+- `events`, `qr_scans`: keep public insert (analytics beacons) but restrict to `anon, authenticated` roles explicitly and add validation triggers rejecting oversized/garbage payloads.
+- `newsletter_subscribers`, `notify_requests`: add a validation trigger enforcing a well-formed email and reasonable length; keep insert open, block reads (already denied).
 
-Male (6): Rebel Council Overshirt, Uprising Utility Vest, Kilifi Linen Set (top), Kilifi Linen Set (bottom), Mau Mau Souvenir Jacket, 91 Track Top.
+### 5. Migration — realtime defence-in-depth
+- Add RLS policies on `realtime.messages` so channel subscription requires an authenticated user, closing the flagged issue even though no table is currently published.
 
-Accessories (4): Sterling Byzantine Chain, Iced Cuban Link Chain, Signet Rebel Ring, Stacked Freedom Ring Set.
+### 6. Code follow-ups
+- Update `src/components/profile/ImageUpload.tsx` and any creator product-image upload path to write under the new allowed path prefix so the tightened storage policies don't break existing uploads.
 
-Pipeline: `imagegen` premium with locked 91Fitz prompt style → cutout PNG + catalog JPG → `lovable-assets create` → seed into `products` with correct `fit_slot`, `category_id`, `drop_type`, `gender`.
+### 7. Manual step (cannot be automated)
+- **Leaked Password Protection** must be enabled by you in Supabase → Authentication → Providers → Password settings. I'll link straight to it.
 
-**Naming convention (guide):**
-- `{slug}.jpg.asset.json` — catalog shot (1024×1024, charcoal bg)
-- `{slug}.cutout.png.asset.json` — transparent FitCheck cutout
-- slug format: `kebab-case-descriptive` (e.g. `sterling-byzantine-chain`)
-- accessories use slot `accessory-neck` / `accessory-hand`
+### 8. Verify
+- Re-run the Supabase linter and the security scanner, then mark the resolved findings as fixed with explanations, and update the security memory.
 
-## 4. Drop categories & taxonomy
-
-- New enum `drop_type`: `seasonal | capsule | collab | archive`.
-- New column `drops.narrative`: `freedom | rebel | unity | ecosystem | general`.
-- New column `products.drop_type` + `products.gender` (`male | female | unisex`).
-- Seed 4 drop rows: "Freedom Season SS26", "Rebel Capsule 001", "Unity × Ecosystem Collab", "Archive Vault".
-- Assign every existing + new product to a drop via `product_ids`.
-- Add filter chips to `/drops` and `/shop` (by narrative + type + gender).
-
-## 5. Remove redundancies (audit findings)
-
-- Delete unused `stories` table + `AdminStories.tsx` + `StoriesPage.tsx` + `StoryDetailPage.tsx` + `StoryFormDialog.tsx` after migration.
-- Fold `AdminBlog` and `AdminStories` into `AdminJournal`.
-- Remove duplicate KES formatters (already unified in `lib/format.ts`) — sweep remaining `.toLocaleString()` calls.
-- Drop dead `fits.mask_url` reference in seed migration (column still used, just unused in seeds).
-- Consolidate `AdminFitCheck` under a single "Fits (beta)" nav group.
-
-## 6. Creator economy — finish uploads
-
-- `CreatorDashboard`: add "Upload product" flow using `ProductFormDialog` restricted fields (name, description, price, sizes, images, drop, gender, fit_slot).
-- New storage bucket `creator-uploads` (public read) + RLS: creators write only to `{user_id}/*`; admins read all.
-- New `products.status='pending'` gate + email/toast to admin queue (`AdminProducts` filter chip).
-- Creator sees own products list with status badges (pending/approved/rejected) and reject reason.
-- Auto-fill `creator_id` from session; `approved=false` until admin action.
-
-## 7. Vercel live-data verification
-
-Root cause the user is flagging via the screenshot: seeded rows exist in Supabase but the deployed site shows cached/broken cards.
-
-- Verify `VITE_SUPABASE_URL` + `VITE_SUPABASE_PUBLISHABLE_KEY` are set in Vercel env (not just `.env` locally).
-- Force a redeploy after seed; add a small "Data freshness" indicator on Admin dashboard showing `products.updated_at` max.
-- Fix broken image cards visible in screenshot: some `products.image` URLs point at asset paths that were never uploaded — the seed will re-check and use `.asset.json` URLs.
-- Add `<link rel="preconnect">` to Supabase + CDN in `index.html`.
-
-## Technical details
-
-- Migrations (single file):
-  - `ALTER TABLE blog_posts ADD COLUMN post_type text NOT NULL DEFAULT 'article', ADD COLUMN meta jsonb NOT NULL DEFAULT '{}'::jsonb;`
-  - `INSERT INTO blog_posts (…) SELECT …, 'story', jsonb_build_object('figure_name',figure_name,'era',era,'relevance',relevance) FROM stories;`
-  - `CREATE TYPE drop_type_t AS ENUM ('seasonal','capsule','collab','archive');`
-  - `ALTER TABLE drops ADD COLUMN narrative text; ALTER TABLE products ADD COLUMN drop_type drop_type_t, ADD COLUMN gender text CHECK (gender IN ('male','female','unisex'));`
-  - GRANTs preserved; RLS unchanged.
-- Storage: `creator-uploads` bucket via `storage_create_bucket`; policies via migration.
-- Sitemap regenerated to include `/journal`, journal slugs, drop filters.
-- Redirects handled client-side in `App.tsx` via `<Navigate>` components.
-
-## Out of scope (this pass)
-
-- FitCheck AI improvements (module stubbed).
-- Payment/wallet changes.
-- New admin analytics beyond data-freshness tile.
-
-## Rollout order
-
-1. Migration (schema + drop enum + creator uploads bucket).
-2. Image generation (20 pieces) → CDN upload → seed insert.
-3. Journal unification + redirects + AdminJournal.
-4. Nav/sitemap FitCheck stub.
-5. Creator upload flow + admin approval queue.
-6. Vercel env verify + redeploy prompt.
+## Technical notes
+All database changes go through migrations, applied one at a time so failures are isolated. No table drops or data deletion. The `orders.user_id NOT NULL` change is the only potentially breaking one — I'll query for NULL rows first and, if any exist, either backfill or skip that step and report it.
