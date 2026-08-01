@@ -728,7 +728,7 @@ export type Database = {
           status: Database["public"]["Enums"]["order_status"]
           total: number
           traffic_source: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           attribution?: Json | null
@@ -743,7 +743,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["order_status"]
           total: number
           traffic_source?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           attribution?: Json | null
@@ -758,7 +758,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["order_status"]
           total?: number
           traffic_source?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
