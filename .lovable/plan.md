@@ -1,46 +1,50 @@
-# Security Cleanup — Next Phase
+# Next Phase — PWA, Elite Youth Group Drop, Womenswear & Security Finish
 
-Verified current state before planning (queried `pg_policies`, `pg_publication_tables`, function privileges).
+Verified before planning: `public/` contains only `favicon.ico`, `favicon.png`, `og-image.png`, `placeholder.svg`, `robots.txt`, `sitemap.xml` — there is no web app manifest and no PWA icons. `index.html` has no `manifest` link and no `theme-color`. `vercel.json` rewrites every path to `index.html`. The orders/storage security migration already applied successfully; the second migration (function grants + write-policy tightening) was interrupted and has not been applied.
 
-## What I found
+## 1. Installable app (PWA, manifest-only)
 
-- **`user_roles` realtime**: the `supabase_realtime` publication currently contains **no tables at all**. Nothing is broadcast, so this "critical" finding is not reproducible against the live database. I'll still add a defensive `realtime.messages` policy and then mark the finding resolved.
-- **Orders**: `INSERT` policy is `WITH CHECK (auth.uid() = user_id)` on role `public`, and `user_id` is nullable. Guest orders can't actually be created (NULL = NULL fails), but the policies target `public` rather than `authenticated`, and guest checkout has no readable path.
-- **Storage `product-images`**: INSERT/UPDATE/DELETE are admin-only, while creators can insert products — so creators genuinely cannot upload product imagery. Also the SELECT policy is bucket-wide, which allows listing every object.
-- **SECURITY DEFINER functions**: 9 functions in `public` are executable by `anon`/`authenticated`. Only `has_role` needs to stay callable (it's used inside policies). Trigger functions and `log_admin_action` should not be directly callable.
-- **Always-true policies**: write policies with `WITH CHECK (true)` exist on `events`, `newsletter_subscribers`, `notify_requests`, `qr_scans`. These are intentional public-write endpoints, but they can be tightened with column/shape constraints instead of blanket `true`.
-- **Leaked password protection**: an Auth dashboard setting, not something a migration can change.
+- Generate 91FITZ app icons at 192x192, 512x512 and a 512x512 maskable variant from the existing brand mark (gold on black), plus an `apple-touch-icon`.
+- Add `public/manifest.webmanifest`: name `91FITZ`, short name `91FITZ`, `display: standalone`, black background, gold theme colour, `start_url: /`, portrait orientation, icon entries.
+- Link the manifest, `theme-color`, and Apple touch icon from `index.html`; add `apple-mobile-web-app-*` tags so the standalone launch looks native.
+- Add a `/manifest.webmanifest` exclusion so the Vercel SPA rewrite does not swallow it.
+- No service worker and no offline caching (not requested — that path risks stale previews).
 
-## Plan
+## 2. "Smooth fluid app" polish
 
-### 1. Migration — orders
-- Make `orders.user_id` `NOT NULL` (after confirming no NULL rows exist) so ownership is always enforced.
-- Rescope orders policies from `public` to `authenticated`.
+- Global smooth scrolling, momentum scrolling on iOS, and `overscroll-behavior` so the standalone app doesn't rubber-band the page.
+- Safe-area insets (notch / home indicator) applied to the navbar and mobile bottom nav.
+- Consistent page-transition fade and tap-highlight removal for touch targets; existing motion tokens reused, nothing new invented.
 
-### 2. Migration — storage policies
-- Add an INSERT/UPDATE/DELETE policy on `product-images` for users holding the `creator` role, scoped to a `creators/<auth.uid()>/` path prefix; keep admin full access.
-- Narrow the public SELECT policy on `product-images` and `creator-uploads` so anonymous clients can read objects but not enumerate the whole bucket (restrict to known path prefixes).
+## 3. Elite Youth Group collab drop (6 SKUs)
 
-### 3. Migration — SECURITY DEFINER hardening
-- `REVOKE EXECUTE ... FROM PUBLIC, anon, authenticated` on all trigger functions (`handle_new_user`, `assign_dgr_code`, `fits_likes_count_sync`, `handle_creator_application_decision`, `profiles_default_username`, `snapshot_seo_page`, `rls_auto_enable`) — triggers still run as the table owner.
-- `log_admin_action`: revoke from `anon`, keep `authenticated` (it already checks `has_role(auth.uid(),'admin')` internally).
-- `has_role`: keep executable — required by policies.
+New drop `elite-youth-group` (type: collab) with narrative copy tying the crest's "Youth in Action. Communities in Motion." line to the 91FITZ Pan-African story, plus 6 products carrying the crest artwork:
 
-### 4. Migration — tighten always-true write policies
-- `events`, `qr_scans`: keep public insert (analytics beacons) but restrict to `anon, authenticated` roles explicitly and add validation triggers rejecting oversized/garbage payloads.
-- `newsletter_subscribers`, `notify_requests`: add a validation trigger enforcing a well-formed email and reasonable length; keep insert open, block reads (already denied).
+1. Elite FC Home Jersey (green/gold)
+2. Elite FC Away Jersey (black/gold)
+3. Elite Youth Group Crest Hoodie
+4. Elite Youth Group Crest Tee
+5. Elite FC Training Shorts
+6. Elite Youth Group Snapback Cap
 
-### 5. Migration — realtime defence-in-depth
-- Add RLS policies on `realtime.messages` so channel subscription requires an authenticated user, closing the flagged issue even though no table is currently published.
+Each gets a studio catalogue image plus a transparent cutout so it appears in the FitCheck slot palette, KES integer pricing, sizes, `fit_slot`, and drop linkage. Images are uploaded to CDN pointers and stored as absolute URLs so they render on Vercel.
 
-### 6. Code follow-ups
-- Update `src/components/profile/ImageUpload.tsx` and any creator product-image upload path to write under the new allowed path prefix so the tightened storage policies don't break existing uploads.
+## 4. Womenswear expansion (10 pieces)
 
-### 7. Manual step (cannot be automated)
-- **Leaked Password Protection** must be enabled by you in Supabase → Authentication → Providers → Password settings. I'll link straight to it.
+Crop tee, bodysuit, cargo mini skirt, oversized hoodie, biker shorts, halter top, two-piece lounge set, slip dress, cropped denim jacket, high-waist leggings — all in the existing Pan-African / rebel design language, tagged `gender: female`, with catalogue image + FitCheck cutout, correct `fit_slot`, and KES pricing.
 
-### 8. Verify
-- Re-run the Supabase linter and the security scanner, then mark the resolved findings as fixed with explanations, and update the security memory.
+## 5. Finish the security hardening migration
+
+Re-run the interrupted migration:
+
+- Revoke direct execute on internal SECURITY DEFINER automation functions (`handle_new_user`, `assign_dgr_code`, `fits_likes_count_sync`, `handle_creator_application_decision`, `profiles_default_username`, `snapshot_seo_page`, `rls_auto_enable`, `generate_referral_code`) — triggers keep working.
+- `log_admin_action`: revoke from anonymous visitors, keep for signed-in users (it verifies admin internally).
+- Replace the four `WITH CHECK (true)` insert policies with validated ones: email format + length on newsletter signups and restock requests; event type / payload size limits and `user_id = auth.uid()` on analytics events and QR scans.
+- Add matching client-side email validation on the newsletter and notify-me forms so users get a clear message instead of a raw policy error.
+- Update the creator image-upload path to the `creators/<user id>/` folder now required by the tightened storage policies.
+
+Remaining scanner items after this: leaked-password protection (dashboard toggle only — link provided), and `has_role` staying executable (required by the policies themselves). Those will be explained, not silently ignored.
 
 ## Technical notes
-All database changes go through migrations, applied one at a time so failures are isolated. No table drops or data deletion. The `orders.user_id NOT NULL` change is the only potentially breaking one — I'll query for NULL rows first and, if any exist, either backfill or skip that step and report it.
+
+Images are generated then externalised via CDN asset pointers and written to the database as absolute URLs (same approach that fixed the earlier Vercel breakage). Product/drop seeding runs through data inserts, not schema migrations. The manifest is static in `public/` — no build plugin, no service worker, so previews and the published site behave identically.
