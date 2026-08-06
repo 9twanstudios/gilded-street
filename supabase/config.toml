@@ -5,6 +5,3 @@ verify_jwt = false
 
 [functions.pesapal-ipn]
 verify_jwt = false
-
-[functions.asset-upload]
-verify_jwt = false
