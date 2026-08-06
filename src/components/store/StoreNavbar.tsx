@@ -35,7 +35,7 @@ export function StoreNavbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
+    <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border safe-area-top safe-area-x">
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <span className="font-heading text-3xl text-gold-gradient tracking-wider">91FITZ</span>
