@@ -252,3 +252,41 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+function QRHistory({ userId }: { userId: string }) {
+  const { data } = useQuery({
+    queryKey: ["my-qr-scans", userId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("qr_scans" as any)
+        .select("*, qr_campaigns(name, slug)")
+        .eq("user_id", userId)
+        .order("scanned_at", { ascending: false })
+        .limit(50);
+      return (data ?? []) as any[];
+    },
+  });
+
+  if (!data?.length) {
+    return (
+      <div className="bg-card border border-border rounded-lg p-6 text-center">
+        <ScanLine className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+        <p className="text-muted-foreground text-sm">No garment scans yet. Scan the QR tag on your 91 Fitz piece to verify it.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {data.map((s: any) => (
+        <div key={s.id} className="flex items-center justify-between p-3 border border-border rounded">
+          <div>
+            <p className="text-sm font-display font-bold text-foreground">{s.qr_campaigns?.name ?? "Campaign"}</p>
+            <p className="text-xs text-muted-foreground">/u/{s.qr_campaigns?.slug}</p>
+          </div>
+          <p className="text-xs text-muted-foreground">{formatDate(s.scanned_at)}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
