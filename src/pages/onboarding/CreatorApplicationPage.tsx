@@ -34,7 +34,7 @@ export default function CreatorApplicationPage() {
       });
       if (error) throw error;
       toast.success("Application submitted. We'll review within 48h.");
-      navigate("/account/profile");
+      navigate("/account");
     } catch (err: any) {
       toast.error(err.message || "Submission failed");
     } finally { setBusy(false); }

@@ -8,7 +8,7 @@ const navItems = [
   { icon: Search, label: "Shop", to: "/shop" },
   { icon: Sparkles, label: "Drops", to: "/drops" },
   { icon: ShoppingBag, label: "Cart", to: "/cart", isCart: true },
-  { icon: User, label: "Account", to: "/account/profile" },
+  { icon: User, label: "Account", to: "/account" },
 ];
 
 export function MobileBottomNav() {
@@ -42,7 +42,7 @@ export function MobileBottomNav() {
             );
           }
 
-          const to = item.to === "/account/profile" && !user ? "/auth/sign-in" : item.to;
+          const to = item.to === "/account" && !user ? "/auth/sign-in" : item.to;
 
           return (
             <Link

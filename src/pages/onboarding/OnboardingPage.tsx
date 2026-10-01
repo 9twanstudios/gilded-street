@@ -40,7 +40,7 @@ export default function OnboardingPage() {
   async function save() {
     await update.mutateAsync({ display_name: displayName, bio, location_city: city, interests, phone, avatar_url: avatarUrl });
     await complete.mutateAsync();
-    const next = params.get("next") || "/account/profile";
+    const next = params.get("next") || "/account";
     navigate(next);
   }
   async function skip() {
