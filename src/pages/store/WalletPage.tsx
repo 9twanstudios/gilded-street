@@ -43,7 +43,8 @@ export default function WalletPage() {
   }
 
   const handleWithdraw = () => {
-    const amt = Math.round(parseFloat(withdrawAmount) * 100);
+    // Balances and prices are stored as whole KES integers — no cents conversion.
+    const amt = Math.round(Number(withdrawAmount));
     if (!amt || amt <= 0) { toast.error("Enter a valid amount"); return; }
     if (wallet && amt > wallet.balance) { toast.error("Insufficient balance"); return; }
     withdrawMutation.mutate({ amount: amt }, {

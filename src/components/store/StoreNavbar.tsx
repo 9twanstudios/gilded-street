@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, User, Menu, X, LogIn, Wallet, Search } from "lucide-react";
+import { ShoppingBag, User, Menu, X, LogIn, Search } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
@@ -71,13 +71,8 @@ export function StoreNavbar() {
           <button onClick={() => setSearchOpen(!searchOpen)} aria-label="Search products" aria-expanded={searchOpen} className="text-foreground hover:text-primary transition-colors duration-200">
             <Search className="h-5 w-5" />
           </button>
-          {user && (
-            <Link to="/account/wallet" className="text-foreground hover:text-primary transition-colors duration-200 hidden sm:block" aria-label="Wallet">
-              <Wallet className="h-5 w-5" />
-            </Link>
-          )}
           {user ? (
-            <Link to="/account/profile" className="text-foreground hover:text-primary transition-colors duration-200 hidden sm:block" aria-label="My account">
+            <Link to="/account" className="text-foreground hover:text-primary transition-colors duration-200 hidden sm:block" aria-label="My account">
               <User className="h-5 w-5" />
             </Link>
           ) : (

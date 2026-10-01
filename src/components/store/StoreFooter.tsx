@@ -35,8 +35,8 @@ export function StoreFooter() {
           <div>
             <h4 className="font-display font-bold uppercase tracking-wider text-sm text-foreground mb-4">Account</h4>
             <div className="flex flex-col gap-2">
-              <Link to="/account/profile" className="text-muted-foreground hover:text-primary transition-colors text-sm">My Account</Link>
-              <Link to="/account/wallet" className="text-muted-foreground hover:text-primary transition-colors text-sm">Wallet</Link>
+              <Link to="/account" className="text-muted-foreground hover:text-primary transition-colors text-sm">My Fitz</Link>
+              <Link to="/track-order" className="text-muted-foreground hover:text-primary transition-colors text-sm">Track Order</Link>
               <Link to="/checkout" className="text-muted-foreground hover:text-primary transition-colors text-sm">Cart & Checkout</Link>
             </div>
           </div>
