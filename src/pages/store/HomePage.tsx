@@ -1,6 +1,5 @@
 import { HeroBanner } from "@/components/store/HeroBanner";
 import { ProductGrid } from "@/components/store/ProductGrid";
-import { EcosystemSection } from "@/components/store/EcosystemSection";
 import { SocialFeedSection } from "@/components/store/SocialFeedSection";
 import { NewsletterSignup } from "@/components/store/NewsletterSignup";
 import { CountdownTimer } from "@/components/store/CountdownTimer";
@@ -174,8 +173,6 @@ export default function HomePage() {
           <NewsletterSignup />
         </div>
       </section>
-
-      <EcosystemSection />
     </>
   );
 }
