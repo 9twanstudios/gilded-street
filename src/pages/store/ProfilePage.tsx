@@ -5,7 +5,7 @@ import { useWishlist } from "@/hooks/use-wishlist";
 import { useWallet, useLedger } from "@/hooks/use-wallet";
 import { useProfile, useUpdateProfile } from "@/hooks/use-profile";
 import { formatKES, formatDate } from "@/lib/format";
-import { Package, Heart, LogOut, Wallet, User as UserIcon, Edit3, Share2, Shield } from "lucide-react";
+import { Package, Heart, LogOut, Wallet, User as UserIcon, Edit3, Share2, Shield, ScanLine, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,10 +18,10 @@ import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-type Tab = "overview" | "edit" | "orders" | "wishlist" | "wallet" | "referrals" | "security";
+type Tab = "overview" | "edit" | "orders" | "wishlist" | "wallet" | "referrals" | "qr" | "security";
 
 export default function ProfilePage() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, isCreator } = useAuth();
   const { data: profile } = useProfile();
   const update = useUpdateProfile();
   const { data: orders } = useMyOrders(user?.id);
@@ -83,6 +83,7 @@ export default function ProfilePage() {
     { key: "wishlist", label: "Wishlist", icon: Heart },
     { key: "wallet", label: "Wallet", icon: Wallet },
     { key: "referrals", label: "Referrals", icon: Share2 },
+    { key: "qr", label: "Authenticity", icon: ScanLine },
     { key: "security", label: "Security", icon: Shield },
   ];
 
