@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Package, Users, ShoppingCart, Bell, ChevronLeft, ChevronRight,
   FolderOpen, FileText, Zap, Wallet, BookOpen, ArrowDownToLine, ScrollText, Settings,
   QrCode, Globe, BarChart3, Megaphone, FlaskConical, UsersRound, Star, BellRing,
-  Coins, Share2, History, Bot, UserCheck, ChevronDown, Shirt,
+  Coins, Share2, History, Bot, UserCheck, ChevronDown,
 } from "lucide-react";
 
 type Item = { label: string; to: string; icon: any };
