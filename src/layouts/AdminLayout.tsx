@@ -3,8 +3,8 @@ import { useState, Suspense } from "react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PageLoader } from "@/components/PageLoader";
 import {
-  LayoutDashboard, Package, Users, ShoppingCart, Bell, ChevronLeft, ChevronRight,
-  FolderOpen, FileText, Zap, Wallet, BookOpen, ArrowDownToLine, ScrollText, Settings,
+  LayoutDashboard, Package, Users, ShoppingCart, ChevronLeft, ChevronRight,
+  FolderOpen, FileText, Zap, Wallet, BookOpen, ArrowDownToLine, Settings,
   QrCode, Globe, BarChart3, Megaphone, FlaskConical, UsersRound, Star, BellRing,
   Coins, Share2, History, Bot, UserCheck, ChevronDown,
 } from "lucide-react";
