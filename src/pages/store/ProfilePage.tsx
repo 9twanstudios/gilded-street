@@ -233,6 +233,9 @@ export default function ProfilePage() {
         </div>
       )}
 
+      {tab === "qr" && <QRHistory userId={user.id} />}
+
+
       {tab === "security" && (
         <div className="bg-card border border-border rounded-lg p-6 space-y-4">
           <div>
