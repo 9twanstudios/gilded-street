@@ -1,8 +1,6 @@
 import { HeroBanner } from "@/components/store/HeroBanner";
 import { ProductGrid } from "@/components/store/ProductGrid";
-import { EcosystemSection } from "@/components/store/EcosystemSection";
 import { SocialFeedSection } from "@/components/store/SocialFeedSection";
-import { NewsletterSignup } from "@/components/store/NewsletterSignup";
 import { CountdownTimer } from "@/components/store/CountdownTimer";
 import { useProducts } from "@/hooks/use-products";
 import { useDrops } from "@/hooks/use-drops";
@@ -154,7 +152,7 @@ export default function HomePage() {
                   <p className="text-muted-foreground leading-relaxed mb-6 line-clamp-3">{latestStory.relevance}</p>
                 )}
                 <Link
-                  to={`/stories/${latestStory.slug}`}
+                  to={`/journal/${latestStory.slug}`}
                   className="inline-block bg-primary text-primary-foreground px-6 py-2.5 rounded font-display font-bold uppercase tracking-wider text-sm hover:bg-gold-dark transition-colors"
                 >
                   Read Story
@@ -168,14 +166,6 @@ export default function HomePage() {
       {featured.length > 0 && <ProductGrid products={featured} title="Featured Drops" />}
       <ProductGrid products={products ?? []} title="All Products" />
       <SocialFeedSection />
-
-      <section className="py-12">
-        <div className="container max-w-lg">
-          <NewsletterSignup />
-        </div>
-      </section>
-
-      <EcosystemSection />
     </>
   );
 }

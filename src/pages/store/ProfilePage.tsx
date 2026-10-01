@@ -5,7 +5,7 @@ import { useWishlist } from "@/hooks/use-wishlist";
 import { useWallet, useLedger } from "@/hooks/use-wallet";
 import { useProfile, useUpdateProfile } from "@/hooks/use-profile";
 import { formatKES, formatDate } from "@/lib/format";
-import { Package, Heart, LogOut, Wallet, User as UserIcon, Edit3, Share2, Shield } from "lucide-react";
+import { Package, Heart, LogOut, Wallet, User as UserIcon, Edit3, Share2, Shield, ScanLine, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,11 +17,13 @@ import { ChipPicker } from "@/components/profile/ChipPicker";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import InviteTab from "@/components/store/InviteTab";
 
-type Tab = "overview" | "edit" | "orders" | "wishlist" | "wallet" | "referrals" | "security";
+type Tab = "overview" | "edit" | "orders" | "wishlist" | "wallet" | "referrals" | "qr" | "security";
 
 export default function ProfilePage() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, isCreator } = useAuth();
   const { data: profile } = useProfile();
   const update = useUpdateProfile();
   const { data: orders } = useMyOrders(user?.id);
@@ -83,6 +85,7 @@ export default function ProfilePage() {
     { key: "wishlist", label: "Wishlist", icon: Heart },
     { key: "wallet", label: "Wallet", icon: Wallet },
     { key: "referrals", label: "Referrals", icon: Share2 },
+    { key: "qr", label: "Authenticity", icon: ScanLine },
     { key: "security", label: "Security", icon: Shield },
   ];
 
@@ -120,9 +123,16 @@ export default function ProfilePage() {
           {bio && <p className="text-foreground text-sm mt-2 max-w-xl">{bio}</p>}
           <div className="mt-3"><SocialLinks socials={social} /></div>
         </div>
-        <div className="text-right shrink-0">
-          <p className="text-xs text-muted-foreground font-display uppercase tracking-wider">Wallet</p>
-          <p className="text-primary font-heading text-2xl">{formatKES(wallet?.balance ?? 0)}</p>
+        <div className="text-right shrink-0 space-y-3">
+          <div>
+            <p className="text-xs text-muted-foreground font-display uppercase tracking-wider">Store Credit</p>
+            <p className="text-primary font-heading text-2xl">{formatKES(wallet?.balance ?? 0)}</p>
+          </div>
+          {isCreator && (
+            <Button asChild size="sm" className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
+              <Link to="/creator/dashboard"><Store className="h-4 w-4 mr-2" /> Creator Studio</Link>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -212,18 +222,13 @@ export default function ProfilePage() {
       )}
 
       {tab === "referrals" && (
-        <div className="bg-card border border-border rounded-lg p-6 space-y-4">
-          <h2 className="font-display font-bold uppercase tracking-wider text-foreground">Your referral code</h2>
-          <div className="flex items-center gap-3">
-            <code className="px-4 py-2 rounded bg-surface text-primary font-mono text-xl tracking-wider border border-primary/30">{profile?.referral_code || "—"}</code>
-            <Button variant="outline" size="sm" className="border-primary text-primary" onClick={() => {
-              navigator.clipboard.writeText(`${location.origin}/r/${profile?.referral_code}`);
-              toast.success("Referral link copied");
-            }}>Copy link</Button>
-          </div>
-          <p className="text-xs text-muted-foreground">Share your code. Both you and your friend earn wallet credit when they purchase.</p>
+        <div className="bg-card border border-border rounded-lg p-6">
+          <InviteTab />
         </div>
       )}
+
+      {tab === "qr" && <QRHistory userId={user.id} />}
+
 
       {tab === "security" && (
         <div className="bg-card border border-border rounded-lg p-6 space-y-4">
@@ -238,6 +243,44 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function QRHistory({ userId }: { userId: string }) {
+  const { data } = useQuery({
+    queryKey: ["my-qr-scans", userId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("qr_scans" as any)
+        .select("*, qr_campaigns(name, slug)")
+        .eq("user_id", userId)
+        .order("scanned_at", { ascending: false })
+        .limit(50);
+      return (data ?? []) as any[];
+    },
+  });
+
+  if (!data?.length) {
+    return (
+      <div className="bg-card border border-border rounded-lg p-6 text-center">
+        <ScanLine className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+        <p className="text-muted-foreground text-sm">No garment scans yet. Scan the QR tag on your 91 Fitz piece to verify it.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {data.map((s: any) => (
+        <div key={s.id} className="flex items-center justify-between p-3 border border-border rounded">
+          <div>
+            <p className="text-sm font-display font-bold text-foreground">{s.qr_campaigns?.name ?? "Campaign"}</p>
+            <p className="text-xs text-muted-foreground">/u/{s.qr_campaigns?.slug}</p>
+          </div>
+          <p className="text-xs text-muted-foreground">{formatDate(s.scanned_at)}</p>
+        </div>
+      ))}
     </div>
   );
 }

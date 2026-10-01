@@ -3,10 +3,10 @@ import { useState, Suspense } from "react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PageLoader } from "@/components/PageLoader";
 import {
-  LayoutDashboard, Package, Users, ShoppingCart, Bell, ChevronLeft, ChevronRight,
-  FolderOpen, FileText, Zap, Wallet, BookOpen, ArrowDownToLine, ScrollText, Settings,
+  LayoutDashboard, Package, Users, ShoppingCart, ChevronLeft, ChevronRight,
+  FolderOpen, FileText, Zap, Wallet, BookOpen, ArrowDownToLine, Settings,
   QrCode, Globe, BarChart3, Megaphone, FlaskConical, UsersRound, Star, BellRing,
-  Coins, Share2, History, Bot, UserCheck, ChevronDown, Shirt,
+  Coins, Share2, History, Bot, UserCheck, ChevronDown,
 } from "lucide-react";
 
 type Item = { label: string; to: string; icon: any };
@@ -17,12 +17,11 @@ const GROUPS: Group[] = [
     { label: "Dashboard", to: "/admin", icon: LayoutDashboard },
     { label: "Analytics", to: "/admin/analytics", icon: BarChart3 },
   ]},
-  { name: "Catalog", items: [
+  { name: "Catalog & Drops", items: [
     { label: "Products", to: "/admin/products", icon: Package },
     { label: "Categories", to: "/admin/categories", icon: FolderOpen },
     { label: "Drops", to: "/admin/drops", icon: Zap },
     { label: "Journal", to: "/admin/journal", icon: FileText },
-    { label: "FitCheck Ops", to: "/admin/fitcheck", icon: Shirt },
   ]},
   { name: "Commerce", items: [
     { label: "Orders", to: "/admin/orders", icon: ShoppingCart },
@@ -31,24 +30,22 @@ const GROUPS: Group[] = [
     { label: "Notify Requests", to: "/admin/notify-requests", icon: BellRing },
   ]},
   { name: "Finance", items: [
-    { label: "Wallets", to: "/admin/wallets", icon: Wallet },
     { label: "Ledger", to: "/admin/ledger", icon: BookOpen },
     { label: "Withdrawals", to: "/admin/withdrawals", icon: ArrowDownToLine },
     { label: "Commissions", to: "/admin/commissions", icon: Coins },
+    { label: "Wallets", to: "/admin/wallets", icon: Wallet },
   ]},
-  { name: "Growth", items: [
+  { name: "Growth & SEO", items: [
     { label: "Marketing", to: "/admin/marketing", icon: Megaphone },
     { label: "Campaigns", to: "/admin/campaigns", icon: FlaskConical },
     { label: "Segments", to: "/admin/segments", icon: UsersRound },
-    { label: "QR", to: "/admin/qr", icon: QrCode },
     { label: "Referrals", to: "/admin/referrals", icon: Share2 },
+    { label: "QR", to: "/admin/qr", icon: QrCode },
     { label: "IG Embeds", to: "/admin/ig-embeds", icon: Megaphone },
-  ]},
-  { name: "SEO", items: [
     { label: "SEO Pages", to: "/admin/seo", icon: Globe },
     { label: "SEO Insights", to: "/admin/seo-insights", icon: BarChart3 },
-    { label: "Growth × SEO", to: "/admin/growth-seo", icon: BarChart3 },
     { label: "SEO Content", to: "/admin/seo-content", icon: FileText },
+    { label: "Growth × SEO", to: "/admin/growth-seo", icon: BarChart3 },
   ]},
   { name: "System", items: [
     { label: "Creator Apps", to: "/admin/creator-applications", icon: UserCheck },
