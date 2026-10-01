@@ -1,7 +1,6 @@
 import { HeroBanner } from "@/components/store/HeroBanner";
 import { ProductGrid } from "@/components/store/ProductGrid";
 import { SocialFeedSection } from "@/components/store/SocialFeedSection";
-import { NewsletterSignup } from "@/components/store/NewsletterSignup";
 import { CountdownTimer } from "@/components/store/CountdownTimer";
 import { useProducts } from "@/hooks/use-products";
 import { useDrops } from "@/hooks/use-drops";

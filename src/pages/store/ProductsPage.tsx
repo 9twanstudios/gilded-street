@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
-import { useProducts } from "@/hooks/use-products";
+import { useProducts, useCategories } from "@/hooks/use-products";
 import { useDrops } from "@/hooks/use-drops";
 import { ProductGrid } from "@/components/store/ProductGrid";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,7 @@ const PAGE_SIZE = 12;
 export default function ProductsPage() {
   const { data: products, isLoading, isError, refetch } = useProducts();
   const { data: drops } = useDrops();
+  const { data: dbCategories } = useCategories();
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("q") ?? "");
   const [category, setCategory] = useState("All");
