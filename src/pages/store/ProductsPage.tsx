@@ -49,10 +49,13 @@ export default function ProductsPage() {
     if (q) setSearch(q);
   }, [searchParams]);
 
+  // Canonical categories come from the database; only show ones that have stock listed.
   const categories = useMemo(() => {
-    if (!products) return ["All"];
-    return ["All", ...Array.from(new Set(products.map((p) => p.category)))];
-  }, [products]);
+    const inUse = new Set((products ?? []).map((p) => p.category));
+    const named = (dbCategories ?? []).map((c) => c.name).filter((n) => inUse.has(n));
+    const extras = Array.from(inUse).filter((n) => !named.includes(n));
+    return ["All", ...named, ...extras];
+  }, [products, dbCategories]);
 
   const allSizes = useMemo(() => {
     if (!products) return [];

@@ -167,12 +167,6 @@ export default function HomePage() {
       {featured.length > 0 && <ProductGrid products={featured} title="Featured Drops" />}
       <ProductGrid products={products ?? []} title="All Products" />
       <SocialFeedSection />
-
-      <section className="py-12">
-        <div className="container max-w-lg">
-          <NewsletterSignup />
-        </div>
-      </section>
     </>
   );
 }
