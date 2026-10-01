@@ -121,9 +121,16 @@ export default function ProfilePage() {
           {bio && <p className="text-foreground text-sm mt-2 max-w-xl">{bio}</p>}
           <div className="mt-3"><SocialLinks socials={social} /></div>
         </div>
-        <div className="text-right shrink-0">
-          <p className="text-xs text-muted-foreground font-display uppercase tracking-wider">Wallet</p>
-          <p className="text-primary font-heading text-2xl">{formatKES(wallet?.balance ?? 0)}</p>
+        <div className="text-right shrink-0 space-y-3">
+          <div>
+            <p className="text-xs text-muted-foreground font-display uppercase tracking-wider">Store Credit</p>
+            <p className="text-primary font-heading text-2xl">{formatKES(wallet?.balance ?? 0)}</p>
+          </div>
+          {isCreator && (
+            <Button asChild size="sm" className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
+              <Link to="/creator/dashboard"><Store className="h-4 w-4 mr-2" /> Creator Studio</Link>
+            </Button>
+          )}
         </div>
       </div>
 
