@@ -17,6 +17,7 @@ import { ChipPicker } from "@/components/profile/ChipPicker";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 
 type Tab = "overview" | "edit" | "orders" | "wishlist" | "wallet" | "referrals" | "qr" | "security";
 

@@ -157,14 +157,14 @@ const App = () => (
                     <Route path="/l/:location" element={<LocationPage />} />
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
-                    {/* Canonical account routes */}
-                    <Route path="/account" element={<AccountPage />} />
-                    <Route path="/account/profile" element={<ProfilePage />} />
-                    <Route path="/account/orders" element={<AccountPage />} />
-                    <Route path="/account/wishlist" element={<AccountPage />} />
+                    {/* Canonical account hub: "My Fitz" at /account */}
+                    <Route path="/account" element={<ProfilePage />} />
                     <Route path="/account/wallet" element={<WalletPage />} />
-                    <Route path="/account/qr-history" element={<AccountPage />} />
-                    <Route path="/profile" element={<Navigate to="/account/profile" replace />} />
+                    <Route path="/account/profile" element={<Navigate to="/account" replace />} />
+                    <Route path="/account/orders" element={<Navigate to="/account" replace />} />
+                    <Route path="/account/wishlist" element={<Navigate to="/account" replace />} />
+                    <Route path="/account/qr-history" element={<Navigate to="/account" replace />} />
+                    <Route path="/profile" element={<Navigate to="/account" replace />} />
                     <Route path="/wallet" element={<Navigate to="/account/wallet" replace />} />
                     {/* Creators — static segment declared before the dynamic one */}
                     <Route path="/creators" element={<CreatorsIndexPage />} />
