@@ -18,6 +18,7 @@ import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
+import InviteTab from "@/components/store/InviteTab";
 
 type Tab = "overview" | "edit" | "orders" | "wishlist" | "wallet" | "referrals" | "qr" | "security";
 
@@ -221,16 +222,8 @@ export default function ProfilePage() {
       )}
 
       {tab === "referrals" && (
-        <div className="bg-card border border-border rounded-lg p-6 space-y-4">
-          <h2 className="font-display font-bold uppercase tracking-wider text-foreground">Your referral code</h2>
-          <div className="flex items-center gap-3">
-            <code className="px-4 py-2 rounded bg-surface text-primary font-mono text-xl tracking-wider border border-primary/30">{profile?.referral_code || "—"}</code>
-            <Button variant="outline" size="sm" className="border-primary text-primary" onClick={() => {
-              navigator.clipboard.writeText(`${location.origin}/r/${profile?.referral_code}`);
-              toast.success("Referral link copied");
-            }}>Copy link</Button>
-          </div>
-          <p className="text-xs text-muted-foreground">Share your code. Both you and your friend earn wallet credit when they purchase.</p>
+        <div className="bg-card border border-border rounded-lg p-6">
+          <InviteTab />
         </div>
       )}
 
