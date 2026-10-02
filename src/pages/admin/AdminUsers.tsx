@@ -20,20 +20,18 @@ export default function AdminUsers() {
 
   const getUserRoles = (userId: string) => roles?.filter((r: any) => r.user_id === userId).map((r: any) => r.role) || [];
 
-  const toggleRole = async (userId: string, role: "creator" | "admin") => {
-    const currentRoles = getUserRoles(userId);
-    if (currentRoles.includes(role)) {
-      // Remove role
-      const { error } = await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role);
-      if (error) { toast.error(error.message); return; }
-      toast.success(`Removed ${role} role`);
-    } else {
-      // Add role
-      const { error } = await supabase.from("user_roles").insert({ user_id: userId, role } as any);
-      if (error) { toast.error(error.message); return; }
-      toast.success(`Added ${role} role`);
+  const toggleRole = async (userId: string, role: "creator") => {
+    const enable = !getUserRoles(userId).includes(role);
+    let brand: string | null = null;
+    if (enable) {
+      brand = window.prompt("Brand name for this creator (leave blank to use their name):", "");
+      if (brand === null) return;
     }
+    const { error } = await (supabase.rpc as any)("admin_set_creator", { _user_id: userId, _enable: enable, _brand_name: brand || null });
+    if (error) { toast.error(error.message); return; }
+    toast.success(enable ? "Creator access granted" : "Creator access removed");
     queryClient.invalidateQueries({ queryKey: ["all-user-roles"] });
+    queryClient.invalidateQueries({ queryKey: ["admin-creator-options"] });
   };
 
   return (

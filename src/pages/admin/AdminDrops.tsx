@@ -36,7 +36,7 @@ export default function AdminDrops() {
       slug: drop.slug,
       description: drop.description || "",
       cover_image: drop.cover_image || "",
-      drop_date: drop.drop_date ? new Date(drop.drop_date).toISOString().slice(0, 16) : "",
+      drop_date: drop.drop_date ? (() => { const d = new Date(drop.drop_date); return isNaN(d.getTime()) ? "" : new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16); })() : "",
       active: drop.active,
       product_ids: drop.product_ids,
     });
@@ -46,7 +46,10 @@ export default function AdminDrops() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const slug = form.slug || generateSlug(form.title);
-    const payload = { ...form, slug, drop_date: new Date(form.drop_date).toISOString() };
+    const parsed = form.drop_date ? new Date(form.drop_date) : null;
+    if (!form.title.trim()) { toast.error("Title is required"); return; }
+    if (!parsed || isNaN(parsed.getTime())) { toast.error("Please pick a valid drop date and time"); return; }
+    const payload = { ...form, slug, drop_date: parsed.toISOString() };
 
     try {
       if (editDrop) {
@@ -57,8 +60,8 @@ export default function AdminDrops() {
         toast.success("Drop created");
       }
       setIsOpen(false);
-    } catch {
-      toast.error("Failed to save drop");
+    } catch (err: any) {
+      toast.error(err?.message ? `Failed to save drop: ${err.message}` : "Failed to save drop");
     }
   };
 
