@@ -34,16 +34,6 @@ export const productLd = (p: {
   },
 });
 
-export const articleLd = (a: { title: string; slug: string; excerpt?: string; cover?: string; author?: string; published_at?: string }) => ({
-  "@context": "https://schema.org",
-  "@type": "Article",
-  headline: a.title,
-  description: a.excerpt,
-  image: a.cover,
-  author: { "@type": "Organization", name: a.author || "91Fitz" },
-  datePublished: a.published_at,
-  mainEntityOfPage: `${ORIGIN}/blog/${a.slug}`,
-});
 
 export const breadcrumbsLd = (items: { name: string; url: string }[]) => ({
   "@context": "https://schema.org",
