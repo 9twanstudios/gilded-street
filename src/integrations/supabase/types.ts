@@ -1539,6 +1539,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_set_creator: {
+        Args: { _brand_name?: string; _enable: boolean; _user_id: string }
+        Returns: undefined
+      }
       generate_referral_code: { Args: never; Returns: string }
       has_role: {
         Args: {
