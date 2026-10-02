@@ -36,7 +36,7 @@ export default function AdminDrops() {
       slug: drop.slug,
       description: drop.description || "",
       cover_image: drop.cover_image || "",
-      drop_date: drop.drop_date ? new Date(drop.drop_date).toISOString().slice(0, 16) : "",
+      drop_date: drop.drop_date ? (() => { const d = new Date(drop.drop_date); return isNaN(d.getTime()) ? "" : new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16); })() : "",
       active: drop.active,
       product_ids: drop.product_ids,
     });
