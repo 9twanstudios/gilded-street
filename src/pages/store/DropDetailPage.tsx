@@ -1,7 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useDropBySlug } from "@/hooks/use-drops";
 import { useProducts } from "@/hooks/use-products";
-import { useStories } from "@/hooks/use-stories";
 import { CountdownTimer } from "@/components/store/CountdownTimer";
 import { ProductGrid } from "@/components/store/ProductGrid";
 import { ChevronRight } from "lucide-react";
@@ -16,7 +15,6 @@ export default function DropDetailPage() {
   const { slug } = useParams();
   const { data: drop, isLoading } = useDropBySlug(slug);
   const { data: allProducts } = useProducts();
-  const { data: stories } = useStories();
   const { addItem } = useCart();
 
   useEffect(() => {
@@ -35,13 +33,12 @@ export default function DropDetailPage() {
     return (
       <div className="container py-20 text-center">
         <p className="text-muted-foreground text-lg">Drop not found.</p>
-        <Link to="/drops" className="text-primary hover:underline mt-4 inline-block">Back to Drops</Link>
+        <Link to="/#drops" className="text-primary hover:underline mt-4 inline-block">Back to Drops</Link>
       </div>
     );
   }
 
   const dropProducts = allProducts?.filter((p) => drop.product_ids.includes(p.id)) ?? [];
-  const relatedStories = stories?.filter((s) => s.published && s.related_drop_id === drop.id) ?? [];
   const isUpcoming = new Date(drop.drop_date) > new Date();
   const isLive = !isUpcoming;
 
@@ -78,11 +75,6 @@ export default function DropDetailPage() {
               ) : (
                 <CountdownTimer targetDate={drop.drop_date} />
               )}
-              {relatedStories.length > 0 && (
-                <Button asChild variant="outline" size="lg" className="border-primary text-primary font-display font-bold uppercase tracking-wider hover:bg-primary hover:text-primary-foreground">
-                  <Link to={`/stories/${relatedStories[0].slug}`}>View Story</Link>
-                </Button>
-              )}
             </div>
           </motion.div>
         </div>
@@ -92,37 +84,12 @@ export default function DropDetailPage() {
         <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-8" aria-label="Breadcrumb">
           <Link to="/" className="hover:text-primary transition-colors">Home</Link>
           <ChevronRight className="h-3 w-3" />
-          <Link to="/drops" className="hover:text-primary transition-colors">Drops</Link>
+          <Link to="/#drops" className="hover:text-primary transition-colors">Drops</Link>
           <ChevronRight className="h-3 w-3" />
           <span className="text-foreground truncate max-w-[200px]">{drop.title}</span>
         </nav>
 
         {/* Cultural Story Section */}
-        {relatedStories.length > 0 && (
-          <motion.section
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-16"
-          >
-            <p className="text-neon font-display font-bold uppercase tracking-[0.3em] text-xs mb-3">Cultural Icons</p>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {relatedStories.map((story) => (
-                <Link key={story.id} to={`/stories/${story.slug}`} className="group bg-card border border-border rounded-lg overflow-hidden hover:border-primary/50 transition-colors">
-                  {story.cover_image && (
-                    <div className="aspect-video overflow-hidden">
-                      <img src={story.cover_image} alt={story.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <h3 className="font-heading text-xl text-foreground group-hover:text-primary transition-colors">{story.title}</h3>
-                    {story.figure_name && <p className="text-sm text-muted-foreground mt-1">{story.figure_name}</p>}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </motion.section>
-        )}
 
         {/* Product Lineup */}
         {dropProducts.length > 0 && (

@@ -10,8 +10,7 @@ import { useNavigate } from "react-router-dom";
 const navLinks = [
   { label: "Home", to: "/" },
   { label: "Shop", to: "/shop" },
-  { label: "Drops", to: "/drops" },
-  { label: "Journal", to: "/journal" },
+  { label: "Drops", to: "/#drops" },
   { label: "Creators", to: "/creators" },
 ];
 

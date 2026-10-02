@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 const navItems = [
   { icon: Home, label: "Home", to: "/" },
   { icon: Search, label: "Shop", to: "/shop" },
-  { icon: Sparkles, label: "Drops", to: "/drops" },
+  { icon: Sparkles, label: "Drops", to: "/#drops" },
   { icon: ShoppingBag, label: "Cart", to: "/cart", isCart: true },
   { icon: User, label: "Account", to: "/account" },
 ];
