@@ -1,7 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useProductBySlug, useProduct, useProducts, formatPrice } from "@/hooks/use-products";
 import { useDrops } from "@/hooks/use-drops";
-import { useStories } from "@/hooks/use-stories";
 import { useCart } from "@/hooks/use-cart";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -27,7 +26,6 @@ export default function ProductDetailPage() {
 
   const { data: allProducts } = useProducts();
   const { data: drops } = useDrops();
-  const { data: stories } = useStories();
   const { addItem } = useCart();
   const [selectedSize, setSelectedSize] = useState("");
   const [added, setAdded] = useState(false);
@@ -57,7 +55,6 @@ export default function ProductDetailPage() {
 
   // Find which drop this product belongs to
   const productDrop = drops?.find((d) => d.product_ids.includes(product.id));
-  const dropStories = stories?.filter((s) => s.published && productDrop && s.related_drop_id === productDrop.id) ?? [];
   const completeTheLook = productDrop
     ? (allProducts?.filter((p) => p.id !== product.id && productDrop.product_ids.includes(p.id)).slice(0, 12) ?? [])
     : [];
@@ -243,14 +240,6 @@ export default function ProductDetailPage() {
               >
                 View Full Drop
               </Link>
-              {dropStories.length > 0 && (
-                <Link
-                  to={`/stories/${dropStories[0].slug}`}
-                  className="inline-block border border-primary text-primary px-5 py-2 rounded font-display font-bold uppercase tracking-wider text-sm hover:bg-primary hover:text-primary-foreground transition-colors"
-                >
-                  Read the Story
-                </Link>
-              )}
             </div>
           </div>
         </motion.section>

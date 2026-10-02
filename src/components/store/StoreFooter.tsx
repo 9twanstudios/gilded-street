@@ -28,8 +28,7 @@ export function StoreFooter() {
             <div className="flex flex-col gap-2">
               <Link to="/shop" className="text-muted-foreground hover:text-primary transition-colors text-sm">All Products</Link>
               <Link to="/shop?badge=NEW" className="text-muted-foreground hover:text-primary transition-colors text-sm">New Arrivals</Link>
-              <Link to="/drops" className="text-muted-foreground hover:text-primary transition-colors text-sm">Drops</Link>
-              <Link to="/journal" className="text-muted-foreground hover:text-primary transition-colors text-sm">Journal</Link>
+              <Link to="/#drops" className="text-muted-foreground hover:text-primary transition-colors text-sm">Drops</Link>
             </div>
           </div>
           <div>
