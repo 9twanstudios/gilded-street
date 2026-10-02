@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCategories, generateSlug } from "@/hooks/use-products";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
@@ -38,6 +38,9 @@ const productSchema = z.object({
   sizes: z.array(z.string()).min(1, "Select at least one size"),
   badge: z.string().optional().or(z.literal("")),
   in_stock: z.boolean(),
+  stock_count: z.coerce.number().int().min(0).optional().or(z.literal("")),
+  creator_id: z.string().optional(),
+  drop_id: z.string().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -55,6 +58,8 @@ interface Product {
   sizes: string[];
   badge: string | null;
   in_stock: boolean;
+  stock_count?: number | null;
+  creator_id?: string | null;
 }
 
 interface ProductFormDialogProps {
@@ -79,11 +84,31 @@ export function ProductFormDialog({ open, onOpenChange, product, creatorMode }: 
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>("");
 
+  const { data: creators } = useQuery({
+    queryKey: ["admin-creator-options"],
+    enabled: open && !creatorMode,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("creators").select("user_id, brand_name, verified").order("brand_name");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const { data: drops } = useQuery({
+    queryKey: ["admin-drop-options"],
+    enabled: open && !creatorMode,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("drops").select("id, title, product_ids").order("drop_date", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: "", slug: "", description: "", price: 0, original_price: "",
       image: "", category: "", category_id: "", sizes: [], badge: "", in_stock: true,
+      stock_count: "", creator_id: "", drop_id: "",
     },
   });
 
@@ -92,18 +117,25 @@ export function ProductFormDialog({ open, onOpenChange, product, creatorMode }: 
       form.reset({
         name: product.name, slug: product.slug || "", description: product.description || "",
         price: product.price, original_price: product.original_price || "",
-        image: product.image, category: product.category, category_id: product.category_id || "",
+        image: product.image, category: product.category,
+        category_id: product.category_id
+          || categories?.find((c) => c.name.toLowerCase() === (product.category || "").toLowerCase())?.id
+          || "",
         sizes: product.sizes, badge: product.badge || "", in_stock: product.in_stock,
+        stock_count: product.stock_count ?? "",
+        creator_id: product.creator_id || "",
+        drop_id: drops?.find((d) => (d.product_ids || []).includes(product.id))?.id || "",
       });
       setImagePreview(product.image);
     } else if (open) {
       form.reset({
         name: "", slug: "", description: "", price: 0, original_price: "",
         image: "", category: "", category_id: "", sizes: [], badge: "", in_stock: true,
+        stock_count: "", creator_id: "", drop_id: "",
       });
       setImagePreview("");
     }
-  }, [open, product, form]);
+  }, [open, product, form, categories, drops]);
 
   const watchName = form.watch("name");
   useEffect(() => {
@@ -156,6 +188,14 @@ export function ProductFormDialog({ open, onOpenChange, product, creatorMode }: 
       image: values.image, category: values.category, category_id: values.category_id || null,
       sizes: values.sizes, badge: values.badge || null, in_stock: values.in_stock,
     };
+    if (values.stock_count !== "" && values.stock_count !== undefined) {
+      payload.stock_count = Number(values.stock_count);
+      if (payload.stock_count === 0) payload.in_stock = false;
+    }
+    if (!creatorMode) {
+      payload.creator_id = values.creator_id && values.creator_id !== "house" ? values.creator_id : null;
+      if (!isEdit) { payload.status = "approved"; payload.approved = true; }
+    }
 
     // Creator mode: set creator_id and status=pending
     if (creatorMode && !isEdit && user) {
@@ -164,11 +204,29 @@ export function ProductFormDialog({ open, onOpenChange, product, creatorMode }: 
       payload.approved = false;
     }
 
-    const { error } = isEdit
-      ? await supabase.from("products").update(payload).eq("id", product!.id)
-      : await supabase.from("products").insert(payload);
+    const { data: saved, error } = isEdit
+      ? await supabase.from("products").update(payload).eq("id", product!.id).select("id").single()
+      : await supabase.from("products").insert(payload).select("id").single();
 
     if (error) { toast.error(error.message); return; }
+
+    // Link product to the selected drop (one drop per product)
+    if (!creatorMode && saved && drops) {
+      const target = values.drop_id && values.drop_id !== "none" ? values.drop_id : null;
+      for (const d of drops) {
+        const ids: string[] = d.product_ids || [];
+        const has = ids.includes(saved.id);
+        let next: string[] | null = null;
+        if (d.id === target && !has) next = [...ids, saved.id];
+        if (d.id !== target && has) next = ids.filter((i) => i !== saved.id);
+        if (next) {
+          const { error: dErr } = await supabase.from("drops").update({ product_ids: next }).eq("id", d.id);
+          if (dErr) toast.error(`Drop link failed: ${dErr.message}`);
+        }
+      }
+      queryClient.invalidateQueries({ queryKey: ["drops"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-drop-options"] });
+    }
 
     toast.success(
       creatorMode && !isEdit
@@ -340,6 +398,54 @@ export function ProductFormDialog({ open, onOpenChange, product, creatorMode }: 
                     </SelectContent>
                   </Select>
                   <FormMessage />
+                </FormItem>
+              )} />
+            )}
+
+            <FormField control={form.control} name="stock_count" render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-foreground">Stock count</FormLabel>
+                <FormControl>
+                  <Input type="number" min={0} step={1} placeholder="e.g. 50" className="bg-background border-border" {...field} value={field.value ?? ""} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
+
+            {!creatorMode && (
+              <FormField control={form.control} name="creator_id" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">Brand</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || "house"}>
+                    <FormControl>
+                      <SelectTrigger className="bg-background border-border"><SelectValue /></SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="bg-card border-border">
+                      <SelectItem value="house">91 Fitz Original</SelectItem>
+                      {creators?.map((c) => (
+                        <SelectItem key={c.user_id} value={c.user_id}>{c.brand_name}{c.verified ? " ✓" : ""}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )} />
+            )}
+
+            {!creatorMode && (
+              <FormField control={form.control} name="drop_id" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">Drop</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || "none"}>
+                    <FormControl>
+                      <SelectTrigger className="bg-background border-border"><SelectValue /></SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="bg-card border-border">
+                      <SelectItem value="none">No drop</SelectItem>
+                      {drops?.map((d) => (
+                        <SelectItem key={d.id} value={d.id}>{d.title}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormItem>
               )} />
             )}
