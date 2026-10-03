@@ -6,6 +6,7 @@ import { StarRatingDisplay } from "@/components/store/ReviewSection";
 import { ShoppingBag, Eye } from "lucide-react";
 import { useState, useRef } from "react";
 import { useCart } from "@/hooks/use-cart";
+import { useCreatorMap } from "@/hooks/use-creators";
 import confetti from "canvas-confetti";
 
 export interface ProductCardData {
@@ -22,6 +23,7 @@ export interface ProductCardData {
   in_stock?: boolean;
   inStock?: boolean;
   description?: string | null;
+  creator_id?: string | null;
 }
 
 interface ProductCardProps {
@@ -49,6 +51,7 @@ export function ProductCard({ product, index = 0, onQuickView }: ProductCardProp
   const [selectedSize, setSelectedSize] = useState("");
   const [added, setAdded] = useState(false);
   const { addItem } = useCart();
+  const { data: creators } = useCreatorMap();
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current) return;
@@ -166,7 +169,12 @@ export function ProductCard({ product, index = 0, onQuickView }: ProductCardProp
         </div>
 
         <div className="p-4">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{product.category}</p>
+          <p className="text-[10px] font-display font-bold uppercase tracking-wider mb-1 truncate">
+            {product.creator_id && creators?.[product.creator_id]
+              ? <span className="text-neon">Collab // {creators[product.creator_id].brand_name}{creators[product.creator_id].verified ? " ✓" : ""}</span>
+              : <span className="text-primary">91 Fitz Original</span>}
+            <span className="text-muted-foreground"> · {product.category}</span>
+          </p>
           <h3 className="font-display font-bold text-sm text-foreground group-hover:text-primary transition-colors duration-200 mb-1 truncate">
             {product.name}
           </h3>
