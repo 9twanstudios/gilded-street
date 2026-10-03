@@ -53,6 +53,9 @@ export function useProducts() {
       if (error) throw error;
       return data as Product[];
     },
+    // Keep storefront in sync with admin edits made elsewhere.
+    refetchInterval: 30_000,
+    refetchOnWindowFocus: true,
   });
 }
 
