@@ -1,19 +1,49 @@
-import { HeroBanner } from "@/components/store/HeroBanner";
+import { useMemo } from "react";
 import { ProductGrid } from "@/components/store/ProductGrid";
 import { SocialFeedSection } from "@/components/store/SocialFeedSection";
 import { CountdownTimer } from "@/components/store/CountdownTimer";
+import { AnimeSpotlightHero, type SpotlightSlide } from "@/components/store/AnimeSpotlightHero";
 import { useProducts } from "@/hooks/use-products";
 import { useDrops } from "@/hooks/use-drops";
-import { useStories } from "@/hooks/use-stories";
+import { useCreatorMap } from "@/hooks/use-creators";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { QueryError } from "@/components/QueryError";
 
 export default function HomePage() {
   const { data: products, isLoading, isError, refetch } = useProducts();
   const { data: drops } = useDrops();
-  const { data: stories } = useStories();
+  const { data: creators } = useCreatorMap();
+
+  const now = Date.now();
+  const activeDrops = useMemo(() => (drops ?? []).filter((d) => d.active), [drops]);
+
+  const slides = useMemo<SpotlightSlide[]>(() => {
+    const out: SpotlightSlide[] = [];
+    const list = products ?? [];
+    const drop = activeDrops[0];
+    if (drop) {
+      const live = new Date(drop.drop_date).getTime() <= now;
+      out.push({
+        id: `drop-${drop.id}`,
+        kicker: live ? "新着 // Drop Live" : "予告 // Upcoming Drop",
+        title: drop.title,
+        subtitle: drop.description,
+        image: drop.cover_image,
+        cta: { label: live ? "Shop the Drop" : "View Drop", to: `/drops/${drop.slug}` },
+      });
+    }
+    const hot = list.find((p) => p.badge && ["hot", "limited"].includes(p.badge.toLowerCase())) ?? list.find((p) => p.badge);
+    if (hot) out.push({ id: `hot-${hot.id}`, kicker: "熱狂 // Trending", title: hot.name, subtitle: hot.description, image: hot.image, price: hot.price, cta: { label: "Cop Now", to: `/products/${hot.slug}` } });
+    const creator = Object.values(creators ?? {}).find((c) => c.verified) ?? Object.values(creators ?? {})[0];
+    if (creator) {
+      const cp = list.find((p) => p.creator_id === creator.user_id);
+      out.push({ id: `creator-${creator.id}`, kicker: "職人 // Featured Creator", title: creator.brand_name, subtitle: creator.bio, image: cp?.image ?? creator.logo_url, cta: { label: "Visit Store", to: `/creator/${creator.id}` } });
+    }
+    const fresh = list.find((p) => p.id !== hot?.id);
+    if (fresh) out.push({ id: `new-${fresh.id}`, kicker: "新作 // New Arrival", title: fresh.name, subtitle: fresh.description, image: fresh.image, price: fresh.price, cta: { label: "Shop Now", to: `/products/${fresh.slug}` } });
+    return out;
+  }, [products, activeDrops, creators, now]);
 
   if (isLoading) {
     return (
@@ -31,13 +61,9 @@ export default function HomePage() {
     );
   }
 
-  const now = new Date();
-  const activeDrops = drops?.filter((d) => d.active) ?? [];
-  const latestDrop = activeDrops[0];
-  const upcomingDrop = drops?.find((d) => new Date(d.drop_date) > now);
-  const recentDrops = activeDrops.slice(0, 3);
-  const latestStory = stories?.find((s) => s.published);
-  const featured = products?.filter((p) => p.badge) ?? [];
+  const byId = new Map((products ?? []).map((p) => [p.id, p]));
+  const linked = new Set(activeDrops.flatMap((d) => d.product_ids));
+  const rest = (products ?? []).filter((p) => !linked.has(p.id));
 
   return (
     <>
@@ -46,125 +72,38 @@ export default function HomePage() {
         <meta name="description" content="Shop 91 Fitz premium streetwear from Nairobi, Kenya. Limited drops, bold hoodies, tees & cargo pants. M-Pesa checkout. Built in Kenya, worn worldwide." />
         <meta property="og:title" content="91 Fitz — Premium Nairobi Streetwear" />
         <meta property="og:description" content="Limited drops, premium hoodies Kenya. Bold streetwear from Nairobi." />
-        <link rel="canonical" href="https://91fitz.com" />
-        <script type="application/ld+json">{JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "LocalBusiness",
-          name: "91 Fitz",
-          description: "Premium streetwear brand from Nairobi, Kenya",
-          url: "https://91fitz.com",
-          address: { "@type": "PostalAddress", addressLocality: "Nairobi", addressCountry: "KE" },
-          priceRange: "KES 1000 - KES 15000",
-          image: "https://91fitz.com/og-image.jpg",
-        })}</script>
       </Helmet>
 
-      <HeroBanner />
+      <AnimeSpotlightHero slides={slides} />
 
-      {/* Upcoming Drop Countdown */}
-      {upcomingDrop && (
-        <section className="py-10 border-b border-border">
-          <div className="container">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="bg-card border border-border rounded-lg p-6 md:p-8 text-center"
-            >
-              <p className="text-neon font-display font-bold uppercase tracking-[0.3em] text-xs mb-2">Upcoming Drop</p>
-              <h2 className="font-heading text-3xl md:text-4xl text-gold-gradient mb-3">{upcomingDrop.title}</h2>
-              <p className="text-muted-foreground text-sm mb-5 max-w-md mx-auto">{upcomingDrop.description}</p>
-              <div className="flex justify-center mb-5">
-                <CountdownTimer targetDate={upcomingDrop.drop_date} />
-              </div>
-              <Link
-                to={`/drops/${upcomingDrop.slug}`}
-                className="inline-block bg-primary text-primary-foreground px-6 py-2.5 rounded font-display font-bold uppercase tracking-wider text-sm hover:bg-gold-dark transition-colors"
-              >
-                View Drop
-              </Link>
-            </motion.div>
-          </div>
-        </section>
-      )}
-
-      {/* Featured Collections (Recent Drops) */}
-      {recentDrops.length > 0 && (
-        <section className="py-12 border-b border-border">
-          <div className="container">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-              <p className="text-neon font-display font-bold uppercase tracking-[0.3em] text-xs mb-2">Collections</p>
-              <h2 className="font-heading text-3xl md:text-4xl text-gold-gradient mb-8">Latest Drops</h2>
-            </motion.div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recentDrops.map((drop, i) => (
-                <motion.div
-                  key={drop.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  <Link to={`/drops/${drop.slug}`} className="group block">
-                    <div className="aspect-[4/3] rounded-lg overflow-hidden bg-surface mb-3 relative">
-                      {drop.cover_image ? (
-                        <img src={drop.cover_image} alt={drop.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-surface flex items-center justify-center">
-                          <span className="font-heading text-5xl text-primary/30">{drop.title[0]}</span>
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
-                      <div className="absolute bottom-3 left-3 right-3">
-                        <h3 className="font-heading text-2xl text-foreground group-hover:text-primary transition-colors">{drop.title}</h3>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Cultural Story Teaser */}
-      {latestStory && (
-        <section className="py-12 border-b border-border">
-          <div className="container">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="grid md:grid-cols-2 gap-8 items-center"
-            >
-              {latestStory.cover_image && (
-                <div className="aspect-[4/3] rounded-lg overflow-hidden bg-surface">
-                  <img src={latestStory.cover_image} alt={latestStory.title} loading="lazy" className="w-full h-full object-cover" />
+      <div id="drops" className="scroll-mt-20">
+        {activeDrops.map((drop) => {
+          const items = drop.product_ids.map((id) => byId.get(id)).filter(Boolean) as NonNullable<ReturnType<typeof byId.get>>[];
+          const live = new Date(drop.drop_date).getTime() <= now;
+          return (
+            <section key={drop.id} className="border-b border-border pt-10">
+              <div className="container flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                <div>
+                  <p className="text-neon font-display font-bold uppercase tracking-[0.3em] text-xs mb-1">
+                    {live ? "限定 // Live Drop" : "予告 // Dropping Soon"}
+                  </p>
+                  <h2 className="font-heading text-4xl md:text-5xl text-gold-gradient">{drop.title}</h2>
+                  {drop.description && <p className="text-muted-foreground text-sm max-w-xl mt-1">{drop.description}</p>}
                 </div>
-              )}
-              <div>
-                <p className="text-neon font-display font-bold uppercase tracking-[0.3em] text-xs mb-2">Cultural Archive</p>
-                <h2 className="font-heading text-3xl md:text-4xl text-gold-gradient mb-3">{latestStory.title}</h2>
-                {latestStory.figure_name && (
-                  <p className="text-foreground/80 font-display mb-2">{latestStory.figure_name} {latestStory.era && `· ${latestStory.era}`}</p>
-                )}
-                {latestStory.relevance && (
-                  <p className="text-muted-foreground leading-relaxed mb-6 line-clamp-3">{latestStory.relevance}</p>
-                )}
-                <Link
-                  to={`/journal/${latestStory.slug}`}
-                  className="inline-block bg-primary text-primary-foreground px-6 py-2.5 rounded font-display font-bold uppercase tracking-wider text-sm hover:bg-gold-dark transition-colors"
-                >
-                  Read Story
-                </Link>
+                <div className="flex items-center gap-4">
+                  {!live && <CountdownTimer targetDate={drop.drop_date} />}
+                  <Link to={`/drops/${drop.slug}`} className="text-primary font-display font-bold uppercase tracking-wider text-sm hover:underline">Full drop →</Link>
+                </div>
               </div>
-            </motion.div>
-          </div>
-        </section>
-      )}
+              {items.length > 0
+                ? <ProductGrid products={items} />
+                : <p className="container py-8 text-muted-foreground text-sm">Merch for this drop is coming soon.</p>}
+            </section>
+          );
+        })}
+      </div>
 
-      {featured.length > 0 && <ProductGrid products={featured} title="Featured Drops" />}
-      <ProductGrid products={products ?? []} title="All Products" />
+      {rest.length > 0 && <ProductGrid products={rest} title="More Merch" />}
       <SocialFeedSection />
     </>
   );
