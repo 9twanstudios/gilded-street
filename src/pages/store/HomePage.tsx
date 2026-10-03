@@ -33,15 +33,22 @@ export default function HomePage() {
         cta: { label: live ? "Shop the Drop" : "View Drop", to: `/drops/${drop.slug}` },
       });
     }
-    const hot = list.find((p) => p.badge && ["hot", "limited"].includes(p.badge.toLowerCase())) ?? list.find((p) => p.badge);
-    if (hot) out.push({ id: `hot-${hot.id}`, kicker: "熱狂 // Trending", title: hot.name, subtitle: hot.description, image: hot.image, price: hot.price, cta: { label: "Cop Now", to: `/products/${hot.slug}` } });
     const creator = Object.values(creators ?? {}).find((c) => c.verified) ?? Object.values(creators ?? {})[0];
     if (creator) {
       const cp = list.find((p) => p.creator_id === creator.user_id);
       out.push({ id: `creator-${creator.id}`, kicker: "職人 // Featured Creator", title: creator.brand_name, subtitle: creator.bio, image: cp?.image ?? creator.logo_url, cta: { label: "Visit Store", to: `/creator/${creator.id}` } });
     }
-    const fresh = list.find((p) => p.id !== hot?.id);
-    if (fresh) out.push({ id: `new-${fresh.id}`, kicker: "新作 // New Arrival", title: fresh.name, subtitle: fresh.description, image: fresh.image, price: fresh.price, cta: { label: "Shop Now", to: `/products/${fresh.slug}` } });
+    // Cycle through every live product, newest first.
+    const weekAgo = now - 7 * 864e5;
+    for (const p of list) {
+      const badge = p.badge?.toLowerCase();
+      const kicker = badge && ["hot", "limited"].includes(badge)
+        ? "熱狂 // Trending"
+        : new Date(p.created_at).getTime() >= weekAgo
+          ? "新作 // New Arrival"
+          : p.creator_id ? "協力 // Collab" : "91 // Original";
+      out.push({ id: `p-${p.id}`, kicker, title: p.name, subtitle: p.description, image: p.image, price: p.price, cta: { label: "Cop Now", to: `/products/${p.slug}` } });
+    }
     return out;
   }, [products, activeDrops, creators, now]);
 
