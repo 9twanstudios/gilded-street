@@ -34,6 +34,7 @@ export default function ProductsPage() {
   const [search, setSearch] = useState(searchParams.get("q") ?? "");
   const [category, setCategory] = useState("All");
   const [selectedDrop, setSelectedDrop] = useState("All");
+  const [source, setSource] = useState<"all" | "originals" | "creators">("all");
   const [stockFilter, setStockFilter] = useState("all");
   const [priceRange, setPriceRange] = useState(0);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
@@ -72,6 +73,8 @@ export default function ProductsPage() {
       const q = search.toLowerCase();
       result = result.filter((p) => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || (p.description?.toLowerCase().includes(q) ?? false));
     }
+    if (source === "originals") result = result.filter((p) => !p.creator_id);
+    else if (source === "creators") result = result.filter((p) => !!p.creator_id);
     if (category !== "All") result = result.filter((p) => p.category === category);
     if (selectedDrop !== "All") {
       const drop = drops?.find((d) => d.id === selectedDrop);
@@ -92,7 +95,7 @@ export default function ProductsPage() {
       }
     });
     return result;
-  }, [products, drops, search, category, selectedDrop, stockFilter, priceRange, selectedSizes, sort, badgeFilter]);
+  }, [products, drops, search, category, selectedDrop, stockFilter, priceRange, selectedSizes, sort, badgeFilter, source]);
 
   // Reset visible count when filters change
   useEffect(() => { setVisibleCount(PAGE_SIZE); }, [search, category, selectedDrop, stockFilter, priceRange, selectedSizes, sort, badgeFilter]);
@@ -206,6 +209,12 @@ export default function ProductsPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <div className="flex flex-wrap gap-2 mb-3" role="group" aria-label="Brand">
+        {([["all", "All"], ["originals", "91 Fitz Originals"], ["creators", "Creator Drops"]] as const).map(([v, l]) => (
+          <button key={v} onClick={() => setSource(v)} aria-pressed={source === v} className={`px-4 py-2 rounded border text-sm font-display font-bold uppercase tracking-wider transition-all duration-200 ${source === v ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-primary hover:text-primary"}`}>{l}</button>
+        ))}
+      </div>
 
       <div className="flex flex-wrap gap-2 mb-8">
         {categories.map((cat) => (
