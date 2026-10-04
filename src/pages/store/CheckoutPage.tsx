@@ -32,34 +32,22 @@ export default function CheckoutPage() {
     try {
       // Create order with captured attribution (utm/ref/qr) + surfaced SEO fields
       const attribution = readAttribution();
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert({
-          user_id: user.id,
-          total,
-          shipping_address: formData.get("address") as string,
+      const { data: created, error: fnError } = await supabase.functions.invoke("create-order", {
+        body: {
+          items: items.map((i) => ({ product_id: i.product.id, quantity: i.quantity, size: i.size })),
           phone: formData.get("phone") as string,
-          status: "pending",
-          attribution: attribution as any,
-          traffic_source: attribution.traffic_source ?? "direct",
-          seo_landing_page: attribution.landing ?? null,
-          search_query: attribution.search_query ?? null,
-        } as any)
-        .select()
-        .single();
-      if (orderError) throw orderError;
-
-      track.checkoutStarted(order.id, total);
-
-      const orderItems = items.map((item) => ({
-        order_id: order.id,
-        product_id: item.product.id,
-        quantity: item.quantity,
-        size: item.size,
-        price_at_time: item.product.price,
-      }));
-      const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
-      if (itemsError) throw itemsError;
+          shipping_address: formData.get("address") as string,
+          attribution,
+        },
+      });
+      if (fnError) {
+        let msg = fnError.message;
+        try { msg = (await (fnError as any).context?.json())?.error ?? msg; } catch { /* keep default */ }
+        throw new Error(msg);
+      }
+      if (created?.error) throw new Error(created.error);
+      const order = { id: created.order_id as string };
+      track.checkoutStarted(order.id, created.total);
 
       {
         // Pay via UPAL provider (Pesapal today)
