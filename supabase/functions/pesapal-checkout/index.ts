@@ -101,7 +101,7 @@ Deno.serve(async (req) => {
     const pesapalOrder = {
       id: order_id,
       currency: "KES",
-      amount: order.total / 100, // Convert from cents
+      amount: order.total, // whole KES
       description: `91Fitz Order #${order_id.slice(0, 8)}`,
       callback_url: callback_url || `${req.headers.get("origin") || "https://91fitz.com"}/profile`,
       notification_id: ipnId,
