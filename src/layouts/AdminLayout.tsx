@@ -41,7 +41,6 @@ const GROUPS: Group[] = [
     { label: "Referrals", to: "/admin/referrals", icon: Share2 },
     { label: "QR", to: "/admin/qr", icon: QrCode },
     { label: "IG Embeds", to: "/admin/ig-embeds", icon: Megaphone },
-    { label: "SEO Pages", to: "/admin/seo", icon: Globe },
     { label: "SEO Insights", to: "/admin/seo-insights", icon: BarChart3 },
     { label: "SEO Content", to: "/admin/seo-content", icon: FileText },
     { label: "Growth × SEO", to: "/admin/growth-seo", icon: BarChart3 },
