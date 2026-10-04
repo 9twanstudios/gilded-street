@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyOrders } from "@/hooks/use-orders";
 import { useWishlist } from "@/hooks/use-wishlist";
-import { useWallet, useLedger } from "@/hooks/use-wallet";
+import { useLedger } from "@/hooks/use-wallet";
 import { useProfile, useUpdateProfile } from "@/hooks/use-profile";
 import { formatKES, formatDate } from "@/lib/format";
 import { Package, Heart, LogOut, Wallet, User as UserIcon, Edit3, Share2, Shield, ScanLine, Store } from "lucide-react";
@@ -28,7 +28,6 @@ export default function ProfilePage() {
   const update = useUpdateProfile();
   const { data: orders } = useMyOrders(user?.id);
   const { data: wishlistItems } = useWishlist();
-  const { data: wallet } = useWallet();
   const { data: ledger } = useLedger(user?.id);
   const [tab, setTab] = useState<Tab>("overview");
 
