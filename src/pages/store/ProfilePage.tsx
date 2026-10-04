@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyOrders } from "@/hooks/use-orders";
 import { useWishlist } from "@/hooks/use-wishlist";
-import { useWallet, useLedger } from "@/hooks/use-wallet";
+import { useLedger } from "@/hooks/use-wallet";
 import { useProfile, useUpdateProfile } from "@/hooks/use-profile";
 import { formatKES, formatDate } from "@/lib/format";
 import { Package, Heart, LogOut, Wallet, User as UserIcon, Edit3, Share2, Shield, ScanLine, Store } from "lucide-react";
@@ -28,7 +28,6 @@ export default function ProfilePage() {
   const update = useUpdateProfile();
   const { data: orders } = useMyOrders(user?.id);
   const { data: wishlistItems } = useWishlist();
-  const { data: wallet } = useWallet();
   const { data: ledger } = useLedger(user?.id);
   const [tab, setTab] = useState<Tab>("overview");
 
@@ -83,7 +82,7 @@ export default function ProfilePage() {
     { key: "edit", label: "Edit", icon: Edit3 },
     { key: "orders", label: "Orders", icon: Package },
     { key: "wishlist", label: "Wishlist", icon: Heart },
-    { key: "wallet", label: "Wallet", icon: Wallet },
+    ...(isCreator ? [{ key: "wallet" as Tab, label: "Earnings", icon: Wallet }] : []),
     { key: "referrals", label: "Referrals", icon: Share2 },
     { key: "qr", label: "Authenticity", icon: ScanLine },
     { key: "security", label: "Security", icon: Shield },
@@ -124,10 +123,6 @@ export default function ProfilePage() {
           <div className="mt-3"><SocialLinks socials={social} /></div>
         </div>
         <div className="text-right shrink-0 space-y-3">
-          <div>
-            <p className="text-xs text-muted-foreground font-display uppercase tracking-wider">Store Credit</p>
-            <p className="text-primary font-heading text-2xl">{formatKES(wallet?.balance ?? 0)}</p>
-          </div>
           {isCreator && (
             <Button asChild size="sm" className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark">
               <Link to="/creator/dashboard"><Store className="h-4 w-4 mr-2" /> Creator Studio</Link>
@@ -206,7 +201,7 @@ export default function ProfilePage() {
           : <div className="bg-card border border-border rounded-lg p-6 text-center"><Heart className="h-10 w-10 text-muted-foreground mx-auto mb-3" /><p className="text-muted-foreground text-sm">No saved items.</p></div>
       )}
 
-      {tab === "wallet" && (
+      {tab === "wallet" && isCreator && (
         <div className="bg-card border border-border rounded-lg p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="font-display font-bold uppercase tracking-wider text-foreground">Recent Transactions</h2>

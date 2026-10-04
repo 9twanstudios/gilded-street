@@ -1,6 +1,5 @@
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
-import { useWallet, formatKES } from "@/hooks/use-wallet";
 import { formatPrice } from "@/hooks/use-products";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { WhatsAppButton, buildOrderMessage } from "@/components/store/WhatsAppButton";
-import { CheckCircle, Wallet, CreditCard } from "lucide-react";
+import { CheckCircle, CreditCard } from "lucide-react";
 import { track } from "@/lib/tracking";
 import { readAttribution } from "@/lib/attribution";
 import { getProvider } from "@/lib/upal";
@@ -19,10 +18,8 @@ import SEO from "@/components/SEO";
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
   const { user } = useAuth();
-  const { data: wallet } = useWallet();
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
-  const [payMethod, setPayMethod] = useState<"pesapal" | "wallet">("pesapal");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,24 +61,13 @@ export default function CheckoutPage() {
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
 
-      if (payMethod === "wallet") {
-        // Pay with wallet via edge function
-        const { data, error } = await supabase.functions.invoke("wallet-pay", {
-          body: { order_id: order.id },
-        });
-        if (error) throw new Error(error.message || "Wallet payment failed");
-        if (data?.error) throw new Error(data.error);
-        toast.success("Payment successful!");
-        track.purchaseCompleted(order.id, total, items.length);
-        setOrderPlaced(true);
-        clearCart();
-      } else {
+      {
         // Pay via UPAL provider (Pesapal today)
         const provider = getProvider("pesapal");
         const res = await provider.createCheckout({
           orderId: order.id,
           amount: total,
-          callbackUrl: `${window.location.origin}/profile`,
+          callbackUrl: `${window.location.origin}/account?tab=orders`,
           customer: { phone: formData.get("phone") as string },
         });
         if (res.redirectUrl) window.location.href = res.redirectUrl;
@@ -129,7 +115,6 @@ export default function CheckoutPage() {
     items.map((i) => ({ name: i.product.name, size: i.size, quantity: i.quantity, price: i.product.price * i.quantity })),
     total
   );
-  const canPayWallet = wallet && wallet.balance >= total;
 
   return (
     <div className="container py-8">
@@ -174,27 +159,13 @@ export default function CheckoutPage() {
             <div className="space-y-3">
               <button
                 type="button"
-                onClick={() => setPayMethod("pesapal")}
-                className={`w-full flex items-center gap-3 p-4 rounded-lg border transition-all ${payMethod === "pesapal" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+                                className={`w-full flex items-center gap-3 p-4 rounded-lg border transition-all border-primary bg-primary/10`}
               >
                 <CreditCard className="h-5 w-5 text-primary" />
                 <div className="text-left">
                   <p className="text-sm font-display font-bold text-foreground">Pesapal</p>
                   <p className="text-xs text-muted-foreground">M-Pesa, Card, or Bank</p>
                 </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setPayMethod("wallet")}
-                disabled={!canPayWallet}
-                className={`w-full flex items-center gap-3 p-4 rounded-lg border transition-all ${payMethod === "wallet" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"} ${!canPayWallet ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                <Wallet className="h-5 w-5 text-primary" />
-                <div className="text-left flex-1">
-                  <p className="text-sm font-display font-bold text-foreground">Wallet Balance</p>
-                  <p className="text-xs text-muted-foreground">{wallet ? formatKES(wallet.balance) : "Sign in to use"}</p>
-                </div>
-                {wallet && !canPayWallet && <span className="text-xs text-destructive">Insufficient</span>}
               </button>
             </div>
           </div>
@@ -205,7 +176,7 @@ export default function CheckoutPage() {
             disabled={loading || !user}
             className="w-full bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark shadow-gold hover:shadow-gold-lg transition-all duration-300"
           >
-            {loading ? "Processing..." : payMethod === "wallet" ? `Pay ${formatPrice(total)} from Wallet` : `Pay ${formatPrice(total)} via Pesapal`}
+            {loading ? "Processing..." : `Pay ${formatPrice(total)} via M-Pesa / Pesapal`}
           </Button>
 
           <div className="text-center text-xs text-muted-foreground uppercase tracking-wider font-display">or</div>

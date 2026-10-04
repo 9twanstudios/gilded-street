@@ -22,6 +22,8 @@ export default function AdminProducts() {
   // Fetch ALL products (admin RLS gives full access)
   const { data: products, isLoading } = useQuery({
     queryKey: ["admin-products"],
+    refetchInterval: 15000,
+    refetchOnWindowFocus: true,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")

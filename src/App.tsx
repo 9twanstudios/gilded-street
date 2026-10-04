@@ -32,12 +32,7 @@ const CreatorsIndexPage = lazy(() => import("@/pages/store/CreatorsIndexPage"));
 
 const CartPage = lazy(() => import("@/pages/store/CartPage"));
 const QRLandingPage = lazy(() => import("@/pages/store/QRLandingPage"));
-const ClusterPage = lazy(() => import("@/pages/store/ClusterPage"));
-const LocationPage = lazy(() => import("@/pages/store/LocationPage"));
 const ReferralCapturePage = lazy(() => import("@/pages/store/ReferralCapturePage"));
-const FitCheckPage = lazy(() => import("@/pages/store/FitCheckPage"));
-const FitsGalleryPage = lazy(() => import("@/pages/store/FitsGalleryPage"));
-const FitDetailPage = lazy(() => import("@/pages/store/FitDetailPage"));
 
 // Marketing (lazy, named exports)
 const AboutPage = lazy(() => import("@/pages/store/MarketingPages").then((m) => ({ default: m.AboutPage })));
@@ -71,7 +66,6 @@ const AdminLedger = lazy(() => import("@/pages/admin/AdminLedger"));
 const AdminWithdrawals = lazy(() => import("@/pages/admin/AdminWithdrawals"));
 const AdminSettings = lazy(() => import("@/pages/admin/AdminSettings"));
 const AdminQR = lazy(() => import("@/pages/admin/AdminQR"));
-const AdminSEO = lazy(() => import("@/pages/admin/AdminSEO"));
 const AdminAnalytics = lazy(() => import("@/pages/admin/AdminAnalytics"));
 const AdminMarketing = lazy(() => import("@/pages/admin/AdminMarketing"));
 const AdminCampaigns = lazy(() => import("@/pages/admin/AdminCampaigns"));
@@ -87,7 +81,6 @@ const AdminAuditLog = lazy(() => import("@/pages/admin/AdminAuditLog"));
 const AdminAutomations = lazy(() => import("@/pages/admin/AdminAutomations"));
 const AdminCreatorApplications = lazy(() => import("@/pages/admin/AdminCreatorApplications"));
 const AdminIGEmbeds = lazy(() => import("@/pages/admin/AdminIGEmbeds"));
-const AdminFitCheck = lazy(() => import("@/pages/admin/AdminFitCheck"));
 
 const queryClient = new QueryClient();
 
@@ -134,8 +127,8 @@ const App = () => (
                     <Route path="/drops/:slug" element={<DropDetailPage />} />
 
                     <Route path="/archive" element={<Navigate to="/#drops" replace />} />
-                    <Route path="/c/:cluster" element={<ClusterPage />} />
-                    <Route path="/l/:location" element={<LocationPage />} />
+                    <Route path="/c/:cluster" element={<Navigate to="/shop" replace />} />
+                    <Route path="/l/:location" element={<Navigate to="/shop" replace />} />
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
                     {/* Canonical account hub: "My Fitz" at /account */}
@@ -161,10 +154,9 @@ const App = () => (
                     <Route path="/faq" element={<FaqPage />} />
                     <Route path="/sizing" element={<SizingPage />} />
                     <Route path="/track-order" element={<TrackOrderPage />} />
-                    {/* FitCheck */}
-                    <Route path="/fitcheck" element={<FitCheckPage />} />
-                    <Route path="/fits" element={<FitsGalleryPage />} />
-                    <Route path="/fits/:id" element={<FitDetailPage />} />
+                    <Route path="/fitcheck" element={<Navigate to="/shop" replace />} />
+                    <Route path="/fits" element={<Navigate to="/shop" replace />} />
+                    <Route path="/fits/:id" element={<Navigate to="/shop" replace />} />
                   </Route>
 
                   {/* Admin (ACP) */}
@@ -176,7 +168,6 @@ const App = () => (
                     <Route path="drops" element={<AdminDrops />} />
                     <Route path="orders" element={<AdminOrders />} />
                     <Route path="qr" element={<AdminQR />} />
-                    <Route path="seo" element={<AdminSEO />} />
                     <Route path="seo-insights" element={<AdminSeoInsights />} />
                     <Route path="growth-seo" element={<AdminGrowthSeo />} />
                     <Route path="seo-content" element={<AdminSeoContent />} />
@@ -198,7 +189,6 @@ const App = () => (
                     <Route path="audit-log" element={<AdminAuditLog />} />
                     <Route path="automations" element={<AdminAutomations />} />
                     <Route path="ig-embeds" element={<AdminIGEmbeds />} />
-                    <Route path="fitcheck" element={<AdminFitCheck />} />
                     <Route path="settings" element={<AdminSettings />} />
                   </Route>
 
