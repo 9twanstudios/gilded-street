@@ -5,7 +5,7 @@ import { PageLoader } from "@/components/PageLoader";
 import {
   LayoutDashboard, Package, Users, ShoppingCart, ChevronLeft, ChevronRight,
   FolderOpen, FileText, Zap, Wallet, BookOpen, ArrowDownToLine, Settings,
-  QrCode, Globe, BarChart3, Megaphone, FlaskConical, UsersRound, Star, BellRing, Bell,
+  QrCode, BarChart3, Megaphone, FlaskConical, UsersRound, Star, BellRing, Bell,
   Coins, Share2, History, Bot, UserCheck, ChevronDown,
 } from "lucide-react";
 

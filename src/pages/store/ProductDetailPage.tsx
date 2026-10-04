@@ -265,14 +265,10 @@ export default function ProductDetailPage() {
         />
       )}
 
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-3 py-6 border-t border-border">
-        <p className="text-xs font-display uppercase tracking-[0.3em] text-muted-foreground">Try it on first?</p>
-        <a
-          href={`/fitcheck?product=${product.id}`}
-          className="inline-flex items-center gap-2 px-5 py-2 rounded bg-primary text-primary-foreground text-xs font-display font-bold uppercase tracking-wider hover:bg-gold-dark transition-colors"
-        >
-          Open in FitCheck →
-        </a>
+      <div className="mt-8 grid gap-3 sm:grid-cols-3 py-6 border-t border-border text-center">
+        <p className="text-xs font-display uppercase tracking-[0.2em] text-muted-foreground"><span className="text-primary">Pay with M-Pesa</span> · Card · Bank</p>
+        <p className="text-xs font-display uppercase tracking-[0.2em] text-muted-foreground"><span className="text-primary">Same-day dispatch</span> in Nairobi · 24–48h across Kenya</p>
+        <p className="text-xs font-display uppercase tracking-[0.2em] text-muted-foreground"><span className="text-primary">Size exchange</span> in Nairobi within 48h</p>
       </div>
     </div>
   );
