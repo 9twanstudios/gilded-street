@@ -13,42 +13,40 @@ type Item = { label: string; to: string; icon: any };
 type Group = { name: string; items: Item[] };
 
 const GROUPS: Group[] = [
-  { name: "Overview", items: [
+  { name: "Overview & Analytics", items: [
     { label: "Dashboard", to: "/admin", icon: LayoutDashboard },
     { label: "Analytics", to: "/admin/analytics", icon: BarChart3 },
+    { label: "SEO Insights", to: "/admin/seo-insights", icon: BarChart3 },
+    { label: "Growth × SEO", to: "/admin/growth-seo", icon: BarChart3 },
   ]},
   { name: "Catalog & Drops", items: [
     { label: "Products", to: "/admin/products", icon: Package },
     { label: "Categories", to: "/admin/categories", icon: FolderOpen },
     { label: "Drops", to: "/admin/drops", icon: Zap },
   ]},
-  { name: "Commerce", items: [
+  { name: "Orders & Customers", items: [
     { label: "Orders", to: "/admin/orders", icon: ShoppingCart },
     { label: "Customers", to: "/admin/users", icon: Users },
     { label: "Reviews", to: "/admin/reviews", icon: Star },
     { label: "Notify Requests", to: "/admin/notify-requests", icon: BellRing },
   ]},
-  { name: "Finance", items: [
+  { name: "Creators & Finance", items: [
+    { label: "Creator Apps", to: "/admin/creator-applications", icon: UserCheck },
     { label: "Ledger", to: "/admin/ledger", icon: BookOpen },
     { label: "Withdrawals", to: "/admin/withdrawals", icon: ArrowDownToLine },
     { label: "Commissions", to: "/admin/commissions", icon: Coins },
     { label: "Wallets", to: "/admin/wallets", icon: Wallet },
   ]},
-  { name: "Growth & SEO", items: [
+  { name: "Marketing & Settings", items: [
     { label: "Marketing", to: "/admin/marketing", icon: Megaphone },
     { label: "Campaigns", to: "/admin/campaigns", icon: FlaskConical },
     { label: "Segments", to: "/admin/segments", icon: UsersRound },
     { label: "Referrals", to: "/admin/referrals", icon: Share2 },
     { label: "QR", to: "/admin/qr", icon: QrCode },
     { label: "IG Embeds", to: "/admin/ig-embeds", icon: Megaphone },
-    { label: "SEO Insights", to: "/admin/seo-insights", icon: BarChart3 },
     { label: "SEO Content", to: "/admin/seo-content", icon: FileText },
-    { label: "Growth × SEO", to: "/admin/growth-seo", icon: BarChart3 },
-  ]},
-  { name: "System", items: [
-    { label: "Creator Apps", to: "/admin/creator-applications", icon: UserCheck },
-    { label: "Audit Log", to: "/admin/audit-log", icon: History },
     { label: "Automations", to: "/admin/automations", icon: Bot },
+    { label: "Audit Log", to: "/admin/audit-log", icon: History },
     { label: "Settings", to: "/admin/settings", icon: Settings },
   ]},
 ];
