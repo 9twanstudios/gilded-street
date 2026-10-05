@@ -32,7 +32,7 @@ export function IGFeed({ scope = "home_featured", creatorId, handle, title = "St
       <div className="container">
         <div className="text-center mb-8">
           <p className="text-neon font-display font-bold uppercase tracking-[0.3em] text-xs mb-2">
-            {subtitle || (handle ? `@${handle} on IG` : "@91fitz on IG")}
+            {subtitle || (handle ? `@${handle} on IG` : "@sipajuice on IG")}
           </p>
           <h2 className="font-heading text-4xl text-gold-gradient">{title}</h2>
         </div>
