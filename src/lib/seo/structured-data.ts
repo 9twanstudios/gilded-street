@@ -21,7 +21,7 @@ export const orgLd = () => ({
   },
   sameAs: [
     "https://www.tiktok.com/@91fitz",
-    "https://www.instagram.com/91fitz",
+    "https://www.instagram.com/sipajuice",
   ],
 });
 

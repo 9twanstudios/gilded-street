@@ -52,7 +52,7 @@ export function StoreFooter() {
           <div>
             <h4 className="font-display font-bold uppercase tracking-wider text-sm text-foreground mb-4">Connect</h4>
             <SocialLinks
-              socials={{ instagram: "91fitz", tiktok: "91fitz", x: "91fitz", whatsapp: "254769254086" }}
+              socials={{ instagram: "sipajuice", tiktok: "91fitz", x: "91fitz", whatsapp: "254769254086" }}
               className="mb-4"
             />
             <div className="flex flex-col gap-1.5 text-xs">
