@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Trash2, Plus } from "lucide-react";
+import { toast } from "sonner";
 
 export default function AdminIGEmbeds() {
   const { data: embeds = [], isLoading } = useAdminIGEmbeds();
