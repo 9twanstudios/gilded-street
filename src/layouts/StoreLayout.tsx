@@ -3,6 +3,7 @@ import { StoreFooter } from "@/components/store/StoreFooter";
 import { CartSidebar } from "@/components/store/CartSidebar";
 import { ScrollToTop } from "@/components/store/ScrollToTop";
 import { MobileBottomNav } from "@/components/store/MobileBottomNav";
+import { FloatingWhatsApp } from "@/components/store/FloatingWhatsApp";
 import { OnboardingBanner } from "@/components/OnboardingBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PageLoader } from "@/components/PageLoader";
@@ -24,6 +25,7 @@ export default function StoreLayout() {
         </ErrorBoundary>
       </main>
       <StoreFooter />
+      <FloatingWhatsApp />
       <MobileBottomNav />
     </div>
   );

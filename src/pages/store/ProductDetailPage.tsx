@@ -10,6 +10,7 @@ import { ProductGrid } from "@/components/store/ProductGrid";
 import { RelatedCarousel } from "@/components/store/RelatedCarousel";
 import { WhatsAppButton, buildProductMessage } from "@/components/store/WhatsAppButton";
 import { WishlistButton } from "@/components/store/WishlistButton";
+import { ShareButton } from "@/components/store/ShareButton";
 import { ReviewSection } from "@/components/store/ReviewSection";
 import { SizeGuideModal } from "@/components/store/SizeGuideModal";
 import { NotifyMeForm } from "@/components/store/NotifyMeForm";
@@ -142,7 +143,10 @@ export default function ProductDetailPage() {
               )}
               <p className="text-sm text-muted-foreground uppercase tracking-wider">{product.category}</p>
             </div>
-            <WishlistButton productId={product.id} size="md" />
+            <div className="flex items-center gap-3">
+              <ShareButton title={`${product.name} — 91 Fitz`} text={`Check out ${product.name} (${formatPrice(product.price)}) on 91 Fitz`} />
+              <WishlistButton productId={product.id} size="md" />
+            </div>
           </div>
           <h1 className="font-heading text-4xl md:text-5xl text-foreground mt-1 mb-4">{product.name}</h1>
 
