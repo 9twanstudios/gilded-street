@@ -35,8 +35,12 @@ export default function AdminIGEmbeds() {
             <Switch checked={draft.active ?? true} onCheckedChange={(v) => setDraft({ ...draft, active: v })} />
             <Button
               onClick={async () => {
-                if (!draft.post_url) return;
-                await upsert.mutateAsync(draft);
+                const url = (draft.post_url || "").trim();
+                if (!/^https?:\/\/(www\.)?instagram\.com\/(p|reel)\/[\w-]+\/?$/.test(url)) {
+                  toast.error("Enter a valid Instagram post or reel URL (instagram.com/p/... or /reel/...)");
+                  return;
+                }
+                await upsert.mutateAsync({ ...draft, post_url: url });
                 setDraft({ scope: "home_featured", post_url: "", caption: "", order: 0, active: true });
               }}
               className="bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider"
