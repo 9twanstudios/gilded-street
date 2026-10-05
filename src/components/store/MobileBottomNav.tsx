@@ -1,12 +1,16 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, ShoppingBag, Search, User, Sparkles } from "lucide-react";
+import { Home, ShoppingBag, Search, User, Heart } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
+import { useWishlist } from "@/hooks/use-wishlist";
 
-const navItems = [
+type NavItem = { icon: LucideIcon; label: string; to: string; isCart?: boolean; isWishlist?: boolean };
+
+const navItems: NavItem[] = [
   { icon: Home, label: "Home", to: "/" },
   { icon: Search, label: "Shop", to: "/shop" },
-  { icon: Sparkles, label: "Drops", to: "/#drops" },
+  { icon: Heart, label: "Saved", to: "/account?tab=wishlist", isWishlist: true },
   { icon: ShoppingBag, label: "Cart", to: "/cart", isCart: true },
   { icon: User, label: "Account", to: "/account" },
 ];
@@ -15,12 +19,14 @@ export function MobileBottomNav() {
   const location = useLocation();
   const { itemCount, setIsOpen } = useCart();
   const { user } = useAuth();
+  const { data: wishlist } = useWishlist();
+  const savedCount = wishlist?.length ?? 0;
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t border-border safe-area-bottom">
       <div className="flex items-center justify-around h-16">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.to;
+          const isActive = location.pathname + location.search === item.to || (item.to === "/" && location.pathname === "/");
           const Icon = item.icon;
 
           if (item.isCart) {
@@ -42,17 +48,23 @@ export function MobileBottomNav() {
             );
           }
 
-          const to = item.to === "/account" && !user ? "/auth/sign-in" : item.to;
+          const needsAuth = item.to.startsWith("/account");
+          const to = needsAuth && !user ? "/auth/sign-in" : item.to;
 
           return (
             <Link
               key={item.label}
               to={to}
-              className={`flex flex-col items-center gap-0.5 transition-colors ${
+              className={`relative flex flex-col items-center gap-0.5 transition-colors ${
                 isActive ? "text-primary" : "text-muted-foreground"
               }`}
             >
               <Icon className="h-5 w-5" />
+              {item.isWishlist && savedCount > 0 && (
+                <span className="absolute -top-1 right-0 h-4 w-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
+                  {savedCount}
+                </span>
+              )}
               <span className="text-[10px] font-display font-semibold uppercase tracking-wider">{item.label}</span>
             </Link>
           );

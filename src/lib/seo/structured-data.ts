@@ -5,10 +5,20 @@ const ORIGIN = typeof window !== "undefined" ? window.location.origin : "";
 
 export const orgLd = () => ({
   "@context": "https://schema.org",
-  "@type": "Organization",
+  "@type": ["Organization", "ClothingStore"],
   name: "91Fitz",
   url: ORIGIN || "/",
   logo: `${ORIGIN}/og-image.png`,
+  address: { "@type": "PostalAddress", addressLocality: "Nairobi", addressCountry: "KE" },
+  currenciesAccepted: "KES",
+  paymentAccepted: "M-Pesa, Card, Bank",
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: "+254769254086",
+    contactType: "customer service",
+    areaServed: "KE",
+    availableLanguage: ["English", "Swahili"],
+  },
   sameAs: [
     "https://www.tiktok.com/@91fitz",
     "https://www.instagram.com/91fitz",
