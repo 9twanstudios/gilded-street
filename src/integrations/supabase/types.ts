@@ -680,6 +680,7 @@ export type Database = {
           product_id: string | null
           quantity: number
           size: string | null
+          sku: string | null
         }
         Insert: {
           id?: string
@@ -688,6 +689,7 @@ export type Database = {
           product_id?: string | null
           quantity?: number
           size?: string | null
+          sku?: string | null
         }
         Update: {
           id?: string
@@ -696,6 +698,7 @@ export type Database = {
           product_id?: string | null
           quantity?: number
           size?: string | null
+          sku?: string | null
         }
         Relationships: [
           {
@@ -719,8 +722,11 @@ export type Database = {
           attribution: Json | null
           created_at: string
           creator_id: string | null
+          external_ref: string | null
           id: string
+          payment_method: string | null
           payment_reference: string | null
+          payment_submitted_at: string | null
           phone: string | null
           search_query: string | null
           seo_landing_page: string | null
@@ -729,13 +735,20 @@ export type Database = {
           total: number
           traffic_source: string | null
           user_id: string
+          wulfzz_idempotency_key: string | null
+          wulfzz_order_code: string | null
+          wulfzz_quoted_total: number | null
+          wulfzz_status: string | null
         }
         Insert: {
           attribution?: Json | null
           created_at?: string
           creator_id?: string | null
+          external_ref?: string | null
           id?: string
+          payment_method?: string | null
           payment_reference?: string | null
+          payment_submitted_at?: string | null
           phone?: string | null
           search_query?: string | null
           seo_landing_page?: string | null
@@ -744,13 +757,20 @@ export type Database = {
           total: number
           traffic_source?: string | null
           user_id: string
+          wulfzz_idempotency_key?: string | null
+          wulfzz_order_code?: string | null
+          wulfzz_quoted_total?: number | null
+          wulfzz_status?: string | null
         }
         Update: {
           attribution?: Json | null
           created_at?: string
           creator_id?: string | null
+          external_ref?: string | null
           id?: string
+          payment_method?: string | null
           payment_reference?: string | null
+          payment_submitted_at?: string | null
           phone?: string | null
           search_query?: string | null
           seo_landing_page?: string | null
@@ -759,6 +779,10 @@ export type Database = {
           total?: number
           traffic_source?: string | null
           user_id?: string
+          wulfzz_idempotency_key?: string | null
+          wulfzz_order_code?: string | null
+          wulfzz_quoted_total?: number | null
+          wulfzz_status?: string | null
         }
         Relationships: []
       }
@@ -806,11 +830,14 @@ export type Database = {
           original_price: number | null
           price: number
           sizes: string[]
+          sku: string | null
+          sku_variants: Json
           slug: string
           status: Database["public"]["Enums"]["product_status"]
           stock_count: number | null
           updated_at: string
           views: Json
+          wulfzz_synced_at: string | null
         }
         Insert: {
           approved?: boolean
@@ -837,11 +864,14 @@ export type Database = {
           original_price?: number | null
           price: number
           sizes?: string[]
+          sku?: string | null
+          sku_variants?: Json
           slug: string
           status?: Database["public"]["Enums"]["product_status"]
           stock_count?: number | null
           updated_at?: string
           views?: Json
+          wulfzz_synced_at?: string | null
         }
         Update: {
           approved?: boolean
@@ -868,11 +898,14 @@ export type Database = {
           original_price?: number | null
           price?: number
           sizes?: string[]
+          sku?: string | null
+          sku_variants?: Json
           slug?: string
           status?: Database["public"]["Enums"]["product_status"]
           stock_count?: number | null
           updated_at?: string
           views?: Json
+          wulfzz_synced_at?: string | null
         }
         Relationships: [
           {
