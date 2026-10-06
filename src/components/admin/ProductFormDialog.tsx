@@ -41,6 +41,7 @@ const productSchema = z.object({
   stock_count: z.coerce.number().int().min(0).optional().or(z.literal("")),
   creator_id: z.string().optional(),
   drop_id: z.string().optional(),
+  sku: z.string().trim().max(60).regex(/^[A-Z0-9-]*$/, "Use letters, numbers and dashes").optional().or(z.literal("")),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -60,6 +61,7 @@ interface Product {
   in_stock: boolean;
   stock_count?: number | null;
   creator_id?: string | null;
+  sku?: string | null;
 }
 
 interface ProductFormDialogProps {
@@ -108,7 +110,7 @@ export function ProductFormDialog({ open, onOpenChange, product, creatorMode }: 
     defaultValues: {
       name: "", slug: "", description: "", price: 0, original_price: "",
       image: "", category: "", category_id: "", sizes: [], badge: "", in_stock: true,
-      stock_count: "", creator_id: "", drop_id: "",
+      stock_count: "", creator_id: "", drop_id: "", sku: "",
     },
   });
 
@@ -125,13 +127,14 @@ export function ProductFormDialog({ open, onOpenChange, product, creatorMode }: 
         stock_count: product.stock_count ?? "",
         creator_id: product.creator_id || "",
         drop_id: drops?.find((d) => (d.product_ids || []).includes(product.id))?.id || "",
+        sku: product.sku || "",
       });
       setImagePreview(product.image);
     } else if (open) {
       form.reset({
         name: "", slug: "", description: "", price: 0, original_price: "",
         image: "", category: "", category_id: "", sizes: [], badge: "", in_stock: true,
-        stock_count: "", creator_id: "", drop_id: "",
+        stock_count: "", creator_id: "", drop_id: "", sku: "",
       });
       setImagePreview("");
     }
@@ -193,6 +196,9 @@ export function ProductFormDialog({ open, onOpenChange, product, creatorMode }: 
       if (payload.stock_count === 0) payload.in_stock = false;
     }
     if (!creatorMode) {
+      const sku = (values.sku || "").trim().toUpperCase();
+      payload.sku = sku || null;
+      payload.sku_variants = sku ? Object.fromEntries(values.sizes.map((s) => [s, `${sku}-${s.toUpperCase()}`])) : {};
       payload.creator_id = values.creator_id && values.creator_id !== "house" ? values.creator_id : null;
       if (!isEdit) { payload.status = "approved"; payload.approved = true; }
     }
@@ -411,6 +417,19 @@ export function ProductFormDialog({ open, onOpenChange, product, creatorMode }: 
                 <FormMessage />
               </FormItem>
             )} />
+
+            {!creatorMode && (
+              <FormField control={form.control} name="sku" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">Wulfzzbyte SKU</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. HOODIE-BLK" className="bg-background border-border uppercase" {...field} value={field.value ?? ""} onChange={(e) => field.onChange(e.target.value.toUpperCase())} />
+                  </FormControl>
+                  <p className="text-xs text-muted-foreground">Sizes become HOODIE-BLK-S, HOODIE-BLK-M… Price syncs from Wulfzzbyte.</p>
+                  <FormMessage />
+                </FormItem>
+              )} />
+            )}
 
             {!creatorMode && (
               <FormField control={form.control} name="creator_id" render={({ field }) => (
