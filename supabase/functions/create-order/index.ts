@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { wulfzz, wulfzzConfigured } from "../_shared/wulfzzbyte.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -30,7 +31,7 @@ Deno.serve(async (req) => {
     const admin = createClient(url, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const ids = [...new Set(items.map((i) => i.product_id))];
     const { data: products, error: pErr } = await admin
-      .from("products").select("id,name,price,sizes,stock_count,in_stock,approved").in("id", ids);
+      .from("products").select("id,name,price,sizes,stock_count,in_stock,approved,sku,sku_variants").in("id", ids);
     if (pErr) throw pErr;
     const map = new Map((products ?? []).map((p: any) => [p.id, p]));
 
@@ -47,14 +48,17 @@ Deno.serve(async (req) => {
       if (p.stock_count != null && qtyById[p.id] > p.stock_count) return json({ error: `Only ${p.stock_count} left of ${p.name}` }, 400);
       const price = Math.round(Number(p.price));
       total += price * qty;
-      rows.push({ product_id: p.id, quantity: qty, size: it.size ?? null, price_at_time: price });
+      const sku = (it.size && p.sku_variants?.[it.size]) || p.sku || null;
+      rows.push({ product_id: p.id, quantity: qty, size: it.size ?? null, price_at_time: price, sku });
     }
 
     const a = body?.attribution ?? {};
+    const idem = crypto.randomUUID();
     const { data: order, error: oErr } = await admin.from("orders").insert({
       user_id: user.id, total, shipping_address: address, phone, status: "pending",
       attribution: a, traffic_source: a.traffic_source ?? "direct",
       seo_landing_page: a.landing ?? null, search_query: a.search_query ?? null,
+      wulfzz_idempotency_key: idem,
     }).select("id,total").single();
     if (oErr) throw oErr;
 
@@ -63,7 +67,50 @@ Deno.serve(async (req) => {
       await admin.from("orders").delete().eq("id", order.id);
       throw iErr;
     }
-    return json({ order_id: order.id, total: order.total });
+
+    // Relay to Wulfzzbyte (source of truth for fulfilment + pricing).
+    const externalRef = `9F-${order.id.replace(/-/g, "").slice(0, 8).toUpperCase()}`;
+    let finalTotal = order.total as number;
+    let orderCode: string | null = null;
+    const allSkus = rows.every((r) => r.sku);
+    if (wulfzzConfigured() && allSkus) {
+      try {
+        const { data: prof } = await admin.from("profiles").select("full_name,display_name,email").eq("id", user.id).maybeSingle();
+        const e164 = phone.startsWith("+") ? phone : phone.startsWith("254") ? `+${phone}` : `+254${phone.slice(1)}`;
+        const r = await wulfzz("/orders", {
+          method: "POST", idempotencyKey: idem,
+          body: {
+            external_ref: externalRef,
+            items: rows.map((x) => ({ sku: x.sku, quantity: x.quantity })),
+            customer: {
+              name: prof?.display_name || prof?.full_name || user.email?.split("@")[0] || "Customer",
+              phone: e164, email: prof?.email ?? user.email ?? undefined,
+              delivery: { address, notes: String(body?.delivery_notes ?? "").slice(0, 300) || undefined },
+            },
+            notes: "9twanfitz web store order",
+          },
+        });
+        if (r.ok && r.data?.order_code) {
+          orderCode = String(r.data.order_code);
+          const q = Math.round(Number(r.data.quoted_total));
+          if (Number.isFinite(q) && q > 0) finalTotal = q;
+          await admin.from("orders").update({
+            external_ref: externalRef, wulfzz_order_code: orderCode, wulfzz_quoted_total: finalTotal,
+            total: finalTotal, wulfzz_status: "created",
+          }).eq("id", order.id);
+        } else {
+          console.error("wulfzz order relay", r.status, r.data);
+          await admin.from("orders").update({ external_ref: externalRef, wulfzz_status: `relay_failed_${r.status}` }).eq("id", order.id);
+        }
+      } catch (err) {
+        console.error("wulfzz order relay error", err);
+        await admin.from("orders").update({ external_ref: externalRef, wulfzz_status: "relay_error" }).eq("id", order.id);
+      }
+    } else {
+      await admin.from("orders").update({ external_ref: externalRef, wulfzz_status: allSkus ? "not_configured" : "missing_sku" }).eq("id", order.id);
+    }
+
+    return json({ order_id: order.id, total: finalTotal, order_code: orderCode, external_ref: externalRef });
   } catch (e) {
     console.error("create-order", e);
     return json({ error: "Could not place order. Please try again." }, 500);
