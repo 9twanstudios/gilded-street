@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { WhatsAppButton, buildOrderMessage } from "@/components/store/WhatsAppButton";
-import { CheckCircle, CreditCard } from "lucide-react";
+import { CheckCircle, CreditCard, Smartphone } from "lucide-react";
 import { track } from "@/lib/tracking";
 import { readAttribution } from "@/lib/attribution";
 import { getProvider } from "@/lib/upal";
@@ -176,21 +176,34 @@ export default function CheckoutPage() {
               <Label className="text-muted-foreground">Address</Label>
               <Input name="address" required className="bg-input border-border text-foreground focus:border-primary" />
             </div>
+            <div>
+              <Label className="text-muted-foreground">Delivery notes (optional)</Label>
+              <Input name="notes" maxLength={300} placeholder="e.g. Leave at reception" className="bg-input border-border text-foreground focus:border-primary" />
+            </div>
           </div>
 
           <div className="bg-card rounded-lg border border-border p-6">
             <h2 className="font-display font-bold uppercase tracking-wider text-foreground mb-4">Payment Method</h2>
-            <div className="space-y-3">
-              <button
-                type="button"
-                                className={`w-full flex items-center gap-3 p-4 rounded-lg border transition-all border-primary bg-primary/10`}
-              >
-                <CreditCard className="h-5 w-5 text-primary" />
-                <div className="text-left">
-                  <p className="text-sm font-display font-bold text-foreground">Pesapal</p>
-                  <p className="text-xs text-muted-foreground">M-Pesa, Card, or Bank</p>
-                </div>
-              </button>
+            <div className="space-y-3" role="radiogroup" aria-label="Payment method">
+              {([
+                { id: "pesapal", title: "Pesapal", sub: "M-Pesa, Card, or Bank", Icon: CreditCard },
+                { id: "mpesa", title: "M-Pesa Till", sub: "Pay directly, then enter your M-Pesa code", Icon: Smartphone },
+              ] as const).map(({ id, title, sub, Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="radio"
+                  aria-checked={payMethod === id}
+                  onClick={() => setPayMethod(id)}
+                  className={`w-full flex items-center gap-3 p-4 rounded-lg border transition-all ${payMethod === id ? "border-primary bg-primary/10" : "border-border"}`}
+                >
+                  <Icon className="h-5 w-5 text-primary" />
+                  <div className="text-left">
+                    <p className="text-sm font-display font-bold text-foreground">{title}</p>
+                    <p className="text-xs text-muted-foreground">{sub}</p>
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
 
@@ -200,7 +213,7 @@ export default function CheckoutPage() {
             disabled={loading || !user}
             className="w-full bg-primary text-primary-foreground font-display font-bold uppercase tracking-wider hover:bg-gold-dark shadow-gold hover:shadow-gold-lg transition-all duration-300"
           >
-            {loading ? "Processing..." : `Pay ${formatPrice(total)} via M-Pesa / Pesapal`}
+            {loading ? "Processing..." : payMethod === "mpesa" ? `Place Order · ${formatPrice(total)}` : `Pay ${formatPrice(total)} via Pesapal`}
           </Button>
 
           <div className="text-center text-xs text-muted-foreground uppercase tracking-wider font-display">or</div>
