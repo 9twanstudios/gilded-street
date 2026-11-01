@@ -20,4 +20,4 @@ Disallow: /checkout
 Disallow: /auth/
 Disallow: /onboarding/
 
-Sitemap: https://91fitz.com/sitemap.xml
+Sitemap: https://gold-street-hub.lovable.app/sitemap.xml

@@ -140,14 +140,14 @@ export default function ProductsPage() {
       </Helmet>
 
       <h1 className="font-heading text-5xl md:text-6xl text-gold-gradient mb-6">
-        {badgeFilter ? `${badgeFilter} Drops` : "Shop"}
+        {badgeFilter ? `${badgeFilter} Drops` : "Shop 91 Fitz Streetwear"}
       </h1>
 
       <div className="flex gap-3 mb-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-surface border-border text-foreground placeholder:text-muted-foreground focus:border-primary" />
-          {search && <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>}
+          {search && <button aria-label="Clear search" onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>}
         </div>
         <button onClick={() => setShowFilters(!showFilters)} className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-display font-semibold uppercase tracking-wider transition-all duration-200 ${showFilters || activeFilterCount > 0 ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary hover:text-primary"}`}>
           <SlidersHorizontal className="h-4 w-4" /> Filters

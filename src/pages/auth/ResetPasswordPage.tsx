@@ -56,7 +56,7 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/">
-            <span className="font-heading text-5xl text-gold-gradient tracking-wider">91FITZ</span>
+            <h1 className="font-heading text-5xl text-gold-gradient tracking-wider">91FITZ<span className="sr-only"> — Choose a new password</span></h1>
           </Link>
           <p className="text-muted-foreground mt-2 font-display uppercase tracking-wider text-sm">Set new password</p>
         </div>

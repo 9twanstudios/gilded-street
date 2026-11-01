@@ -45,15 +45,15 @@ export default function CartPage() {
                   <p className="text-primary font-heading text-lg mt-1">{formatPrice(item.product.price * item.quantity)}</p>
                 </div>
                 <div className="flex flex-col items-end justify-between">
-                  <button onClick={() => removeItem(item.product.id, item.size)} className="text-muted-foreground hover:text-destructive transition-colors">
+                  <button aria-label={`Remove ${item.product.name} (size ${item.size}) from cart`} onClick={() => removeItem(item.product.id, item.size)} className="text-muted-foreground hover:text-destructive transition-colors">
                     <Trash2 className="h-4 w-4" />
                   </button>
                   <div className="flex items-center gap-2 bg-surface rounded">
-                    <button onClick={() => updateQuantity(item.product.id, item.size, item.quantity - 1)} className="p-1.5 text-muted-foreground hover:text-foreground">
+                    <button aria-label={`Decrease quantity of ${item.product.name}`} onClick={() => updateQuantity(item.product.id, item.size, item.quantity - 1)} className="p-1.5 text-muted-foreground hover:text-foreground">
                       <Minus className="h-3 w-3" />
                     </button>
                     <span className="text-sm font-display font-bold text-foreground w-6 text-center">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.product.id, item.size, item.quantity + 1)} className="p-1.5 text-muted-foreground hover:text-foreground">
+                    <button aria-label={`Increase quantity of ${item.product.name}`} onClick={() => updateQuantity(item.product.id, item.size, item.quantity + 1)} className="p-1.5 text-muted-foreground hover:text-foreground">
                       <Plus className="h-3 w-3" />
                     </button>
                   </div>
