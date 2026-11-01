@@ -26,7 +26,7 @@ export function ContactPage() {
     <p>WhatsApp: <a className="text-primary" href="https://wa.me/254769254086">+254 769 254 086</a></p>
     <p>Email: <a className="text-primary" href="mailto:hello@91fitz.com">hello@91fitz.com</a></p>
     <p>Press / partnerships: <a className="text-primary" href="mailto:press@91fitz.com">press@91fitz.com</a></p>
-    <p>Creator applications: <Link className="text-primary" to="/onboarding/creator">apply here</Link>.</p>
+    <p>Creator applications: <Link className="text-primary" to="/onboarding/creator">Apply to become a creator</Link>.</p>
   </Shell>;
 }
 
@@ -65,11 +65,11 @@ export function TermsPage() {
 
 export function FaqPage() {
   return <Shell title="FAQ" description="Common questions about drops, sizing, payment, returns, and the 91Fitz creator program.">
-    <h3 className="font-display font-bold text-foreground">When do drops go live?</h3>
+    <h2 className="font-display font-bold text-foreground">When do drops go live?</h2>
     <p>Drops launch on the date and time posted on the drop page. Most launch 18:00 EAT Friday.</p>
-    <h3 className="font-display font-bold text-foreground">What's the creator split?</h3>
+    <h2 className="font-display font-bold text-foreground">What's the creator split?</h2>
     <p>90% to the creator, 10% to platform. Settlement is nightly to your wallet.</p>
-    <h3 className="font-display font-bold text-foreground">Do you ship internationally?</h3>
+    <h2 className="font-display font-bold text-foreground">Do you ship internationally?</h2>
     <p>Yes. DHL Worldwide is available at checkout.</p>
   </Shell>;
 }

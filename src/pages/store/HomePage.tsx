@@ -81,6 +81,7 @@ export default function HomePage() {
         <meta property="og:description" content="Limited drops, premium hoodies Kenya. Bold streetwear from Nairobi." />
       </Helmet>
 
+      <h1 className="sr-only">91 Fitz — Pan-African Streetwear from Nairobi</h1>
       <AnimeSpotlightHero slides={slides} />
 
       <div id="drops" className="scroll-mt-20">
