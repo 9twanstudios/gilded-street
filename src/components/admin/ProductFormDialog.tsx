@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCategories, generateSlug } from "@/hooks/use-products";
 import { useAuth } from "@/hooks/use-auth";
+import { uploadImage } from "@/components/shared/MediaUploader";
 import { toast } from "sonner";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import {
@@ -150,20 +151,10 @@ export function ProductFormDialog({ open, onOpenChange, product, creatorMode }: 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/")) { toast.error("Please select an image file"); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
-
     setUploading(true);
-    const ext = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-
-    const { error } = await supabase.storage
-      .from("product-images")
-      .upload(fileName, file, { cacheControl: "3600", upsert: false });
-
-    if (error) { toast.error(`Upload failed: ${error.message}`); setUploading(false); return; }
-
-    const publicUrl = getPublicUrl(fileName);
+    let publicUrl: string;
+    try { publicUrl = await uploadImage(file, "products"); }
+    catch (err) { toast.error(err instanceof Error ? err.message : "Upload failed"); setUploading(false); return; }
     form.setValue("image", publicUrl, { shouldValidate: true });
     setImagePreview(publicUrl);
     setUploading(false);

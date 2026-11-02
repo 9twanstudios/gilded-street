@@ -9,12 +9,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { DeleteConfirmDialog } from "@/components/admin/DeleteConfirmDialog";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
+import { MediaUploader } from "@/components/shared/MediaUploader";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function AdminDrops() {
   const { data: drops, isLoading } = useDrops();
   const createDrop = useCreateDrop();
   const updateDrop = useUpdateDrop();
   const deleteDrop = useDeleteDrop();
+  const { data: products } = useQuery({
+    queryKey: ["admin-drop-products"],
+    queryFn: async () => (await supabase.from("products").select("id,name,image").order("created_at", { ascending: false })).data ?? [],
+  });
   const [editDrop, setEditDrop] = useState<Drop | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -94,7 +102,19 @@ export default function AdminDrops() {
               <Input placeholder="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value, slug: generateSlug(e.target.value) })} required className="bg-surface border-border" />
               <Input placeholder="Slug" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="bg-surface border-border" />
               <Textarea placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="bg-surface border-border" rows={3} />
-              <Input placeholder="Cover Image URL" value={form.cover_image} onChange={(e) => setForm({ ...form, cover_image: e.target.value })} className="bg-surface border-border" />
+              <MediaUploader value={form.cover_image} onChange={(url) => setForm({ ...form, cover_image: url })} folder="drops" label="Drop cover" />
+              <div>
+                <p className="mb-2 text-xs font-display uppercase tracking-wider text-muted-foreground">Merch in this drop ({form.product_ids.length})</p>
+                <div className="max-h-44 space-y-1 overflow-y-auto rounded border border-border p-2">
+                  {(products ?? []).map((p) => (
+                    <label key={p.id} className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
+                      <Checkbox checked={form.product_ids.includes(p.id)} onCheckedChange={(c) => setForm({ ...form, product_ids: c ? [...form.product_ids, p.id] : form.product_ids.filter((x) => x !== p.id) })} />
+                      <img src={p.image} alt="" className="h-7 w-7 rounded object-cover" />
+                      <span className="truncate">{p.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
               <Input type="datetime-local" value={form.drop_date} onChange={(e) => setForm({ ...form, drop_date: e.target.value })} required className="bg-surface border-border" />
               <div className="flex items-center gap-2">
                 <Switch checked={form.active} onCheckedChange={(checked) => setForm({ ...form, active: checked })} />
