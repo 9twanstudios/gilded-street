@@ -74,9 +74,6 @@ interface ProductFormDialogProps {
 
 const SUPABASE_URL = "https://virdfjjqohgrnsxkkmsl.supabase.co";
 
-function getPublicUrl(path: string) {
-  return `${SUPABASE_URL}/storage/v1/object/public/product-images/${path}`;
-}
 
 export function ProductFormDialog({ open, onOpenChange, product, creatorMode }: ProductFormDialogProps) {
   const queryClient = useQueryClient();
