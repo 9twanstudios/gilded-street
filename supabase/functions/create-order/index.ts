@@ -1,5 +1,4 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
-import { wulfzz, wulfzzConfigured } from "../_shared/wulfzzbyte.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -53,12 +52,10 @@ Deno.serve(async (req) => {
     }
 
     const a = body?.attribution ?? {};
-    const idem = crypto.randomUUID();
     const { data: order, error: oErr } = await admin.from("orders").insert({
       user_id: user.id, total, shipping_address: address, phone, status: "pending",
       attribution: a, traffic_source: a.traffic_source ?? "direct",
       seo_landing_page: a.landing ?? null, search_query: a.search_query ?? null,
-      wulfzz_idempotency_key: idem,
     }).select("id,total").single();
     if (oErr) throw oErr;
 
@@ -68,49 +65,10 @@ Deno.serve(async (req) => {
       throw iErr;
     }
 
-    // Relay to Wulfzzbyte (source of truth for fulfilment + pricing).
     const externalRef = `9F-${order.id.replace(/-/g, "").slice(0, 8).toUpperCase()}`;
-    let finalTotal = order.total as number;
-    let orderCode: string | null = null;
-    const allSkus = rows.every((r) => r.sku);
-    if (wulfzzConfigured() && allSkus) {
-      try {
-        const { data: prof } = await admin.from("profiles").select("full_name,display_name,email").eq("id", user.id).maybeSingle();
-        const e164 = phone.startsWith("+") ? phone : phone.startsWith("254") ? `+${phone}` : `+254${phone.slice(1)}`;
-        const r = await wulfzz("/orders", {
-          method: "POST", idempotencyKey: idem,
-          body: {
-            external_ref: externalRef,
-            items: rows.map((x) => ({ sku: x.sku, quantity: x.quantity })),
-            customer: {
-              name: prof?.display_name || prof?.full_name || user.email?.split("@")[0] || "Customer",
-              phone: e164, email: prof?.email ?? user.email ?? undefined,
-              delivery: { address, notes: String(body?.delivery_notes ?? "").slice(0, 300) || undefined },
-            },
-            notes: "9twanfitz web store order",
-          },
-        });
-        if (r.ok && r.data?.order_code) {
-          orderCode = String(r.data.order_code);
-          const q = Math.round(Number(r.data.quoted_total));
-          if (Number.isFinite(q) && q > 0) finalTotal = q;
-          await admin.from("orders").update({
-            external_ref: externalRef, wulfzz_order_code: orderCode, wulfzz_quoted_total: finalTotal,
-            total: finalTotal, wulfzz_status: "created",
-          }).eq("id", order.id);
-        } else {
-          console.error("wulfzz order relay", r.status, r.data);
-          await admin.from("orders").update({ external_ref: externalRef, wulfzz_status: `relay_failed_${r.status}` }).eq("id", order.id);
-        }
-      } catch (err) {
-        console.error("wulfzz order relay error", err);
-        await admin.from("orders").update({ external_ref: externalRef, wulfzz_status: "relay_error" }).eq("id", order.id);
-      }
-    } else {
-      await admin.from("orders").update({ external_ref: externalRef, wulfzz_status: allSkus ? "not_configured" : "missing_sku" }).eq("id", order.id);
-    }
+    await admin.from("orders").update({ external_ref: externalRef }).eq("id", order.id);
 
-    return json({ order_id: order.id, total: finalTotal, order_code: orderCode, external_ref: externalRef });
+    return json({ order_id: order.id, total: order.total, order_code: externalRef, external_ref: externalRef });
   } catch (e) {
     console.error("create-order", e);
     return json({ error: "Could not place order. Please try again." }, 500);

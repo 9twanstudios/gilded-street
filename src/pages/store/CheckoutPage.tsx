@@ -77,7 +77,7 @@ export default function CheckoutPage() {
     if (!pending) return;
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("wulfzz-record-payment", {
+      const { data, error } = await supabase.functions.invoke("record-payment", {
         body: { order_id: pending.id, method: "mpesa_till", provider_reference: mpesaCode, payer_phone: pending.phone },
       });
       if (error) {
