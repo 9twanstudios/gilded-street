@@ -421,11 +421,11 @@ export function ProductFormDialog({ open, onOpenChange, product, creatorMode }: 
             {!creatorMode && (
               <FormField control={form.control} name="sku" render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Wulfzzbyte SKU</FormLabel>
+                  <FormLabel className="text-foreground">Stock code (SKU)</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g. HOODIE-BLK" className="bg-background border-border uppercase" {...field} value={field.value ?? ""} onChange={(e) => field.onChange(e.target.value.toUpperCase())} />
                   </FormControl>
-                  <p className="text-xs text-muted-foreground">Sizes become HOODIE-BLK-S, HOODIE-BLK-M… Price syncs from Wulfzzbyte.</p>
+                  <p className="text-xs text-muted-foreground">Optional internal code. Sizes become HOODIE-BLK-S, HOODIE-BLK-M…</p>
                   <FormMessage />
                 </FormItem>
               )} />
