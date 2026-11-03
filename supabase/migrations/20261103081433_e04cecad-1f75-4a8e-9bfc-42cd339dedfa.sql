@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.validate_withdrawal_request(), public.enforce_product_moderation() FROM PUBLIC, anon, authenticated;
