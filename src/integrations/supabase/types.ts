@@ -491,50 +491,65 @@ export type Database = {
       fits: {
         Row: {
           body_type: string | null
+          caption: string | null
           cover_image: string | null
           created_at: string
           environment: string | null
+          estate: string | null
           featured: boolean
           id: string
           items: Json
           likes_count: number
+          media_type: string
           model: string
           name: string
+          product_ids: string[]
           render_url: string | null
           updated_at: string
           user_id: string
+          vibe: string | null
           visibility: string
         }
         Insert: {
           body_type?: string | null
+          caption?: string | null
           cover_image?: string | null
           created_at?: string
           environment?: string | null
+          estate?: string | null
           featured?: boolean
           id?: string
           items?: Json
           likes_count?: number
+          media_type?: string
           model?: string
           name?: string
+          product_ids?: string[]
           render_url?: string | null
           updated_at?: string
           user_id: string
+          vibe?: string | null
           visibility?: string
         }
         Update: {
           body_type?: string | null
+          caption?: string | null
           cover_image?: string | null
           created_at?: string
           environment?: string | null
+          estate?: string | null
           featured?: boolean
           id?: string
           items?: Json
           likes_count?: number
+          media_type?: string
           model?: string
           name?: string
+          product_ids?: string[]
           render_url?: string | null
           updated_at?: string
           user_id?: string
+          vibe?: string | null
           visibility?: string
         }
         Relationships: []
@@ -1576,6 +1591,10 @@ export type Database = {
         Args: { _brand_name?: string; _enable: boolean; _user_id: string }
         Returns: undefined
       }
+      decide_withdrawal: {
+        Args: { _approve: boolean; _id: string; _note?: string }
+        Returns: undefined
+      }
       generate_referral_code: { Args: never; Returns: string }
       has_role: {
         Args: {
@@ -1592,6 +1611,12 @@ export type Database = {
           _target_type?: string
         }
         Returns: string
+      }
+      release_stock: { Args: { _order_id: string }; Returns: undefined }
+      reserve_stock: { Args: { _items: Json }; Returns: undefined }
+      settle_order_payment: {
+        Args: { _paid: boolean; _tracking_id: string }
+        Returns: Json
       }
     }
     Enums: {
