@@ -121,6 +121,5 @@ export function useAllWithdrawals() {
   });
 }
 
-export function formatKES(amount: number) {
-  return `KES ${(amount / 100).toLocaleString("en-KE", { minimumFractionDigits: 0 })}`;
-}
+// Wallets, ledger and withdrawals use whole KES like everything else.
+export { formatKES } from "@/lib/format";

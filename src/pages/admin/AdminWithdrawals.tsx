@@ -10,13 +10,12 @@ export default function AdminWithdrawals() {
   const { data: withdrawals, isLoading } = useAllWithdrawals();
   const queryClient = useQueryClient();
 
+  // Server decides: checks balance, debits wallet, writes ledger + audit log atomically.
   const updateStatus = async (id: string, status: "approved" | "rejected", admin_note?: string) => {
-    const { error } = await supabase
-      .from("withdrawals")
-      .update({ status, admin_note: admin_note || null, processed_at: new Date().toISOString() } as any)
-      .eq("id", id);
+    const { error } = await (supabase.rpc as any)("decide_withdrawal", {
+      _id: id, _approve: status === "approved", _note: admin_note || null,
+    });
     if (error) { toast.error(error.message); return; }
-    logAdminAction(status === "approved" ? "withdrawal.approved" : "withdrawal.rejected", id);
     toast.success(`Withdrawal ${status}`);
     queryClient.invalidateQueries({ queryKey: ["admin-withdrawals"] });
   };

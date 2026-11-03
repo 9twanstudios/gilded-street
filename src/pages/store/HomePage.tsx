@@ -36,11 +36,13 @@ export default function HomePage() {
     const creator = Object.values(creators ?? {}).find((c) => c.verified) ?? Object.values(creators ?? {})[0];
     if (creator) {
       const cp = list.find((p) => p.creator_id === creator.user_id);
-      out.push({ id: `creator-${creator.id}`, kicker: "職人 // Featured Creator", title: creator.brand_name, subtitle: creator.bio, image: cp?.image ?? creator.logo_url, cta: { label: "Visit Store", to: `/creator/${creator.id}` } });
+      // Storefront routes are keyed by the creator's user id (products.creator_id).
+      out.push({ id: `creator-${creator.id}`, kicker: "職人 // Featured Creator", title: creator.brand_name, subtitle: creator.bio, image: cp?.image ?? creator.logo_url, cta: { label: "Visit Store", to: `/creator/${creator.user_id}` } });
     }
-    // Cycle through every live product, newest first.
+    out.push({ id: "fitcheck", kicker: "着こなし // FitCheck", title: "See it styled", subtitle: "Real fits from Nairobi creators — tap any look to shop it.", image: list[0]?.image ?? null, cta: { label: "Open FitCheck", to: "/fitcheck" } });
+    // Editorial cap: max 5 slides — fill the rest with the newest products.
     const weekAgo = now - 7 * 864e5;
-    for (const p of list) {
+    for (const p of list.slice(0, Math.max(0, 5 - out.length))) {
       const badge = p.badge?.toLowerCase();
       const kicker = badge && ["hot", "limited"].includes(badge)
         ? "熱狂 // Trending"
