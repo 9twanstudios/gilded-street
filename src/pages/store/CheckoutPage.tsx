@@ -104,7 +104,7 @@ export default function CheckoutPage() {
         {pending.code && <p className="text-sm text-muted-foreground mb-1">Order <span className="text-primary font-bold">{pending.code}</span></p>}
         <p className="text-muted-foreground mb-8">Amount due: <span className="text-foreground font-bold">{formatPrice(pending.total)}</span></p>
         {paySubmitted ? (
-          <p className="text-foreground mb-8">Payment received — pending confirmation by our dispatch team. We'll update you on WhatsApp.</p>
+          <p className="text-foreground mb-8">M-Pesa code received — our team will verify the payment before dispatch. We'll update you on WhatsApp.</p>
         ) : pending.code ? (
           <form onSubmit={submitPayment} className="space-y-4 text-left mb-8">
             <Label className="text-muted-foreground">Pay via M-Pesa, then enter the confirmation code</Label>

@@ -46,9 +46,11 @@ export function useProducts() {
   return useQuery({
     queryKey: ["products"],
     queryFn: async () => {
+      // Public visibility contract: only approved products appear on any storefront surface.
       const { data, error } = await supabase
         .from("products")
         .select("*")
+        .eq("status", "approved")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Product[];

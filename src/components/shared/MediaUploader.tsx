@@ -14,7 +14,9 @@ export async function uploadImage(file: File, folder = "media"): Promise<string>
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Sign in to upload");
   const ext = file.type.split("/")[1].replace("jpeg", "jpg");
-  const path = `${user.id}/${folder}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
+  // Storage policy contract: <profiles|fits|creators>/<uid>/<file>. Merch & drop art live under creators/.
+  const root = ["profiles", "fits", "creators"].includes(folder) ? folder : "creators";
+  const path = `${root}/${user.id}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
   const { error } = await supabase.storage.from("product-images").upload(path, file, { cacheControl: "31536000", upsert: false });
   if (error) throw error;
   return supabase.storage.from("product-images").getPublicUrl(path).data.publicUrl;
