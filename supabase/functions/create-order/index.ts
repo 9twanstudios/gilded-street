@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
     const admin = createClient(url, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const ids = [...new Set(items.map((i) => i.product_id))];
     const { data: products, error: pErr } = await admin
-      .from("products").select("id,name,price,sizes,stock_count,in_stock,approved,sku,sku_variants").in("id", ids);
+      .from("products").select("id,name,price,sizes,stock_count,in_stock,approved,status,creator_id,sku,sku_variants").in("id", ids);
     if (pErr) throw pErr;
     const map = new Map((products ?? []).map((p: any) => [p.id, p]));
 
@@ -51,16 +51,34 @@ Deno.serve(async (req) => {
       rows.push({ product_id: p.id, quantity: qty, size: it.size ?? null, price_at_time: price, sku });
     }
 
+    // Atomically reserve stock before creating the order (prevents overselling).
+    const { error: rErr } = await admin.rpc("reserve_stock", {
+      _items: rows.map((r) => ({ product_id: r.product_id, quantity: r.quantity })),
+    });
+    if (rErr) {
+      const pid = String(rErr.message).split("OUT_OF_STOCK:")[1];
+      const name = pid ? (map.get(pid.trim()) as any)?.name : null;
+      return json({ error: `${name ?? "An item"} just sold out` }, 409);
+    }
+
+    // Single-creator carts attribute the sale to that creator for the 90/10 split.
+    const creatorIds = [...new Set((products ?? []).map((p: any) => p.creator_id).filter(Boolean))];
+    const creator_id = creatorIds.length === 1 && (products ?? []).every((p: any) => p.creator_id) ? creatorIds[0] : null;
+
     const a = body?.attribution ?? {};
     const { data: order, error: oErr } = await admin.from("orders").insert({
-      user_id: user.id, total, shipping_address: address, phone, status: "pending",
+      user_id: user.id, total, shipping_address: address, phone, status: "pending", creator_id,
       attribution: a, traffic_source: a.traffic_source ?? "direct",
       seo_landing_page: a.landing ?? null, search_query: a.search_query ?? null,
     }).select("id,total").single();
-    if (oErr) throw oErr;
+    if (oErr) {
+      await releaseRows(admin, rows);
+      throw oErr;
+    }
 
     const { error: iErr } = await admin.from("order_items").insert(rows.map((r) => ({ ...r, order_id: order.id })));
     if (iErr) {
+      await releaseRows(admin, rows);
       await admin.from("orders").delete().eq("id", order.id);
       throw iErr;
     }
