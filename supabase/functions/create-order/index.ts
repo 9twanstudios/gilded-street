@@ -7,6 +7,13 @@ const cors = {
 const json = (b: unknown, s = 200) =>
   new Response(JSON.stringify(b), { status: s, headers: { ...cors, "Content-Type": "application/json" } });
 
+async function releaseRows(admin: any, rows: any[]) {
+  for (const r of rows) {
+    const { data } = await admin.from("products").select("stock_count").eq("id", r.product_id).single();
+    if (data?.stock_count != null) await admin.from("products").update({ stock_count: data.stock_count + r.quantity, in_stock: true }).eq("id", r.product_id);
+  }
+}
+
 const PHONE_RE = /^(\+?254|0)(7|1)\d{8}$/;
 
 Deno.serve(async (req) => {
@@ -40,7 +47,7 @@ Deno.serve(async (req) => {
     for (const it of items) {
       const p: any = map.get(it.product_id);
       const qty = Math.floor(Number(it.quantity));
-      if (!p || !p.approved || p.in_stock === false) return json({ error: `${p?.name ?? "An item"} is unavailable` }, 400);
+      if (!p || p.status !== "approved" || p.in_stock === false) return json({ error: `${p?.name ?? "An item"} is unavailable` }, 400);
       if (!(qty >= 1 && qty <= 20)) return json({ error: "Invalid quantity" }, 400);
       if (p.sizes?.length && it.size && !p.sizes.includes(it.size)) return json({ error: `Size ${it.size} not available for ${p.name}` }, 400);
       qtyById[p.id] = (qtyById[p.id] ?? 0) + qty;
