@@ -80,7 +80,7 @@ export function AnimeSpotlightHero({ slides }: { slides: SpotlightSlide[] }) {
             className="max-w-xl"
           >
             <p className="text-neon font-display font-bold uppercase tracking-[0.35em] text-xs mb-3">{s.kicker}</p>
-            <h1 className="font-heading text-5xl sm:text-7xl md:text-8xl text-gold-gradient leading-none mb-4">{s.title}</h1>
+            <h2 className="font-heading text-5xl sm:text-7xl md:text-8xl text-gold-gradient leading-none mb-4">{s.title}</h2>
             {s.subtitle && <p className="text-foreground/80 text-base md:text-lg mb-4 line-clamp-3">{s.subtitle}</p>}
             {s.price != null && <p className="font-heading text-3xl text-primary mb-4">{formatPrice(s.price)}</p>}
             <Link
