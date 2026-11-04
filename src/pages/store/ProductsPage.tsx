@@ -136,7 +136,7 @@ export default function ProductsPage() {
       <Helmet>
         <title>Shop 91 Fitz — Premium Streetwear Kenya | Hoodies, Tees, Cargo</title>
         <meta name="description" content="Browse 91 Fitz collection. Premium hoodies Kenya, streetwear tees, cargo pants. Filter by size, price, category. M-Pesa checkout. Nairobi same-day delivery." />
-        <link rel="canonical" href="https://91fitz.com/shop" />
+        <link rel="canonical" href="https://9twanfitz.vercel.app/shop" />
       </Helmet>
 
       <h1 className="font-heading text-5xl md:text-6xl text-gold-gradient mb-6">

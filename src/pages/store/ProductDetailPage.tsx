@@ -102,9 +102,9 @@ export default function ProductDetailPage() {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://91fitz.com/" },
-      { "@type": "ListItem", position: 2, name: "Shop", item: "https://91fitz.com/shop" },
-      { "@type": "ListItem", position: 3, name: product.name, item: `https://91fitz.com/products/${product.slug}` },
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://9twanfitz.vercel.app/" },
+      { "@type": "ListItem", position: 2, name: "Shop", item: "https://9twanfitz.vercel.app/shop" },
+      { "@type": "ListItem", position: 3, name: product.name, item: `https://9twanfitz.vercel.app/products/${product.slug}` },
     ],
   };
 
@@ -116,8 +116,8 @@ export default function ProductDetailPage() {
         <meta property="og:title" content={`${product.name} — 91 Fitz`} />
         <meta property="og:description" content={product.description || `Shop ${product.name} at 91 Fitz. Premium streetwear from Nairobi.`} />
         <meta property="og:image" content={product.image} />
-        <meta property="og:url" content={`https://91fitz.com/products/${product.slug}`} />
-        <link rel="canonical" href={`https://91fitz.com/products/${product.slug}`} />
+        <meta property="og:url" content={`https://9twanfitz.vercel.app/products/${product.slug}`} />
+        <link rel="canonical" href={`https://9twanfitz.vercel.app/products/${product.slug}`} />
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbLd)}</script>
       </Helmet>

@@ -47,7 +47,7 @@ export default function DropDetailPage() {
       <Helmet>
         <title>{drop.title} — 91 Fitz Drops</title>
         <meta name="description" content={drop.description || `${drop.title} drop from 91 Fitz streetwear.`} />
-        <link rel="canonical" href={`https://91fitz.com/drops/${drop.slug}`} />
+        <link rel="canonical" href={`https://9twanfitz.vercel.app/drops/${drop.slug}`} />
       </Helmet>
 
       {/* Full-bleed Hero */}
