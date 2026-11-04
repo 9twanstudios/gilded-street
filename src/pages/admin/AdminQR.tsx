@@ -16,7 +16,7 @@ export default function AdminQR() {
   const [delId, setDelId] = useState<string | null>(null);
   const [previewSlug, setPreviewSlug] = useState<string | null>(null);
 
-  const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://91fitz.com";
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://9twanfitz.vercel.app";
 
   const handleDel = async () => {
     if (!delId) return;

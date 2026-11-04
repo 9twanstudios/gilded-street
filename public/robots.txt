@@ -20,4 +20,4 @@ Disallow: /checkout
 Disallow: /auth/
 Disallow: /onboarding/
 
-Sitemap: https://gold-street-hub.lovable.app/sitemap.xml
+Sitemap: https://9twanfitz.vercel.app/sitemap.xml
