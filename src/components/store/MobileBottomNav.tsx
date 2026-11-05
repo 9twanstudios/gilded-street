@@ -53,7 +53,7 @@ export function MobileBottomNav() {
             onClick={() => setStudioOpen(true)}
             className="flex flex-1 flex-col items-center justify-center"
           >
-            <span className="-mt-6 flex h-13 w-13 items-center justify-center rounded-full border border-primary bg-background shadow-[0_0_16px_rgba(255,215,0,0.35)]">
+            <span className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full border border-primary bg-background shadow-[0_0_16px_rgba(255,215,0,0.35)]">
               <Plus className="h-6 w-6 text-primary" aria-hidden />
             </span>
             <span className="mt-0.5 text-[10px] font-display font-semibold uppercase tracking-wider text-muted-foreground">Studio</span>
