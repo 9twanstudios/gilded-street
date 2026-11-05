@@ -31,6 +31,8 @@ const CreatorsIndexPage = lazy(() => import("@/pages/store/CreatorsIndexPage"));
 
 
 const CartPage = lazy(() => import("@/pages/store/CartPage"));
+const FitCheckPage = lazy(() => import("@/pages/store/FitCheckPage"));
+const FitCheckPostPage = lazy(() => import("@/pages/store/FitCheckPostPage"));
 const QRLandingPage = lazy(() => import("@/pages/store/QRLandingPage"));
 const ReferralCapturePage = lazy(() => import("@/pages/store/ReferralCapturePage"));
 
@@ -154,9 +156,10 @@ const App = () => (
                     <Route path="/faq" element={<FaqPage />} />
                     <Route path="/sizing" element={<SizingPage />} />
                     <Route path="/track-order" element={<TrackOrderPage />} />
-                    <Route path="/fitcheck" element={<Navigate to="/shop" replace />} />
-                    <Route path="/fits" element={<Navigate to="/shop" replace />} />
-                    <Route path="/fits/:id" element={<Navigate to="/shop" replace />} />
+                    <Route path="/fitcheck" element={<FitCheckPage />} />
+                    <Route path="/fitcheck/post" element={<FitCheckPostPage />} />
+                    <Route path="/fits" element={<Navigate to="/fitcheck" replace />} />
+                    <Route path="/fits/:id" element={<Navigate to="/fitcheck" replace />} />
                   </Route>
 
                   {/* Admin (ACP) */}
