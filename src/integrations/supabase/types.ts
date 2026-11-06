@@ -844,6 +844,7 @@ export type Database = {
           narrative: string | null
           original_price: number | null
           price: number
+          search_vector: unknown
           sizes: string[]
           sku: string | null
           sku_variants: Json
@@ -878,6 +879,7 @@ export type Database = {
           narrative?: string | null
           original_price?: number | null
           price: number
+          search_vector?: unknown
           sizes?: string[]
           sku?: string | null
           sku_variants?: Json
@@ -912,6 +914,7 @@ export type Database = {
           narrative?: string | null
           original_price?: number | null
           price?: number
+          search_vector?: unknown
           sizes?: string[]
           sku?: string | null
           sku_variants?: Json
