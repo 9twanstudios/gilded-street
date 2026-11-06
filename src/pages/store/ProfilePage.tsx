@@ -19,8 +19,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import InviteTab from "@/components/store/InviteTab";
+import { useLooks } from "@/hooks/use-fitcheck";
+import { Camera, Plus } from "lucide-react";
 
-type Tab = "overview" | "edit" | "orders" | "wishlist" | "wallet" | "referrals" | "qr" | "security";
+type Tab = "looks" | "overview" | "edit" | "orders" | "wishlist" | "wallet" | "referrals" | "qr" | "security";
 
 export default function ProfilePage() {
   const { user, signOut, isCreator } = useAuth();
@@ -29,7 +31,9 @@ export default function ProfilePage() {
   const { data: orders } = useMyOrders(user?.id);
   const { data: wishlistItems } = useWishlist();
   const { data: ledger } = useLedger(user?.id);
-  const [tab, setTab] = useState<Tab>("overview");
+  const [tab, setTab] = useState<Tab>("looks");
+  const { data: myLooks } = useLooks(user?.id);
+  const bigUps = (myLooks ?? []).reduce((s, l) => s + (l.likes_count ?? 0), 0);
 
   // Edit form state
   const [displayName, setDisplayName] = useState("");
@@ -78,6 +82,7 @@ export default function ProfilePage() {
   }
 
   const tabs: { key: Tab; label: string; icon: any }[] = [
+    { key: "looks", label: "My Looks", icon: Camera },
     { key: "overview", label: "Overview", icon: UserIcon },
     { key: "edit", label: "Edit", icon: Edit3 },
     { key: "orders", label: "Orders", icon: Package },
@@ -121,6 +126,19 @@ export default function ProfilePage() {
           {username && <p className="text-muted-foreground text-sm">@{username}</p>}
           {bio && <p className="text-foreground text-sm mt-2 max-w-xl">{bio}</p>}
           <div className="mt-3"><SocialLinks socials={social} /></div>
+          <div className="mt-4 flex gap-6">
+            {[
+              { n: myLooks?.length ?? 0, l: "Looks" },
+              { n: bigUps, l: "Big Ups" },
+              { n: orders?.length ?? 0, l: "Orders" },
+              { n: wishlistItems?.length ?? 0, l: "Saved" },
+            ].map((s) => (
+              <div key={s.l}>
+                <p className="font-heading text-2xl text-primary leading-none">{s.n}</p>
+                <p className="text-[11px] font-display uppercase tracking-widest text-muted-foreground">{s.l}</p>
+              </div>
+            ))}
+          </div>
         </div>
         <div className="text-right shrink-0 space-y-3">
           {isCreator && (
@@ -139,6 +157,35 @@ export default function ProfilePage() {
           </button>
         ))}
       </div>
+
+      {tab === "looks" && (
+        <div>
+          <div className="mb-4 flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">Your fits on FitCheck. Tag merch so people can shop your look.</p>
+            <Button asChild size="sm" className="font-display font-bold uppercase tracking-wider">
+              <Link to="/fitcheck/post"><Plus className="h-4 w-4 mr-1" /> Post a Look</Link>
+            </Button>
+          </div>
+          {myLooks && myLooks.length > 0 ? (
+            <div className="grid grid-cols-3 gap-1.5 md:gap-3">
+              {myLooks.map((l) => (
+                <Link key={l.id} to="/fitcheck" className="relative aspect-[9/16] overflow-hidden rounded-md border border-border bg-card">
+                  <img src={l.cover_image ?? ""} alt={l.caption ?? l.name} loading="lazy" className="h-full w-full object-cover" />
+                  <span className="absolute bottom-1 left-1 flex items-center gap-1 rounded bg-background/80 px-1.5 py-0.5 text-[10px] font-bold text-foreground">
+                    <Heart className="h-3 w-3 text-primary" aria-hidden /> {l.likes_count}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-lg border border-dashed border-border p-10 text-center">
+              <Camera className="mx-auto h-8 w-8 text-primary" aria-hidden />
+              <p className="mt-2 font-display font-bold uppercase tracking-wider">No looks yet</p>
+              <p className="text-sm text-muted-foreground">Post your first fit and get discovered.</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {tab === "overview" && (
         <div className="grid md:grid-cols-2 gap-4">

@@ -94,7 +94,7 @@ export function useToggleLike() {
 }
 
 export function useCreateLook() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (v: { cover_image: string; caption: string; estate?: string; vibe?: string; product_ids: string[] }) => {
@@ -103,6 +103,8 @@ export function useCreateLook() {
         user_id: user.id, name: v.caption.slice(0, 80) || "FitCheck", caption: v.caption,
         cover_image: v.cover_image, estate: v.estate || null, vibe: v.vibe || null,
         product_ids: v.product_ids, visibility: "public", media_type: "image",
+        // Admin posts appear as "91 Fitz Official"; RLS only lets admins set this.
+        featured: isAdmin,
       });
       if (error) throw error;
     },
