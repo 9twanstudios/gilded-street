@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import { Heart, Loader2, Plus, Share2, ShoppingBag } from "lucide-react";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { useLooks, useLookProducts, useMyLikes, useToggleLike } from "@/hooks/use-fitcheck";
+import { useLooks, useCreatorPosters, useLookProducts, useMyLikes, useToggleLike } from "@/hooks/use-fitcheck";
 import { useAuth } from "@/hooks/use-auth";
 import type { Look } from "@/hooks/use-fitcheck";
 import { formatPrice } from "@/lib/format";
 
 /** One 9:16 look card: full-bleed media, Big Up, and Shop This Fit product chips. */
-function LookCard({ look }: { look: Look }) {
+function LookCard({ look, creatorName }: { look: Look; creatorName?: string }) {
   const [shopOpen, setShopOpen] = useState(false);
   const { user } = useAuth();
   const { data: liked } = useMyLikes();
@@ -27,6 +27,11 @@ function LookCard({ look }: { look: Look }) {
   return (
     <article className="relative aspect-[9/16] w-full overflow-hidden rounded-xl border border-border bg-card">
       <img src={look.cover_image ?? ""} alt={look.caption ?? look.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+      {(look.featured || creatorName) && (
+        <span className="absolute left-2 top-2 rounded-full border border-primary bg-background/85 px-2.5 py-1 font-display text-[10px] font-bold uppercase tracking-widest text-primary backdrop-blur">
+          {look.featured ? "91 Fitz Official" : `Creator · ${creatorName}`}
+        </span>
+      )}
       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background via-background/70 to-transparent p-3 pt-10">
         <p className="line-clamp-2 font-display text-sm font-semibold uppercase tracking-wide">{look.caption ?? look.name}</p>
         {(look.estate || look.vibe) && (
@@ -93,6 +98,7 @@ function LookCard({ look }: { look: Look }) {
 
 export default function FitCheckPage() {
   const { data: looks, isLoading } = useLooks();
+  const { data: creators } = useCreatorPosters();
 
   return (
     <div className="mx-auto max-w-xl px-4 pb-24">
@@ -130,7 +136,7 @@ export default function FitCheckPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {looks.map((look) => (
-            <LookCard key={look.id} look={look} />
+            <LookCard key={look.id} look={look} creatorName={creators?.get(look.user_id)} />
           ))}
         </div>
       )}

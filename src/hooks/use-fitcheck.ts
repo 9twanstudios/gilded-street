@@ -15,6 +15,7 @@ export interface Look {
   vibe: string | null;
   product_ids: string[];
   likes_count: number;
+  featured: boolean;
   created_at: string;
 }
 
@@ -25,7 +26,7 @@ export function useLooks(userId?: string) {
     queryKey: ["looks", userId ?? "all"],
     queryFn: async () => {
       let q = db.from("fits")
-        .select("id,user_id,name,caption,cover_image,media_type,estate,vibe,product_ids,likes_count,created_at")
+        .select("id,user_id,name,caption,cover_image,media_type,estate,vibe,product_ids,likes_count,featured,created_at")
         .eq("visibility", "public").not("cover_image", "is", null)
         .order("created_at", { ascending: false }).limit(60);
       if (userId) q = q.eq("user_id", userId);
@@ -34,6 +35,18 @@ export function useLooks(userId?: string) {
       return (data ?? []) as Look[];
     },
     refetchOnWindowFocus: true,
+  });
+}
+
+/** Map of user_id → creator brand name, used to badge creator posts in the feed. */
+export function useCreatorPosters() {
+  return useQuery({
+    queryKey: ["creator-posters"],
+    queryFn: async () => {
+      const { data } = await supabase.from("creators").select("user_id,brand_name");
+      return new Map<string, string>((data ?? []).map((c: any) => [c.user_id, c.brand_name]));
+    },
+    staleTime: 5 * 60_000,
   });
 }
 
@@ -81,7 +94,7 @@ export function useToggleLike() {
 }
 
 export function useCreateLook() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (v: { cover_image: string; caption: string; estate?: string; vibe?: string; product_ids: string[] }) => {
@@ -90,6 +103,8 @@ export function useCreateLook() {
         user_id: user.id, name: v.caption.slice(0, 80) || "FitCheck", caption: v.caption,
         cover_image: v.cover_image, estate: v.estate || null, vibe: v.vibe || null,
         product_ids: v.product_ids, visibility: "public", media_type: "image",
+        // Admin posts appear as "91 Fitz Official"; RLS only lets admins set this.
+        featured: isAdmin,
       });
       if (error) throw error;
     },
